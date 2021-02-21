@@ -1938,7 +1938,7 @@ B树(多路平衡查找树)：节点拥有的子树(度)永远比关键字的数
   - MyISAM存储引擎中有两个文件：.MYI 存储索引， .MYD存储数据
   - 搜索数据时，先从MYI文件中索引的B+树的结构中找到键值对应数据的磁盘地址
   - 再从MYD文件中找到完整数据
-  - ![image-20200917231500534](/Users/ngyb/Library/Application Support/typora-user-images/image-20200917231500534.png)
+  - ![image-20210221222230495](https://gitee.com/ngyb/pic/raw/master/image-20210221222230495.png)![image-20210221222253588](https://gitee.com/ngyb/pic/raw/master/image-20210221222253588.png)
   - MyISAM索引分为两类：主键索引、辅助(其他)索引，两者检索方式一样
 - InnoDB
   - InnoDB存储引擎中只有一个文件：.ibd，所以索引和数据放在一起
