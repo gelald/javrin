@@ -1232,6 +1232,16 @@ library:
   3. resources目录下的配置文件
 
   ![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrp5jrztj30vz0u0e2f.jpg)
+  
+  SpringBoot读取配置文件顺序
+  
+  1. bootstrap.yml
+  2. bootstrap.yaml
+  3. bootstrap.properties
+  4. nacos配置文件(如果使用nacos作为注册中心)
+  5. application.yml
+  6. application.yaml
+  7. application.properties
 
 ## SpringBoot异常处理
 
