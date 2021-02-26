@@ -1,6 +1,6 @@
-### 基本使用
+# 基本使用
 
-#### 开启SpringSecurity
+## 开启SpringSecurity
 - 继承WebSecurityConfigurerAdapter抽象类
 - 重写`protected void configure(HttpSecurity http) throws Exception`方法
     ```java
@@ -71,9 +71,9 @@
 - 当使用admin1账号时，访问两个资源都成功；当使用user1账号时，只能访问/product下的资源，访问/admin下的资源则提示没有权限
 
 
-### 核心组件
+# 核心组件
 
-#### SecurityContext
+## SecurityContext
 安全上下文，用户登录通过SpringSecurity通过验证后，验证的信息会存放在SecurityContext中
 
 ```java
@@ -90,7 +90,7 @@ public interface SecurityContext extends Serializable {
 }
 ```
 
-#### SecurityContextHolder
+## SecurityContextHolder
 - 用于持有SecurityContext实例的组件(存储SecurityContext)
 - 默认的存储的策略有三种
     - MODE_THREADLOCAL: SecurityContext存储在线程中(默认)
@@ -99,12 +99,12 @@ public interface SecurityContext extends Serializable {
     - **可以自定义存储策略,但是需要实现SecurityContextHolderStrategy接口**
 - SecurityContextHolder只需提供存储SecurityContext的存储规则,至于具体的存储方式则交由SecurityContextHolderStrategy其实现类来控制
 
-#### SecurityContextPersistenceFilter
+## SecurityContextPersistenceFilter
 SpringSecurity过滤器链上的第一个过滤器,请求的第一个过滤器,响应的最后一个过滤器
 - 请求的第一个过滤器,请求进来时会检测session中是否有SecurityContext,如果有则把SecurityContext从session中拿出来;如果没有则新建一个SecurityContext**放到线程中**
 - 响应的最后一个过滤器,响应进来时把SecurityContext从线程中拿出来,**清除线程中的SecurityContext,放入session中**
 
-#### Authentication
+## Authentication
 认证,一般用于表示当前用户,SecurityContext中使用Authentication来存储的用户验证信息
 ```java
 public interface Authentication extends Principal, Serializable {
@@ -140,7 +140,7 @@ public interface Authentication extends Principal, Serializable {
 }
 ```
 
-#### UserDetails
+## UserDetails
 存储的是用户信息
 ```java
 public interface UserDetails extends Serializable {
@@ -181,7 +181,7 @@ public interface UserDetails extends Serializable {
 }
 ```
 
-#### UserDetailsService
+## UserDetailsService
 只有一个方法,目的是获取UserDetails
 ```java
 public interface UserDetailsService {
@@ -196,7 +196,7 @@ public interface UserDetailsService {
 如果查询不到,那么可以使用提供的UsernameNotFoundExcepion`org.springframework.security.core.userdetails.UsernameNotFoundException`来抛出异常
 
 
-#### AuthenticationManager
+## AuthenticationManager
 只有一个方法,目的是检验Authentication
 ```java
 public interface AuthenticationManager {
@@ -205,3 +205,11 @@ public interface AuthenticationManager {
 ```
 检验失败时会抛出AuthenticationException异常,但是这是一个抽象类,抛出的通常是其子类
 常见的BadCredentialsException,密码错误
+
+# OAuth2
+
+# JWT
+
+随着移动互联网的兴起，传统基于session/cookie的web网站认证方式转变为了基于OAuth2等开放授权协议的单点登录模式（SSO，Single Sign On），相应的基于服务器session+浏览器cookie的Auth手段也发生了转变，Json Web Token出现成为了当前的热门的Token Auth机制
+
+JSON Web Token（JWT）是一个非常轻巧的规范。这个规范允许我们使用JWT在两个组织之间传递安全可靠的信息。
