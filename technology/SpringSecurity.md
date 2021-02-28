@@ -210,6 +210,63 @@ public interface AuthenticationManager {
 
 # JWT
 
-随着移动互联网的兴起，传统基于session/cookie的web网站认证方式转变为了基于OAuth2等开放授权协议的单点登录模式（SSO，Single Sign On），相应的基于服务器session+浏览器cookie的Auth手段也发生了转变，Json Web Token出现成为了当前的热门的Token Auth机制
+随着移动互联网的兴起，传统基于session/cookie的web网站认证方式转变为了基于OAuth2等开放授权协议的单点登录模式（SSO，Single Sign On），相应的基于服务器session+浏览器cookie的Auth手段也发生了转变，JWT(Json Web Token)的出现成为了当前的热门的Token Auth机制。JWT是一个非常轻巧的规范，这个规范允许我们使用JWT在两个组织之间传递安全可靠的信息。
 
-JSON Web Token（JWT）是一个非常轻巧的规范。这个规范允许我们使用JWT在两个组织之间传递安全可靠的信息。
+JWT(Json Web Token)有两种实现方式：JWS(Json Web Signature)与JWE(Json Web Encryption)
+
+![](https://gitee.com/ngyb/pic/raw/master/20210227182347.png)
+
+## JWS
+
+JSON Web Signature是一个**统一表达形式的字符串**
+
+![](https://gitee.com/ngyb/pic/raw/master/20210227182556.png)
+
+### Header 头部
+
+头部用于描述关于该JWT的最基本的信息，例如其类型以及签名所用的算法等。
+
+- alg：签名所用的算法
+- typ：类型
+
+JSON内容要经Base64编码生成字符串成为Header。
+
+### Payload 负载
+
+负载中有**5个内容**是由**JWT的标准来定义**的
+
+- iss：该JWT的签发者
+- sub：该JWT所面向的用户
+- aud：接受该JWT的一方
+- exp(expires)：过期时间，例子中是一个时间戳
+- iat(issued at)：签发时间
+
+负载的内容还可以**自定义追加**
+
+JSON内容要经Base64编码生成字符串成为Payload。
+
+### Signature 签名
+
+ 这个部分header与payload**通过header中声明的加密方式**，使用密钥secret进行加密，生成签名。
+
+ JWS的主要目的是保证了数据在传输过程中不被修改，验证数据的完整性。但**由于仅采用Base64对消息内容编码(header与payload)，因此不保证数据的不可泄露性，所以不适合用于传输敏感数据。**
+
+## JWE
+
+相对于JWS，**JWE则同时保证了安全性与数据完整性。**
+
+JWE由五部分组成
+
+![](https://gitee.com/ngyb/pic/raw/master/20210228102124.png)
+
+### 生成步骤
+
+1. **JOSE Header**与JWS的Header含义相同
+2. 生成一个随机的Content Encryption Key （CEK）
+3. 使用RSAES-OAEP 加密算法，用公钥加密CEK，生成**JWE Encrypted Key**
+4. 生成JWE初始化向量**Initialization Vector**
+5. 使用AES-GCM加密算法对明文部分进行加密生成密文**Ciphertext**
+6. 算法会随之生成一个128位的认证标记**Authentication Tag**
+7. 对5个部分分别进行Base64编码
+
+JWE的计算过程相对繁琐，不够轻量级，因此**适合与数据传输而非token认证**，但该协议也足够安全可靠，用简短字符串描述了传输内容，**兼顾数据的安全性与完整性**。
