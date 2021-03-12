@@ -130,7 +130,7 @@ Extensible Markup Language
 
 **操作方式**
 
-1. DOM（服务器）：将标记语言文档一次性加载进内存，在内存中形成一棵DOM树![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrtx9en0j31ry0pigws.jpg)
+1. DOM（服务器）：将标记语言文档一次性加载进内存，在内存中形成一棵DOM树![](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gfsrtx9en0j31ry0pigws.jpg)
    - 优点：操作方便，可以对文档进行crud的所有操作
    - 缺点：一次性加载，比较占内存
 2. SAX（移动端）：逐行读取，急于事件驱动。读取一行释放一行，在内存中永远只有一行

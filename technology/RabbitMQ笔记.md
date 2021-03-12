@@ -20,9 +20,9 @@
   不需要配置下游消费系统的IP地址和端口，只需要配置MQ服务器的地址；这样上游系统和下游系统的强依赖关系就被解除了。因为可以自己生产消息，自己消费消息，所以可以实现内部模块的解耦和各个系统之间的解耦
   ```
 
-  ![image-20200624155924931](https://tva1.sinaimg.cn/large/007S8ZIlgy1gg3fqvimd9j317o0ls7cg.jpg)解耦前，串行状态
+  ![image-20200624155924931](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg3fqvimd9j317o0ls7cg.jpg)解耦前，串行状态
 
-  ![image-20200624160008794](https://tva1.sinaimg.cn/large/007S8ZIlgy1gg3frlu6c5j31ci0f8dnq.jpg)
+  ![image-20200624160008794](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg3frlu6c5j31ci0f8dnq.jpg)
 
   解耦后，并行状态
 
@@ -54,7 +54,7 @@ RabbitMQ就是实现了AMQP的规范
 
 ## RabbitMQ的工作模型
 
-![image-20200624170325192](https://tva1.sinaimg.cn/large/007S8ZIlgy1gg3hlfyhhxj31sa0jsauz.jpg)
+![image-20200624170325192](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg3hlfyhhxj31sa0jsauz.jpg)
 
 - RabbitMQ服务器：Broker，工作：存储消息、转发消息
 - 生产者：Producer，工作：生产消息
@@ -74,15 +74,15 @@ RabbitMQ就是实现了AMQP的规范
 
 - direct 直连。绑定时需要制定binding key，路由消息的时候匹配路由键和绑定键
 
-  ![image-20200624221113063](https://tva1.sinaimg.cn/large/007S8ZIlgy1gg3qhpqmanj31ic0nwawk.jpg)
+  ![image-20200624221113063](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg3qhpqmanj31ic0nwawk.jpg)
 
 - topic 主题。**绑定键可以使用通配符**，*：1个单词，#：0个或多个单词。单词：由"."隔开的字符串。**如果一个消息同时符合多个主题，那么匹配的队列都会收到这个相同的消息的副本**
 
-  ![image-20200624222454887](https://tva1.sinaimg.cn/large/007S8ZIlgy1gg3qvyhleij31la0o24j9.jpg)
+  ![image-20200624222454887](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg3qvyhleij31la0o24j9.jpg)
 
 - fanout 广播。不需要使用任何绑定键， 任何发送的消息到达交换机，把消息的相同副本分发给所有跟它绑定的队列
 
-  ![image-20200624222926702](https://tva1.sinaimg.cn/large/007S8ZIlgy1gg3r0nqo8xj31ne0jqql5.jpg)
+  ![image-20200624222926702](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg3r0nqo8xj31ne0jqql5.jpg)
 
 - 使用场景
 

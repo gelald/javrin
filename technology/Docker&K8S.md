@@ -31,7 +31,7 @@
 
 每一个APP就是一个根据Image创建出来的Container，都是运行在Docker Engine之上
 
-![img](https://tva1.sinaimg.cn/large/007S8ZIlgy1ggcrlngnsij30xa0ql3z4.jpg)
+![img](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggcrlngnsij30xa0ql3z4.jpg)
 
 **虚拟机部署方式**
 
@@ -39,7 +39,7 @@ Hypervisor虚拟化技术，通常可以使用VMware来作为实现。
 
 在VMware中安装各自的操作系统，然后运行应用
 
-![img](https://tva1.sinaimg.cn/large/007S8ZIlgy1ggcrm3v2mdj30xa0qldiv.jpg)
+![img](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggcrm3v2mdj30xa0qldiv.jpg)
 
 Container：代码和依赖的集合
 
@@ -49,7 +49,7 @@ Image：Container的模板，运行时会变成Container
 
 虚拟化技术会有操作系统的支持，OS一启动会向物理机申请很多的资源，Docker的话Container需要多少，就申请多少（动态分配）
 
-结合：虚拟机+Docker![image-20200702230121622](https://tva1.sinaimg.cn/large/007S8ZIlgy1ggd0wdnzkyj319o0u0tew.jpg)
+结合：虚拟机+Docker![image-20200702230121622](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggd0wdnzkyj319o0u0tew.jpg)
 
 
 

@@ -425,7 +425,7 @@ public interface UserDao {
 
 ## 查询操作
 1. 映射文件使用`select`标签，`select`标签中的`resultType`属性指定返回的类型，方便结果集自动封装成对应对象类型
-    
+  
     ```xml
     <!--id:操作id resultType:查询到的结果集封装到这个结果类型中-->
     <select id="findAll" resultType="com.itheima.domain.User">
@@ -529,7 +529,7 @@ public void test4() throws IOException {
     
 ## environments标签
 数据库环境配置，支持多环境配置
-![](https://cdn.jsdelivr.net/gh/ng-yb/PicGo/MWeb-PIC/20200809172804.png) 
+![](https://gitee.com/ngyb/pic/raw/master/20200809172804.png) 
 事务管理器(transactionManager)类型有:
 - **JDBC** 直接使用了JDBC的提交和回滚设置，依赖于从数据源得到的连接来管理事务作用域
 - MANAGED 从来不提交或回滚一个连接，而是让容器来管理事务的整个生命周期。默认情况下会关闭连接，有些容器不希望这样，因此需要将closeConnection属性设置为false来阻止这个默认行为

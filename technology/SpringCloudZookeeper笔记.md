@@ -49,7 +49,7 @@ public class HelloController {
 
 Zookeeper存储结构
 
-![image-20200623162709638](https://tva1.sinaimg.cn/large/007S8ZIlgy1gg2axfnzi5j317k0jetca.jpg)
+![image-20200623162709638](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg2axfnzi5j317k0jetca.jpg)
 
 spring-cloud-product下面的是商品服务的集群；同一个服务名，但是有多个节点
 

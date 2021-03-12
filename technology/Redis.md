@@ -43,7 +43,7 @@
   - 获取时携带分数：`zrange key 0 -1 withscores`
   - 删除：`zrem key value`
 
-![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrojipmnj312q0tq4ha.jpg)
+![](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gfsrojipmnj312q0tq4ha.jpg)
 
 ## 通用命令
 

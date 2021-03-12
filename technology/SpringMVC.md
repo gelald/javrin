@@ -22,12 +22,12 @@ Spring提供了一个监听器`ContextLoaderListener`完成了上述功能的封
 5. 配置SpringMVC核心文件`spring-mvc.xml`配置组件扫描
 
 ## SpringMVC执行流程
-![](https://cdn.jsdelivr.net/gh/ng-yb/PicGo/MWeb-PIC/20200804161600.png)
+![](https://gitee.com/ngyb/pic/raw/master/20200804161600.png)
 绿色这一块代表DispatcherServlet，接收请求，按照资源地址分发请求到对应的Controller处
 
 # SpringMVC组件解析
 ## SpringMVC各个组件的分工
-![](https://cdn.jsdelivr.net/gh/ng-yb/PicGo/MWeb-PIC/20200804162136.png)
+![](https://gitee.com/ngyb/pic/raw/master/20200804162136.png)
 
 1. 用户从浏览器发送请求至**前端控制器DispatcherServlet**
 2. DispatcherServlet收到请求后调用**处理器映射器HandlerMapping**
@@ -82,7 +82,7 @@ Spring提供了一个监听器`ContextLoaderListener`完成了上述功能的封
 ## 页面跳转
 ### 返回字符串形式
 此种方式会将返回的字符串和视图解析器的前缀后缀拼接后进行跳转(默认的行为是转发forward，可以在字符串前面手动指定是转发或是重定向行为)
-![](https://cdn.jsdelivr.net/gh/ng-yb/PicGo/MWeb-PIC/20200805112522.png)
+![](https://gitee.com/ngyb/pic/raw/master/20200805112522.png)
 
 ### 返回ModalAndView对象
 Modal：封装数据
@@ -405,7 +405,7 @@ SpringMVC默认有提供一些常用的类型转换器，如String->int
     </bean>
     ```
 3. 在`<annotation-driven>`中引用转换器
-    
+  
     ```xml
     <!--conversionService属性声明转换器服务工厂-->
     <mvc:annotation-driven conversion-service="conversionService"/>
@@ -444,7 +444,7 @@ public void quick(@RequestHeader("User-Agent") String userAgent) {
 2. 当`enctype="multipart/form-data"`时，表单的正文内容就变成多部分形式。`request.getParameter()`等方法将失效
 
 多部分表单示意图：
-![](https://cdn.jsdelivr.net/gh/ng-yb/PicGo/MWeb-PIC/20200805175744.png)
+![](https://gitee.com/ngyb/pic/raw/master/20200805175744.png)
 
 ### 文件上传开发步骤
 - 导入fileupload和io坐标
@@ -514,12 +514,12 @@ SpringMVC的拦截器interceptor相当于Servlet开发中的filter，用于进�
 将拦截器按照一定的顺序联结成一条链就被称为拦截器链interceptor chain。拦截器也是AOP思想的实现
 
 拦截器interceptor和过滤器filter的区别
-![](https://cdn.jsdelivr.net/gh/ng-yb/PicGo/MWeb-PIC/20200806121952.png)
+![](https://gitee.com/ngyb/pic/raw/master/20200806121952.png)
 filter拦截的是请求，interceptor拦截的是方法
 
 ## 自定义拦截器
 - 创建拦截器类实现`HandlerInterceptor`接口
-    
+  
 ```java
 public class CustomInterceptor implements HandlerInterceptor {
 
@@ -590,7 +590,7 @@ public class CustomInterceptor implements HandlerInterceptor {
 
 # SpringMVC异常处理
 思路：系统的Dao、Service、Controller出现的异常都是用`throws Exception`向上抛出，最后让SpringMVC前端控制器`DispatcherServlet`交由异常处理器进行异常处理
-![](https://cdn.jsdelivr.net/gh/ng-yb/PicGo/MWeb-PIC/20200806195505.png)
+![](https://gitee.com/ngyb/pic/raw/master/20200806195505.png)
 SpringMVC有既定的异常处理器，比较简单，可以根据系统需求自定义异常处理器
 
 ## SpringMVC提供的
