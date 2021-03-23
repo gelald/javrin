@@ -1115,6 +1115,7 @@ public @interface ConditionalOnProperty {
     String[] value() default {};
 
   	// 配置属性名称的前缀，比如spring.http.encoding，可以和name组合使用，组成完整的配置属性名称
+    // 如果前缀不是.结尾的，会自动加上
     String prefix() default "";
 
     // 数组，配置属性完整名称或部分名称
