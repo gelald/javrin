@@ -45,27 +45,125 @@
 
 #### 发送同步消息
 
-重要的消息通知，短信通知
+- 这种可靠性同步地发送方式使用的比较广泛，比如：重要的消息通知，短信通知
+
+- 消息可靠，有是否成功的应答
+
+```java
+// 传入组名实例化消息生产者Producer
+DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
+// 设置NameServer的地址
+producer.setNamesrvAddr("namesrvAddr");
+// 启动Producer实例
+producer.start();
+// 创建消息，并指定Topic，Tag和消息体
+Message msg = new Message("TopicTest" /* Topic */,
+                          "TagA" 			/* Tag */,
+                 ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */);
+// 发送消息到一个Broker,返回SendResult来判断是否成功送达
+SendResult sendResult = producer.send(msg);
+// 如果不再发送消息，关闭Producer实例。
+producer.shutdown();
+```
+
+
 
 #### 发送异步消息
 
-用在对响应时间敏感的业务场景，即发送端不能容忍长时间地等待Broker的响应
+- 用在对响应时间敏感的业务场景，即发送端不能容忍长时间地等待Broker的响应
+- 消息可靠，有是否成功的应答
+
+```java
+// 传入组名实例化消息生产者Producer
+DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
+// 设置NameServer的地址
+producer.setNamesrvAddr("namesrvAddr");
+// 启动Producer实例
+producer.start();
+// 创建消息，并指定Topic，Tag和消息体
+Message msg = new Message("TopicTest",
+                    			"TagA",
+                    			"OrderID188",
+                          "Hello world".getBytes(RemotingHelper.DEFAULT_CHARSET));
+// SendCallback接收异步返回结果的回调
+producer.send(msg, new SendCallback() {
+  @Override
+  public void onSuccess(SendResult sendResult) {
+    //发送成功的回调,返回SendResult对象来判断是否发送成功了
+  }
+  @Override
+  public void onException(Throwable e) {
+    //发送过程中有异常的回调,返回异常信息
+  }
+});
+// 如果不再发送消息，关闭Producer实例。
+producer.shutdown();
+```
+
+
 
 #### 单向发送消息
 
-用在不特别关心发送结果的场景，例如日志发送
+- 用在不特别关心发送结果的场景，例如日志发送
+- 消息不可靠，发送的方法没有结果
 
-`sendOneway`
+```java
+// 传入组名实例化消息生产者Producer
+DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
+// 设置NameServer的地址
+producer.setNamesrvAddr("namesrvAddr");
+// 启动Producer实例
+producer.start();
+// 创建消息，并指定Topic，Tag和消息体
+Message msg = new Message("TopicTest" /* Topic */,
+                          "TagA" /* Tag */,
+                   ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */);
+// 发送单向消息，没有任何返回结果
+producer.sendOneway(msg);
+// 如果不再发送消息，关闭Producer实例。
+producer.shutdown();
+```
+
+
 
 ### 消费方式
 
 #### push方式
 
-由消息中间件（MQ消息服务器代理）主动地将消息推送给消费者；采用Push方式，可以尽可能实时地将消息发送给消费者进行消费。
+- 由消息中间件（MQ消息服务器代理）主动地将消息推送给消费者；采用Push方式，可以尽可能实时地将消息发送给消费者进行消费。
 
-**缺点**：在消费者的处理消息的能力较弱的时候(比如，消费者端的业务系统处理一条消息的流程比较复杂，其中的调用链路比较多导致消费时间比较久。概括起来地说就是**“慢消费问题”**)，而MQ不断地向消费者Push消息，消费者端的缓冲区可能会溢出，导致异常
+- **缺点**：在消费者的处理消息的能力较弱的时候(比如，消费者端的业务系统处理一条消息的流程比较复杂，其中的调用链路比较多导致消费时间比较久。概括起来地说就是**“慢消费问题”**)，而MQ不断地向消费者Push消息，消费者端的缓冲区可能会溢出，导致异常
 
-#### pull方式
+```java
+// 传入组名实例化消费者
+DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name");
+// 设置NameServer的地址
+consumer.setNamesrvAddr("namesrvAddr");
+/**
+ * 设置Consumer第一次启动是从队列头部开始消费还是队列尾部开始消费<br>
+ * 如果非第一次启动，那么按照上次消费的位置继续消费
+ */
+consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+// 订阅一个或者多个Topic，以及Tag来过滤需要消费的消息
+// *代表所有Tag，订阅多个Tag使用||来分割
+consumer.subscribe("TopicTest", "*"/*"TagA || TagC || TagD"*/);
+// 注册回调实现类来处理从broker拉取回来的消息
+consumer.registerMessageListener(new MessageListenerConcurrently() {
+  @Override
+  public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
+    // 消费消息的逻辑
+    // ConsumeConcurrentlyStatus.CONSUME_SUCCESS：标记该消息已经被成功消费
+    // ConsumeConcurrentlyStatus.RECONSUME_LATER：标记该消息暂时无法消费成功，等待再消费
+    return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+  }
+});
+// 启动消费者实例
+consumer.start();
+```
+
+
+
+#### pull方式(4.8.0版本已过时)
 
 由消费者主动向消息中间件（MQ消息服务器代理）拉取消息；采用Pull方式，**如何设置Pull消息的频率需要重点去考虑**，举个例子来说，可能1分钟内连续来了1000条消息，然后2小时内没有新消息产生（概括起来说就是**“消息延迟与忙等待”**）。
 
