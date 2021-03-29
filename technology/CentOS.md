@@ -576,3 +576,11 @@ DNS1:			DNS服务器
   ```
 
   
+
+# 包管理工具
+
+snap
+
+apt-get
+
+yum
