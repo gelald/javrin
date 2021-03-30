@@ -51,7 +51,55 @@ DCE（Distributed Computing Environment）安全的UUID和Version1算法相同�
 
 - 采用无意义字符串，没有排序，无法保证趋势递增
 - UUID使用字符串形式存储，数据量大时查询效率比较低（和数字相比）
-- 存储空间比较大，如果是海量数据库，就需要考虑存储量的问题
+- 存储空间比较大，如果是海量数据库，就需要考虑存储量的问题\
+
+## UUID Java实现
+
+```java
+/**
+ * Static factory to retrieve a type 4 (pseudo randomly generated) UUID.
+ * 使用静态工厂来获取版本4（伪随机数生成器）的 UUID
+ * The {@code UUID} is generated using a cryptographically strong pseudo random number generator.
+ * 这个UUID生成使用了强加密的伪随机数生成器(PRNG)
+ *
+ * @return  A randomly generated {@code UUID}
+ */
+public static UUID randomUUID() {
+    SecureRandom ng = Holder.numberGenerator;
+
+    byte[] randomBytes = new byte[16];
+    ng.nextBytes(randomBytes);
+    randomBytes[6]  &= 0x0f;  /* clear version        */
+    randomBytes[6]  |= 0x40;  /* set to version 4     */
+    randomBytes[8]  &= 0x3f;  /* clear variant        */
+    randomBytes[8]  |= 0x80;  /* set to IETF variant  */
+    return new UUID(randomBytes);
+}
+
+/**
+ * Static factory to retrieve a type 3 (name based) {@code UUID} based on
+ * the specified byte array.
+ * 静态工厂对版本3的实现，对于给定的字符串（name）总能生成相同的UUID
+ * @param  name
+ *         A byte array to be used to construct a {@code UUID}
+ *
+ * @return  A {@code UUID} generated from the specified array
+ */
+public static UUID nameUUIDFromBytes(byte[] name) {
+    MessageDigest md;
+    try {
+        md = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException nsae) {
+        throw new InternalError("MD5 not supported", nsae);
+    }
+    byte[] md5Bytes = md.digest(name);
+    md5Bytes[6]  &= 0x0f;  /* clear version        */
+    md5Bytes[6]  |= 0x30;  /* set to version 3     */
+    md5Bytes[8]  &= 0x3f;  /* clear variant        */
+    md5Bytes[8]  |= 0x80;  /* set to IETF variant  */
+    return new UUID(md5Bytes);
+}
+```
 
 
 
@@ -60,6 +108,8 @@ DCE（Distributed Computing Environment）安全的UUID和Version1算法相同�
 SnowFlake 算法，是 Twitter 开源的分布式 id 生成算法。其核心思想就是：使用一个 64位的 long 型的**数字**作为全局唯一id。在分布式系统中的应用十分广泛，且id引入了时间戳，**基本上保持自增的**。
 
 ## 格式
+
+![](https://gitee.com/ngyb/pic/raw/master/813155-20200511162334239-459232117.png)
 
 - 1bit 首位无效符
 - 41bit 时间戳（毫秒级），41位可以表示2^41 -1个数字，2^41-1毫秒，换算后是69年
@@ -99,6 +149,4 @@ SnowFlake 算法，是 Twitter 开源的分布式 id 生成算法。其核心思
 - 强依赖数据库，当数据库异常时，整个系统不可用
 - id发号性能瓶颈限制在单台MySQL的读写性能
 - 分表分库，数据迁移合并等比较麻烦（id重复）
-
-# Redis的INCR
 
