@@ -112,7 +112,7 @@ SnowFlake 算法，是 Twitter 开源的分布式 id 生成算法。其核心思
 ![](https://gitee.com/ngyb/pic/raw/master/813155-20200511162334239-459232117.png)
 
 - 1bit 首位无效符
-- 41bit 时间戳（毫秒级），41位可以表示2^41 -1个数字，2^41-1毫秒，换算后是69年
+- 41bit 时间戳（毫秒级），41位可以表示2^41 -1个数字，2^41-1毫秒，换算后是69年。一般不是存时间戳，而是存当前时间戳和设定的初始时间戳的差值，且一般不会完全用完41位，没用到的补0
 - 10 bit 工作机器id
   - 5bit datacenterId机房id
   - 5bit workerId机器id
@@ -128,14 +128,189 @@ SnowFlake 算法，是 Twitter 开源的分布式 id 生成算法。其核心思
 ## 优点
 
 - 毫秒数在高位，自增位在地位，**整个ID都是递增趋势**的
-- 不依赖数据库等第三方系统，以服务的方式部署，稳定性更高，生成ID的性能也是非常高的
+- 不依赖数据库等第三方系统，可以以服务的方式部署，稳定性更高，生成ID的性能也是非常高的，每秒生成的ID数是百万级别的
 - 可以**根据自身业务特性分配bit位**，非常灵活
 
 ## 缺点
 
-- 雪花算法在单机系统上id是递增的，但是在分布式系统多节点的情况下，所有节点的时钟并不能保证完全同步，所以有可能会出现不是全局递增的情况。如果系统时间被回调，或者改变，可能会造成id冲突或者重复。
+- 雪花算法在单机系统上id是递增的，但是在分布式系统多节点的情况下，所有节点的时钟并不能保证完全同步，所以有可能会出现不是全局递增的情况。**如果系统时间被回调，或者改变，可能会造成id冲突或者重复**。
 
-# auto_increment
+## Java实现Snowflake
+
+```java
+/**
+ * 雪花算法相对来说如果思绪捋顺了实现起来比较简单，前提熟悉位运算。
+ */
+public class SnowFlake
+{
+	/**
+	 * 开始时间截 (2015-01-01)
+	 */
+	private final long twepoch = 1420041600000L;
+
+	/**
+	 * 机器id所占的位数
+	 */
+	private final long workerIdBits = 5L;
+
+	/**
+	 * 数据标识id所占的位数
+	 */
+	private final long dataCenterIdBits = 5L;
+
+	/**
+	 * 支持的最大机器id，结果是31 (这个移位算法可以很快的计算出几位二进制数所能表示的最大十进制数)
+	 */
+	private final long maxWorkerId = ~(-1L << workerIdBits);
+
+	/**
+	 * 支持的最大机房标识id，结果是31
+	 */
+	private final long maxDataCenterId = ~(-1L << dataCenterIdBits);
+
+	/**
+	 * 序列在id中占的位数
+	 */
+	private final long sequenceBits = 12L;
+
+	/**
+	 * 机器ID向左移12位
+	 */
+	private final long workerIdShift = sequenceBits;
+
+	/**
+	 * 机房标识id向左移17位(12+5)
+	 */
+	private final long dataCenterIdShift = sequenceBits + workerIdBits;
+
+	/**
+	 * 时间截向左移22位(5+5+12)
+	 */
+	private final long timestampLeftShift = sequenceBits + workerIdBits + dataCenterIdBits;
+
+	/**
+	 * 生成序列的掩码，这里为4095 (0b111111111111=0xfff=4095)
+	 */
+	private final long sequenceMask = ~(-1L << sequenceBits);
+
+	/**
+	 * 工作机器ID(0~31)
+	 */
+	private volatile long workerId;
+
+	/**
+	 * 机房中心ID(0~31)
+	 */
+	private volatile long dataCenterId;
+
+	/**
+	 * 毫秒内序列(0~4095)
+	 */
+	private volatile long sequence = 0L;
+
+	/**
+	 * 上次生成ID的时间截
+	 */
+	private volatile long lastTimestamp = -1L;
+
+	//==============================Constructors=====================================
+
+	/**
+	 * 构造函数
+	 *
+	 * @param workerId     工作ID (0~31)
+	 * @param dataCenterId 机房中心ID (0~31)
+	 */
+
+	public SnowFlake(long workerId, long dataCenterId)
+	{
+		if (workerId > maxWorkerId || workerId < 0)
+		{
+			throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
+		}
+		if (dataCenterId > maxDataCenterId || dataCenterId < 0)
+		{
+			throw new IllegalArgumentException(String.format("dataCenter Id can't be greater than %d or less than 0", maxDataCenterId));
+		}
+		this.workerId = workerId;
+		this.dataCenterId = dataCenterId;
+	}
+
+	// ==============================Methods==========================================
+
+	/**
+	 * 获得下一个ID (该方法是线程安全的)
+	 * 如果一个线程反复获取Synchronized锁，那么synchronized锁将变成偏向锁。
+	 *
+	 * @return SnowflakeId
+	 */
+	public synchronized long nextId() throws RuntimeException
+	{
+		long timestamp = timeGen();
+
+		//如果当前时间小于上一次ID生成的时间戳，说明系统时钟回退过这个时候应当抛出异常
+		if (timestamp < lastTimestamp)
+		{
+			throw new RuntimeException((String.format("Clock moved backwards.  Refusing to generate id for %d milliseconds", lastTimestamp - timestamp)));
+
+		}
+
+		//如果是毫秒级别内是同一时间生成的，则进行毫秒内序列生成
+		if (lastTimestamp == timestamp)
+		{
+			sequence = (sequence + 1) & sequenceMask;
+			//毫秒内序列溢出，一毫秒内超过了4095个
+			if (sequence == 0)
+			{
+				//阻塞到下一个毫秒,获得新的时间戳
+				timestamp = tilNextMillis(lastTimestamp);
+			}
+		}
+		else
+		{
+			//时间戳改变，毫秒内序列重置
+			sequence = 0L;
+		}
+
+		//上次生成ID的时间截
+		lastTimestamp = timestamp;
+
+		//移位并通过或运算拼到一起组成64位的ID
+		return ((timestamp - twepoch) << timestampLeftShift)
+				| (dataCenterId << dataCenterIdShift)
+				| (workerId << workerIdShift)
+				| sequence;
+	}
+
+	/**
+	 * 阻塞到下一个毫秒，直到获得新的时间戳
+	 * @param lastTimestamp 上次生成ID的时间截
+	 * @return 当前时间戳
+	 */
+	private long tilNextMillis(long lastTimestamp)
+	{
+		long timestamp = timeGen();
+		while (timestamp <= lastTimestamp)
+		{
+			timestamp = timeGen();
+		}
+		return timestamp;
+	}
+
+	/**
+	 * 返回以毫秒为单位的当前时间
+	 * @return 当前时间(毫秒)
+	 */
+	private long timeGen()
+	{
+		return System.currentTimeMillis();
+	}
+}
+```
+
+
+
+# 数据库自增ID
 
 利用给字段设置auto_increment_increment和auto_increment_offset来保证ID自增
 
@@ -151,3 +326,50 @@ SnowFlake 算法，是 Twitter 开源的分布式 id 生成算法。其核心思
 - id发号性能瓶颈限制在单台MySQL的读写性能
 - 分表分库，数据迁移合并等比较麻烦（id重复）
 
+# 数据库集群模式
+
+对单点数据库进行优化，改造成主从模式集群，两个MySQL实例都单独生产自增id、
+
+```mysql
+-- MySQL Master
+set @@auto_increment_offset = 1;		-- 起始值
+set @@auto_increment_increment = 2;		-- 步长
+
+-- MySQL Slave
+set @@auto_increment_offset = 2;		-- 起始值
+set @@auto_increment_increment = 2;		-- 步长
+```
+
+这样两个实例产生的id就可以交替地自增了
+
+## 优点
+
+解决数据库单点问题
+
+## 缺点
+
+不利于后续扩容（如再加一个从数据库，id无法保证不重复），并且每个数据库自身压力还是非常大，依旧无法满足高并发场景
+
+# 数据库号段模式
+
+**号段模式可以理解成从数据库批量地获取自增**，每次从数据库取出一个号段范围，例如 (1,1000] 代表1000个ID，具体的业务服务将本号段，生成1~1000的自增ID并加载到内存
+
+```mysql
+CREATE TABLE id_generator (
+  `id` int(10) NOT NULL,
+  `max_id` bigint(20) NOT NULL COMMENT '当前最大的可用id',
+  `step` int(20) NOT NULL COMMENT '号段的步长',
+  `biz_type`    int(20) NOT NULL COMMENT '业务类型',
+  `version` int(20) NOT NULL COMMENT '版本号，是一个乐观锁，每次都更新version，保证并发时数据的正确性',
+  PRIMARY KEY (`id`)
+)
+```
+
+- 每一类业务单独使用一批id
+- 当使用完一批id后，再次向数据库申请新号段，对max_id字段做一次update操作，新的号段范围是(max_id, max_id+step]
+
+```mysql
+update id_generator set max_id = (max_id+step), version = (version+1) where version =  {version} and biz_type = XX
+```
+
+- 由于多业务端可能同时操作，所以采用版本号 version 乐观锁方式更新，这种分布式ID生成方式**不强依赖于数据库**，不会频繁的访问数据库，对数据库的压力小很多。但是如果遇到了双十一或者秒杀类似的活动还是会对数据库有比较高的访问。
