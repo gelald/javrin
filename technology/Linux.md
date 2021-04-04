@@ -584,3 +584,245 @@ snap
 apt-get
 
 yum
+
+
+
+# 下载工具
+
+## curl
+
+**长处在于模拟提交web数据，POST/GET请求，调试网页，等等**
+
+- cURL是一个多功能工具。当然，它可以下载网络内容，但同时它也能做更多别的事情
+- cURL 技术支持库是：libcurl。这就意味着你可以基于 cURL 编写整个程序，允许你基于 libcurl 库中编写图形环境的下载程序，访问它所有的功能
+- cURL 支持宽泛的网络协议。cURL 支持访问 HTTP 和 HTTPS 协议、能够处理 FTP 传输、支持 LDAP 协议、甚至支持 Samba 分享、还可以用 cURL 收发邮件
+- cURL 也有一些简洁的安全特性。cURL 支持安装许多 SSL/TLS 库，也支持通过网络代理访问，包括 SOCKS。这意味着，你可以越过 Tor 来使用cURL
+
+### 获取页面内容
+
+默认会发送 GET 请求来获取链接内容到标准输出
+
+```shell
+curl http://www.codebelief.com 
+```
+
+### 获取请求头
+
+只想要显示 HTTP 头，而不显示文件内容
+
+```shell
+curl -I http://www.codebelief.com 
+```
+
+同时显示 HTTP 头和文件内容
+
+```shell
+curl -i http://www.codebelief.com 
+```
+
+### 保存文件
+
+- -o：命令行中提供文件名，保存内容到文件中
+- -O：url中的文件名会作为保存的文件名
+
+```shell
+curl -o index.html http://www.codebelief.com
+curl -O http://www.codebelief.com/page/2/
+```
+
+### 下载多个文件
+
+```shell
+curl -O http://www.codebelief.com/page/2/ -O http://www.codebelief.com/page/3/ 
+curl -o page1.html http://www.codebelief.com/page/1/ -o page2.html http://www.codebelief.com/page/2/ 
+```
+
+### 跟随链接重定向
+
+某些链接点击后会重定向其他链接，这种情况下无法获取想要的内容，返回301，需要跟随链接重定向
+
+```shell
+curl -L http://codebelief.com 
+```
+
+### 加入请求头
+
+```shell
+curl -H "Referer: www.example.com" -H "User-Agent: Custom-User-Agent" http://www.baidu.com 
+```
+
+#### 加入User-Agent
+
+```shell
+curl -A "Mozilla/5.0 (Android; Mobile; rv:35.0) Gecko/35.0 Firefox/35.0" http://www.baidu.com 
+```
+
+### 操作Cookie
+
+#### 保存Cookie
+
+指定文件保存网页的cookie
+
+```shell
+curl -c "cookie-example" http://www.example.com 
+```
+
+#### 读取Cookie
+
+读取cookie并一同提交到网页
+
+```shell
+curl -b "cookie-example" http://www.example.com 
+```
+
+### 发送Post请求
+
+向网页提交数据
+
+```shell
+curl -d "userName=tom&passwd=123456" -X POST http://www.example.com/login 
+```
+
+当使用`-d`时，默认使用post请求，所以可以省略`-x`，所以等同于以下命令
+
+```shell
+curl -d "userName=tom&passwd=123456" http://www.example.com/login 
+```
+
+### 带Cookie登录
+
+第一次访问时，提交账号密码，但第二次访问时同样是没有登录的状态，可以通过cookie来完成保持登录状态
+
+```shell
+curl -c "cookie-login" -d "userName=tom&passwd=123456" http://www.example.com/login 
+```
+
+第二次访问直接使用
+
+```shell
+curl -b "cookie-login" http://www.example.com/login 
+```
+
+### 强制使用Get请求
+
+```shell
+curl -d "somedata" -X GET http://www.example.com/api 
+```
+
+或者可以使用`-G`
+
+```shell
+curl -d "somedata" -G http://www.example.com/api
+```
+
+## wget
+
+**专职的下载利器，简单，专一，极致**
+
+- wget 简单直接。这意味着你能享受它超凡的下载速度。wget 是一个独立的程序，无需额外的资源库，更不会做其范畴之外的事情。
+
+- wget 是专业的直接下载程序，支持递归下载。同时，它也允许你下载网页中或是 FTP 目录中的任何内容。
+
+- wget 拥有智能的默认设置。它规定了很多在常规浏览器里的事物处理方式，比如 cookies 和重定向，这都不需要额外的配置。可以说，wget 简直就是无需说明，开箱即用
+
+### 下载单个文件
+
+```shell
+wget http://cn.wordpress.org/wordpress-3.1-zh_CN.zip
+```
+
+在下载的过程中会显示进度条，包含（下载完成百分比，已经下载的字节，当前下载速度，剩余下载时间）
+
+### 下载文件时另存为
+
+```shell
+wget -O wordpress.zip http://www.centos.bz/download.php?id=1080
+```
+
+wget默认会以最后一个符合”/”的后面的字符来命令，对于动态链接的下载通常文件名会不正确。如上面这个链接，虽然下载的文件是zip格式，但是最终还是会以download.php?id=1080作为名称保存，可以使用`-O`来重命名来解决
+
+### 断点续传
+
+```shell
+wget -c http://cn.wordpress.org/wordpress-3.1-zh_CN.zip
+```
+
+对于下载大文件时突然由于网络等原因中断非常有帮助，使用`-c`这个选项可以继续接着下载而不是重新下载一个文件
+
+### 后台下载
+
+下载大文件时，可以使用后台下载而不需要占用着命令行界面
+
+```shell
+wget -b http://cn.wordpress.org/wordpress-3.1-zh_CN.zip
+```
+
+输入后，命令行会有以下输出
+
+```shell
+Continuing in background, pid 1840.
+Output will be written to `wget-log’.
+```
+
+可以通过wget-log来查看下载进度
+
+```shell
+tail -f wget-log
+```
+
+### 加入User-Agent
+
+```shell
+wget –user-agent=”Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.204 Safari/534.16″ http://cn.wordpress.org/wordpress-3.1-zh_CN.zip
+```
+
+因为有些网站可能会对不是浏览器的请求进行拦截
+
+### 下载多个文件
+
+```shell
+#首先，保存一份下载链接文件
+cat > filelist.txt
+url1
+url2
+url3
+url4
+#接着使用这个文件和参数-i下载
+wget -i filelist.txt
+```
+
+### 下载重试
+
+如果网络有问题或下载一个大文件也有可能失败。wget默认重试20次连接下载文件。
+
+```shell
+wget –tries=40 url
+```
+
+### FTP下载
+
+```shell
+wget url
+```
+
+用户名密码下载
+
+```shell
+wget –ftp-user=USERNAME –ftp-password=PASSWORD url
+```
+
+
+
+## 二者相似之处
+
+- wget 和 cURL 都可以下载内容。它们的核心就是这么设计的。它们都可以向互联网发送请求并返回请求项。这可以是文件、图片或者是其他诸如网站的原始 HTML 之类。
+
+- 这两个程序都可以进行 HTTP POST 请求。这意味着它们都可以向网站发送数据，比如说填充表单什么的。
+
+- 由于这两者都是命令行工具，它们都被设计成可脚本化。wget 和 cURL 都可以写进你的 [Bash 脚本](https://www.maketecheasier.com/beginners-guide-scripting-linux/) ，自动与新内容交互，下载所需内容。
+
+## 一句话总结
+
+- 想快速下载并且没有担心参数标识的需求-wget
+
+- 想做一些更复杂的使用-curl
