@@ -56,7 +56,7 @@
 
 - `git reset --soft commit_id`：commit_id之后的**commit修改全部在暂存区中**，**本地当前的修改保留在工作区**
 - `git reset --mixed commit_id`(默认)：commit_id之后的**commit和本地修改全都放在工作区中**
-- `git reset --hard commit_id`：commit_id之后的**commt和本地修改全部移除**，将项目的状态恢复到commit_id的状态。对于未追踪的文件没有影响(由始至终没有add过的文件)
+- `git reset --hard commit_id`：commit_id之后的**commit和本地修改全部移除**，将项目的状态恢复到commit_id的状态。对于未追踪的文件没有影响(由始至终没有add过的文件)
 
 ### git revert
 
