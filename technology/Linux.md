@@ -579,13 +579,112 @@ DNS1:			DNS服务器
 
 # 包管理工具
 
-snap
+## rpm
 
-apt-get
+- **rpm**（Red-Hat Package Manager）基于互联网下载软件包的打包安装工具
 
-yum
+- 一个rpm文件由包名、版本信息、发布版本号、运行平台组成
 
+  如：xv－3.10a－13.i386.rpm，“xv”为软件名称，3.10a即发行版本号，i386是这个软件运行的平台
 
+### 安装软件
+
+`rpm -i xxx.rpm`
+
+### 卸载软件
+
+`rpm -e xxx`
+
+## yum
+
+- **yum**（Yellow dog Updater, Modified）是一个庞大的liunx系统软件库，它**基于rpm文件**
+
+- yum这个软件管理容器源于rpm包，可以自动从服务器下载rpm软件包并处理软件的依赖关系，一次安装所有的依赖包，每个rpm包都有独立的签名来保证操作系统的安全
+
+### 安装软件
+
+`yum install xxx.rpm`
+
+### 删除软件
+
+`yum remove xxx.rpm`
+
+### 升级软件
+
+`yum update xxx`
+
+`yum upgrade xxx`
+
+### 查询软件信息
+
+`yum info xxx`
+
+### 搜索软件
+
+`yum search xxx`
+
+### 显示包依赖关系
+
+`yum deplist xxx`
+
+## dpkg
+
+dpkg是Debian（linux衍生系统）软件包管理器的基础，**基于deb文件**
+
+### 安装软件
+
+`dpkg -i xxx.deb`
+
+### 卸载软件
+
+`dpkg -r xxx`
+
+## apt-get
+
+- apt-get是一条liunx命令，**用来管理rpm和deb包**
+
+- 可以从互联网的软件库中搜索、安装、升级、卸载软件或者**操作系统**
+
+- 与rpm、dpkg相比，**apt（Advanced Package Tool）为前端的管理器**，rpm、dpkg是后端的底层工具
+
+### 安装软件
+
+`apt-get install xxx`
+
+### 卸载软件
+
+`apt-get remove xxx`
+
+### 更新软件
+
+`apt-get upgrade`
+
+## apt
+
+- apt 命令的引入就是为了解决命令过于分散的问题，它包括了 apt-get 命令出现以来使用最广泛的功能选项，以及 apt-cache 和 apt-config 命令中很少用到的功能。
+
+- 在使用 apt 命令时，用户不必再由 apt-get 转到 apt-cache 或 apt-config，而且 apt 更加结构化，并为用户提供了管理软件包所需的必要选项。
+- 简单来说就是：apt = apt-get、apt-cache 和 apt-config 中最常用命令选项的集合
+
+![](https://gitee.com/ngyb/pic/raw/master/20210404113432.png)
+
+## snap
+
+snap为一种全新的软件包管理方式，安装包扩展名为*.snap
+
+snap也是一个linux软件库容器，包含一个应用程序所需的所有文件和库
+
+snap软件包**一般安装在/snap目录下**
+
+snap最大的特点就是使用了容器来管理软件
+
+### 安装snap包
+
+`snap install snap包`
+
+### 删除snap包
+
+`snap remove snap包`
 
 # 下载工具
 
