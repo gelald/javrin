@@ -3632,7 +3632,7 @@ public interface 注解名 extends java.lang.annotation.Annotation {}
 要求：
 
 	1. 返回值类型：基本数据类型、String、Enum、注解、以上类型的数组
- 	2. 定义了属性，在使用时需要给属性赋值。就是在使用时，给接口中每一个抽象方法赋值；或者在抽象方法后加上default，给属性一个默认值 。如果只有一个属性并且属性名就叫value，那么可以省略，直接赋值。<img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrt3p1w6j30l80bydgt.jpg"/>
+	2. 定义了属性，在使用时需要给属性赋值。就是在使用时，给接口中每一个抽象方法赋值；或者在抽象方法后加上default，给属性一个默认值 。如果只有一个属性并且属性名就叫value，那么可以省略，直接赋值。<img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrt3p1w6j30l80bydgt.jpg"/>
 
 <img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrt73ikij30sa066t9i.jpg"/>
 
@@ -3883,3 +3883,172 @@ public interface 注解名 extends java.lang.annotation.Annotation {}
 3. 对调试来说：如果想看一个属性的get/set方法被哪些类引用到，就不太方便看
 4. 对升级来说：按照如今JDK的升级频率，每半年都会推出一个新的版本，但是Lombok作为一个第三方工具，并且是由开源团队维护的，那么他的迭代速度是无法保证的。如果某个新版本的JDK不支持Lombok就会受到影响。
 5. 对应用来说：因为一个应用可能依赖了多个jar包，而每个jar包可能又要依赖不同版本的Lombok，这就导致在应用中需要做版本仲裁，而我们知道，jar包版本仲裁是没那么容易的，而且发生问题的概率也很高。
+
+### 生成随机数
+
+**可用于生成短信验证码**
+
+#### Math.random() 静态方法
+
+> 当第一次调用 `Math.random()` 方法时，自动创建了一个**伪随机数生成器**，实际上用的是 `new java.util.Random()`。当接下来继续调用 `Math.random()` 方法时，就会使用这个新的**伪随机数生成器**。
+
+```java
+//关键源码
+
+
+public static double random() {
+    Random rnd = randomNumberGenerator;
+    if (rnd == null) rnd = initRNG(); // 第一次调用，创建一个伪随机数生成器
+    return rnd.nextDouble();
+}
+
+private static synchronized Random initRNG() {
+    Random rnd = randomNumberGenerator;
+    return (rnd == null) ? (randomNumberGenerator = new Random()) : rnd; // 实际上用的是new java.util.Random()
+}
+```
+
+> `initRNG()` 方法是 `synchronized` 的，因此在多线程情况下，只有一个线程会负责创建**伪随机数生成器**（使用当前时间作为种子），其他线程则利用该**伪随机数生成器**产生随机数。
+
+**因此 `Math.random()` 方法是线程安全的**
+
+```java
+//使用方式
+
+
+public class JavaRandom {
+    public static void main(String args[]) {
+        new MyThread().start();
+        new MyThread().start();
+    }
+}
+class MyThread extends Thread {
+    public void run() {
+        for (int i = 0; i < 2; i++) {
+            System.out.println(Thread.currentThread().getName() + ": " + Math.random());
+        }
+    }
+}
+```
+
+#### java.util.Random
+
+基本算法：**线性同余法(LCG)伪随机数生成器**
+
+缺点：可预测，**在注重信息安全的应用中，不要使用 LCG 算法生成随机数，请使用 SecureRandom**
+
+```java
+//源码
+
+
+public Random() {
+    this(seedUniquifier() ^ System.nanoTime());
+}
+
+public Random(long seed) {
+    if (getClass() == Random.class)
+        this.seed = new AtomicLong(initialScramble(seed));
+    else {
+        // subclass might have overriden setSeed
+        this.seed = new AtomicLong();
+        setSeed(seed);
+    }
+}
+```
+
+默认使用**当前系统时钟**作为种子
+
+```java
+//使用方式
+
+
+Random random = new Random();
+
+for (int i = 0; i < 5; i++) {
+    System.out.println(random.nextInt());
+}
+```
+
+- `nextBoolean()` 返回均匀分布的`true`或`false`
+- `nextDouble()` 返回0.0～1.0之间的均匀分布的`double`
+- `nextDouble()` 返回0.0～1.0之间的均匀分布的`float`
+- `nextInt()` 返回均匀分布的`int`
+- `nextInt(int n)` 返回[0, n)之间均匀分布的`int`
+- `nextLong()` 返回均匀分布的`long`
+
+**只要种子一样，产生的随机数也一样：** 因为种子确定，随机数算法也确定，因此输出是确定的！
+
+#### java.security.SecureRandom
+
+`SecureRandom` 提供加密的强随机数生成器 (RNG)，要求种子必须是**不可预知**的，产生**非确定性**输出。`SecureRandom` 也提供了与实现无关的算法，因此，调用方（应用程序代码）会请求特定的 RNG 算法并将它传回到该算法的 `SecureRandom` 对象中
+
+```java
+//使用方式
+
+
+SecureRandom random1 = SecureRandom.getInstance("SHA1PRNG");	//指定算法名称
+SecureRandom random2 = SecureRandom.getInstance("SHA1PRNG");
+
+for (int i = 0; i < 5; i++) {
+    System.out.println(random1.nextInt() + " != " + random2.nextInt());
+}
+```
+
+
+
+#### java.util.concurrent.ThreadLocalRandom
+
+继承自`java.util.Random`
+
+```java
+//关键源码
+
+
+private static final ThreadLocal<ThreadLocalRandom> localRandom =
+    new ThreadLocal<ThreadLocalRandom>() {
+        protected ThreadLocalRandom initialValue() {
+            return new ThreadLocalRandom();
+        }
+};
+```
+
+每一个线程有一个独立的**随机数生成器**，用于并发产生随机数，能够解决多个线程发生的竞争争夺。**效率更高！**`ThreadLocalRandom` 不是直接用 `new` 实例化，而是第一次使用其静态方法 `current()` 得到 `ThreadLocal<ThreadLocalRandom>` 实例，然后调用 `java.util.Random` 类提供的方法获得各种随机数
+
+```java
+//使用方式
+
+
+public class JavaRandom {
+    public static void main(String args[]) {
+        new MyThread().start();
+        new MyThread().start();
+    }
+}
+class MyThread extends Thread {
+    public void run() {
+        for (int i = 0; i < 2; i++) {
+            System.out.println(Thread.currentThread().getName() + ": " + ThreadLocalRandom.current().nextDouble());
+        }
+    }
+}
+```
+
+#### 随机字符串RandomStringUtils
+
+```xml
+<!-- Maven依赖 -->
+<dependency>
+    <groupId>commons-lang</groupId>
+    <artifactId>commons-lang</artifactId>
+    <version>2.6</version>
+</dependency>
+```
+
+- `String random(int count, boolean letters, boolean numbers)`
+  - `count`：生成随机字符串的长度
+  - `letters`：是否包含字母
+  - `numbers`：是否包含数字
+- `String random(int count)` 从所有字符集中选择字符创建指定长度的字符串
+- `String random(int count, String chars)`
+  - `count`：生成随机字符串的长度
+  - `chars`：指定的字符集
