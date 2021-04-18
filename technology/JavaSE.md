@@ -3935,7 +3935,7 @@ class MyThread extends Thread {
 
 基本算法：**线性同余法(LCG)伪随机数生成器**
 
-缺点：可预测，**在注重信息安全的应用中，不要使用 LCG 算法生成随机数，请使用 SecureRandom**
+缺点：可预测，只要初始化Random对象时指定的种子相等，那么产生的随机数也就相等，**在注重信息安全的应用中，不要使用 LCG 算法生成随机数，请使用 SecureRandom**
 
 ```java
 //源码
