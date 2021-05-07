@@ -296,7 +296,7 @@ public interface UserDao {
 
 ## 环境搭建的注意事项
 
-1. 在MyBatis中，把持久层的操作接口的名称和映射文件也叫做：`Mapper`。所以UserDao对应的**映射配置文件**一般叫做`UserMapper.xml`。以后遇见了Mapper文件应该反应过来
+1. 在MyBatis中，把持久层的操作接口的名称和映射文件也叫做：`Mapper`。所以UserDao对应的**映射配置文件**一般叫做`UserMapper.xml`。
 2. 包的创建可以递归地创建`cn.itheima.dao`创建出来是三级的目录，但是在resouces中目录的创建必须要分三次来创建，否则创建出来的是一个名为`cn.itheima.dao`的目录
 3. 映射配置文件的`mapper`标签的`namespace`的值必须是dao接口的全类名
 4. 映射配置文件的操作配置的`id`的值必须是dao接口的方法名
@@ -450,7 +450,6 @@ public interface UserDao {
         sqlSession.close();
     }
     ```
-    
 ## 插入操作
 1. 映射文件使用`insert`标签，`insert`标签中的`parameterType`属性指定插入的类型，方便后面属性和字段的自动映射
 2. sql语句中使用`#{对象属性名}`的结构引用对象的属性
@@ -489,7 +488,6 @@ public interface UserDao {
 - 映射文件使用`delete`标签
     - 如果delete操作根据单一字段删除，那么`parameterType`可以传入对应参数的类型，并且#{}括号中的参数名可任意
     - 如果delete操作根据多个字段删除，那么`parameterType`需要传入该表对应的类，并且#{}中需要填写对象的属性名
-    
 ```xml
 <delete id="delete" parameterType="java.lang.Integer">
     delete from user where id=#{id}
@@ -526,11 +524,11 @@ public void test4() throws IOException {
     - databaseIdProvider 数据库厂商标识
     - mappers 映射器
         - mapper 映射器
-    
 ## environments标签
 数据库环境配置，支持多环境配置
 ![](https://gitee.com/ngyb/pic/raw/master/20200809172804.png) 
 事务管理器(transactionManager)类型有:
+
 - **JDBC** 直接使用了JDBC的提交和回滚设置，依赖于从数据源得到的连接来管理事务作用域
 - MANAGED 从来不提交或回滚一个连接，而是让容器来管理事务的整个生命周期。默认情况下会关闭连接，有些容器不希望这样，因此需要将closeConnection属性设置为false来阻止这个默认行为
 
@@ -548,3 +546,74 @@ public void test4() throws IOException {
 - 使用全限定资源定位符的资源引用，**用得不多** `<mapper url="file:///data/UserMapper.xml"/>`
 - 使用映射器接口实现类的全限定类名，**配合注解使用** `<mapper class="com.itheima.mapper.UserMapper"/>`
 - 将包内的映射器接口实现**全部注册为映射器** `<package name="com.itheima.mapper"/>`
+
+## properties标签
+
+实际开发中，习惯将数据源等配置信息单独抽成一个properties文件，该标签可以加载额外配置的properties文件
+
+```xml
+<!-- sqlMapConfig.xml -->
+<configuration>
+
+    <!--通过properties标签加载外部properties文件-->
+    <properties resource="jdbc.properties"/>
+
+    <!--配置数据源的环境-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--加载映射文件-->
+    <mappers>
+        <mapper resource="com/itheima/mapper/UserMapper.xml"/>
+    </mappers>
+
+</configuration>
+```
+
+
+
+```properties
+# jdbc.properties
+jdbc.driver=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc://mysql:///test
+jdbc.username=root
+jdbc.password=root
+```
+
+## typeAliases标签
+
+### typeAlias标签
+
+类型别名，为一个Java类设置一个短的名字
+
+MyBatis已经将常用的数据类型定义好了别名，基本上就是用基本数据类型代替包装类型，其中String别名是string
+
+# MyBatis相应API
+
+## SqlSessionFactoryBuilder
+
+`SqlSessionFactory build(InputStream inputStream);`
+
+通过加载MyBatis核心配置文件来构建一个`SqlSessionFactory`对象
+
+## SqlSessionFactory
+
+创建SqlSession对象
+
+`SqlSession openSession();`
+
+默认开启一个事务，但事务不会默认提交
+
+`SqlSession openSession(boolean autoCommit)`
+
+参数为是否自动提交
+
