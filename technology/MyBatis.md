@@ -470,7 +470,7 @@ List<User> user = userMapper.findAll();
 
 ## 一对一查询配置
 
-\<resultMap> + \<associate>
+\<resultMap> + \<association>
 
 用户和订单的关系如下
 
@@ -654,5 +654,141 @@ public class Role {
     <result column="name" property="name"/>
   </collection>
 </resultMap>
+```
+
+# MyBatis注解开发
+
+简单的增删改查例子
+
+```java
+@Insert("insert into user values (#{id}, #{username}, #{password}, #{birthday})")
+void save(User user);
+@Update("update user set username = #{username}, password = #{password} where id = #{id}")
+void update(User user);
+@Delete("delete from user where id = #{id}")
+void delete(Integer id);
+@Select("select * from user where id = #{id}")
+User findById(Integer id);
+@Select("select * from user")
+List<User> findAll();
+```
+
+**核心配置文件修改**
+
+`mapper`标签改成`package`标签，意为扫描该包下的接口
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybaits.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!--通过properties标签加载外部properties文件-->
+    <properties resource="jdbc.properties"/>
+
+    <!--自定义别名   -->
+    <typeAliases>
+        <typeAlias type="com.itheima.mbanno.domain.User" alias="user"/>
+    </typeAliases>
+
+    <!--配置数据源的环境-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.username}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--加载映射关系-->
+    <mappers>
+        <!--指定接口所在的包-->
+        <package name="com.itheima.mbanno.mapper"/>
+    </mappers>
+
+</configuration>
+```
+
+## 一对一关系查询
+
+**OrderMapper.class**
+
+```java
+public interface OrderMapper {
+    @Select("select *, o.id oid from `order` o, `user` u where o.user_id = u.id")
+    @Results({
+            @Result(column = "oid", property = "id"),
+            @Result(column = "order_time", property = "orderTime"),
+            @Result(column = "total", property = "total"),
+            @Result(
+                    property = "user", //要封装的属性名
+                    javaType = User.class, //要封装的实体类型
+                    column = "user_id", //根据哪个字段查询
+                    one = @One(select = "com.itheima.mbanno.mapper.UserMapper.findById"))//查询的接口和方法
+    })
+    List<Order> findAll();
+}
+```
+
+**UserMapper.class**
+
+```java
+@Select("select * from user where id = #{id}")
+User findById(Integer id);
+```
+
+## 一对多关系查询
+
+**UserMapper.class**
+
+```java
+@Select("select * from user")
+@Results({
+  @Result(column = "id", property = "id"),
+  @Result(column = "username", property = "username"),
+  @Result(column = "password", property = "password"),
+  @Result(column = "birthday", property = "birthday"),
+  @Result(property = "orders",
+          column = "id",
+          javaType = List.class,
+          many = @Many(select = "com.itheima.mbanno.mapper.OrderMapper.findByUserId"))
+})
+List<User> findUserAndOrder();
+```
+
+**OrderMapper.class**
+
+```java
+@Select("select * from `order` where user_id = #{id}")
+Order findByUserId(Integer id);
+```
+
+## 多对多关系查询
+
+**UserMapper.class**
+
+```java
+@Select("select * from user")
+@Results({
+  @Result(column = "id", property = "id"),
+  @Result(column = "username", property = "username"),
+  @Result(column = "password", property = "password"),
+  @Result(column = "birthday", property = "birthday"),
+  @Result(property = "roles",
+          column = "id",
+          javaType = List.class,
+          many = @Many(select = "com.itheima.mbanno.mapper.RoleMapper.findByUserId"))
+})
+List<User> findUserAndRole();
+```
+
+**RoleMapper.class**
+
+```java
+@Select("select r.* from user_role ur, role r where ur.role_id = r.id and ur.user_id = #{id}")
+List<Role> findByUserId(Integer id);
 ```
 
