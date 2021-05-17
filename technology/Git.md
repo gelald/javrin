@@ -101,8 +101,13 @@
 - 把当前分支推送到远程仓库
   - `git push`
   - `git push -u `  不但会把本地的master分支内容推送的远程新的master分支，还会把本地的master分支和远程的master分支关联起来，在以后的推送或者拉取时就可以简化命令
+- 从远程仓库拉取、抓取
+  - `git fetch`：抓取，从远程仓库获取最新版本到本地，不会自动merge
+  - `git pull`：拉取，从远程仓库获取最新版本并merge到本地
 - 从远程仓库克隆
-  - `git pull`
+  - `git clone <url>`
+- 删除本地远程仓库的记录(不会真正删除远程仓库)
+  - `git remote rm origin`
 
 ## 把错误的代码提交到代码库中
 
