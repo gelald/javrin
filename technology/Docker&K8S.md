@@ -271,3 +271,23 @@ Docker镜像由**特殊的**文件系统**叠加**而成，本质是一个分层
 | EXPOSE     | 暴露端口                 | 格式 EXPOSE 端口号                                           |
 | WORKDIR    | 工作目录                 | 进入容器内部时，当前所在的位置                               |
 
+### 自定义CentOS
+
+1. 登陆后的目录为`/usr`
+2. 能使用`vim`
+
+实现：
+
+```dockerfile
+#定义父镜像
+FROM centos:7
+#定义作者信息
+MAINTAINER wuyb <wuyb13411012303@yeah.net>
+#安装vim
+RUN yum install -y vim
+#定义默认的工作目录
+WORKDIR /usr
+#定义容器启动执行命令
+CMD /bin/bash
+```
+
