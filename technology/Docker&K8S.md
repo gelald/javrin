@@ -1,25 +1,4 @@
-**Docker**
-
-- build，ship and run：搭建、发送、运行
-- build once， run anywher：搭建一次，到处能用
-- 镜像(Image)
-- 容器(Container)
-- 仓库(Repository)
-
-
-
-**Kubernetes**
-
-- 一个K8S系统，通常称为一个K8S集群(Cluster)
-- 一个Master节点(主节点)
-- 一群Node节点(计算节点)
-
-
-
-|        | Write Once Run Anywhere | 模板        | 对象            |
-| ------ | ----------------------- | ----------- | --------------- |
-| Java   | JVM                     | Class       | Object          |
-| Docker | Docker Engine           | Image(镜像) | Container(容器) |
+# Docker容器与虚拟机对比
 
 ## 容器化技术
 
@@ -27,51 +6,38 @@
 
 **Docker部署方式**
 
-在不同的操作系统中，Docker Engine实现了Docker跨平台的特性
+在不同的操作系统中，**Docker Engine**实现了Docker跨平台的特性
 
 每一个APP就是一个根据Image创建出来的Container，都是运行在Docker Engine之上
 
-![img](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggcrlngnsij30xa0ql3z4.jpg)
+<img src="https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggcrlngnsij30xa0ql3z4.jpg" alt="img" style="zoom:50%;" />
 
 **虚拟机部署方式**
 
-Hypervisor虚拟化技术，通常可以使用VMware来作为实现。
+**Hypervisor**虚拟化技术，通常可以使用VMware来作为实现。
 
 在VMware中安装各自的操作系统，然后运行应用
 
-![img](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggcrm3v2mdj30xa0qldiv.jpg)
+<img src="https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggcrm3v2mdj30xa0qldiv.jpg" alt="img" style="zoom:50%;" />
 
-Container：代码和依赖的集合
+![](https://gitee.com/ngyb/pic/raw/master/20210519143418.png)
 
-Image：Container的模板，运行时会变成Container
+![](https://gitee.com/ngyb/pic/raw/master/20210519143736.png)
 
-### 虚拟化技术与容器化技术
+**容器虚拟化的是操作系统，和宿主机共享内核；虚拟机虚拟化的是硬件（网卡等），安装时需要把完整的操作系统安装上**
 
-虚拟化技术会有操作系统的支持，OS一启动会向物理机申请很多的资源，Docker的话Container需要多少，就申请多少（动态分配）
-
-结合：虚拟机+Docker![image-20200702230121622](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggd0wdnzkyj319o0u0tew.jpg)
-
-
-
-docker pull 拉取镜像
-
-docker images 查看本地镜像
-
-docker run --name 容器名 镜像名 运行镜像   `-it --rm -dp`
-
-docker ps -a 查看当前运行的container 
-
-docker build -t `wuyb/cheers2019` . 构建镜像， 中间的是镜像的名字
-
-docker push --name 推送镜像到hub.docker
-
-
+## Docker关键概念
 
 **镜像**：镜像相当于**一个root文件系统**
 
 **容器**：镜像和容器的关系，就像面向对象中的类和对象的关系，**镜像是静态的定义，容器是镜像运行时的实体**。容器可以被创建、启动、停止、删除等
 
 **仓库**：仓库是一个保存镜像的地方
+
+|        | Write Once Run Anywhere | 模板        | 对象            |
+| ------ | ----------------------- | ----------- | --------------- |
+| Java   | JVM                     | Class       | Object          |
+| Docker | Docker Engine           | Image(镜像) | Container(容器) |
 
 # Docker命令
 
@@ -290,4 +256,18 @@ WORKDIR /usr
 #定义容器启动执行命令
 CMD /bin/bash
 ```
+
+# Docker服务编排
+
+## 服务编排
+
+按照一定的业务规则批量管理容器
+
+## Docker Compose
+
+Docker Compose是一个编排多容器分布式部署的工具，提供命令集管理容器化应用的完整开发周期，包括服务构建，启动和停止
+
+1. 使用Dockerfile定义运行环境镜像
+2. 使用docker-compose.yml定义组成应用的各个服务
+3. 运行docker-compose up启动应用 
 
