@@ -208,6 +208,224 @@ public interface AuthenticationManager {
 
 
 
+## PasswordEncoder
+
+Spring Security的**PasswordEncoder**接口用于执行密码的单向转换，以便安全地存储密码
+
+```java
+public interface PasswordEncoder {
+
+    /**
+     * 密码加密方法 将字符序列(即原密码)进行编码
+     * Encode the raw password. Generally, a good encoding algorithm applies a SHA-1 or
+     * greater hash combined with an 8-byte or greater randomly generated salt.
+     */
+    String encode(CharSequence rawPassword);
+
+    /**
+     * 密码匹配方法 比较字符序列和编码后的密码是否匹配
+     * Verify the encoded password obtained from storage matches the submitted raw
+     * password after it too is encoded. Returns true if the passwords match, false if
+     * they do not. The stored password itself is never decoded.
+     *
+     * @param rawPassword the raw password to encode and match
+     * @param encodedPassword the encoded password from storage to compare with
+     * @return true if the raw password, after encoding, matches the encoded password from
+     * storage
+     */
+    boolean matches(CharSequence rawPassword, String encodedPassword);
+
+}
+```
+
+### NoOpPasswordEncoder
+
+Spring Security5之前默认的PasswordEncoder实现类，没有编码的编码器，密码会直接泄漏，不安全，已弃用
+
+```java
+@Deprecated
+public final class NoOpPasswordEncoder implements PasswordEncoder {
+
+    public String encode(CharSequence rawPassword) {
+        return rawPassword.toString();
+    }
+
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        return rawPassword.toString().equals(encodedPassword);
+    }
+
+    public static PasswordEncoder getInstance() {
+        return INSTANCE;
+    }
+
+    private static final PasswordEncoder INSTANCE = new NoOpPasswordEncoder();
+
+    private NoOpPasswordEncoder() {
+    }
+
+}
+```
+
+### BCryptPasswordEncoder
+
+### DelegatingPasswordEncoder
+
+随着Spring Security5之前默认的`NoOpPasswordEncoder`已经被弃用，那么可以相信默认的编码器换成了另一个特定算法的编码器，这样会带来两个问题：
+
+- 有许多使用旧密码编码的应用程序无法轻松迁移
+- 密码存储的最佳做法(算法)可能会再次发生变化
+
+简单来说就是要保证**新的密码编码器和旧密码的兼容性**、**自身的稳健性**以及**一定的可变性**（切换到更好的算法）
+
+`DelegatingPasswordEncoder`能实现的效果
+
+- 确保使用当前密码存储建议对密码进行编码
+- 允许验证现代和传统格式的密码
+- 允许将来升级编码算法
+
+其实`DelegatingPasswordEncoder`不是真正意义上的编码器，没有使用一种特定的编码算法，而是一个**委派密码编码器**，它将具体编码的实现根据要求委派给不同的算法，以此来实现不同编码算法之间的兼容和变化协调。内部维护了一个Map集合，集合的结构是**键为加密算法的名称，值为具体加密算法的PasswordEncoder**
+
+#### 构造方法
+
+```java
+public DelegatingPasswordEncoder(String idForEncode,
+                                 Map<String, PasswordEncoder> idToPasswordEncoder) {
+  if(idForEncode == null) {
+    throw new IllegalArgumentException("idForEncode cannot be null");
+  }
+  if(!idToPasswordEncoder.containsKey(idForEncode)) {
+    throw new IllegalArgumentException("idForEncode " + idForEncode + "is not found in idToPasswordEncoder " + idToPasswordEncoder);
+  }
+  for(String id : idToPasswordEncoder.keySet()) {
+    if(id == null) {
+      continue;
+    }
+    if(id.contains(PREFIX)) {
+      throw new IllegalArgumentException("id " + id + " cannot contain " + PREFIX);
+    }
+    if(id.contains(SUFFIX)) {
+      throw new IllegalArgumentException("id " + id + " cannot contain " + SUFFIX);
+    }
+  }
+  this.idForEncode = idForEncode;
+  this.passwordEncoderForEncode = idToPasswordEncoder.get(idForEncode);
+  this.idToPasswordEncoder = new HashMap<>(idToPasswordEncoder);
+}
+```
+
+构造方法里面做了一系列的键的校验，最终设定使用的默认编码算法和维护的编码器集合
+
+通常有两种构造方式
+
+**工厂构造**
+
+工厂构造会使用到`PasswordEncoderFactories`来帮助我们进行构造
+
+```java
+PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+```
+
+**PasswordEncodeFactories**
+
+具体的实现
+
+```java
+public static PasswordEncoder createDelegatingPasswordEncoder() {
+  String encodingId = "bcrypt";
+  Map<String, PasswordEncoder> encoders = new HashMap<>();
+  encoders.put(encodingId, new BCryptPasswordEncoder());
+  encoders.put("ldap", new LdapShaPasswordEncoder());
+  encoders.put("MD4", new Md4PasswordEncoder());
+  encoders.put("MD5", new MessageDigestPasswordEncoder("MD5"));
+  encoders.put("noop", NoOpPasswordEncoder.getInstance());
+  encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
+  encoders.put("scrypt", new SCryptPasswordEncoder());
+  encoders.put("SHA-1", new MessageDigestPasswordEncoder("SHA-1"));
+  encoders.put("SHA-256", new MessageDigestPasswordEncoder("SHA-256"));
+  encoders.put("sha256", new StandardPasswordEncoder());
+
+  return new DelegatingPasswordEncoder(encodingId, encoders);
+}
+```
+
+结合`DelegatingPasswordEncoder`的构造方法看，这个工厂构造做了两件事情
+
+1. 设置默认的加密算法为`bcrypt`，遇到新密码，`DelegatingPasswordEncoder`会委派给`BCryptPasswordEncoder`
+2. 进行加密收集了常见的加密算法，并将其设置到`DelegatingPasswordEncoder`维护的Map集合，这样可以保持对`ldap`、`MD5`等加密算法进行兼容，且新密码会使用`bcrypt`算法进行加密
+
+**定制构造**
+
+其实和工厂构造原理相似，只不过可以自定义地指定默认加密算法和维护的加密算法集合，**一般推荐使用工厂构造**
+
+例子
+
+```java
+String idForEncode = "bcrypt";
+Map encoders = new HashMap<>();
+encoders.put(idForEncode, new BCryptPasswordEncoder());
+encoders.put("noop", NoOpPasswordEncoder.getInstance());
+encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
+encoders.put("scrypt", new SCryptPasswordEncoder());
+encoders.put("sha256", new StandardPasswordEncoder());
+
+PasswordEncoder passwordEncoder =
+    new DelegatingPasswordEncoder(idForEncode, encoders);
+```
+
+#### 密码存储格式
+
+因为这个编码器维护了多种加密算法，所以密码中**包含了使用的加密算法和密文密码**
+
+```
+{id}encodedPassword
+```
+
+- **id**标识使用**PaswordEncoder**的种类
+- **encodedPassword**是原密码被编码后的密码
+
+#### 加密
+
+```java
+public String encode(CharSequence rawPassword) {
+  return "{" + this.idForEncode + "}" + this.passwordEncoderForEncode.encode(rawPassword);
+}
+```
+
+加密算法的原理很简单
+
+1. 构造`DelegatingPasswordEncoder`时指定了默认加密算法
+2. 用这个默认的加密算法从维护的编码器集合找到对应算法的编码器
+3. 最终加密时，需要在前面拼接`{使用的加密算法}`
+
+#### 匹配
+
+```java
+public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
+  if(rawPassword == null && prefixEncodedPassword == null) {
+    return true;
+  }
+  //取出编码算法的id
+  String id = extractId(prefixEncodedPassword);
+  //根据编码算法的id从支持的密码编码器Map(构造时传入)中取出对应编码器
+  PasswordEncoder delegate = this.idToPasswordEncoder.get(id);
+  if(delegate == null) {
+    //如果找不到对应的密码编码器则使用默认密码编码器进行匹配判断,此时比较的密码字符串是 prefixEncodedPassword
+    return this.defaultPasswordEncoderForMatches
+      .matches(rawPassword, prefixEncodedPassword);
+  }
+  //从 prefixEncodedPassword 中提取获得 encodedPassword 
+  String encodedPassword = extractEncodedPassword(prefixEncodedPassword);
+  //使用对应编码器进行匹配判断,此时比较的密码字符串是 encodedPassword ,不携带编码算法id头
+  return delegate.matches(rawPassword, encodedPassword);
+}
+```
+
+- `rawPassword`是明文的密码
+- `prefixEncodedPassword`是`DelegatingPasswordEncoder`标准密码格式`{加密算法}密文密码`
+- 中间会通过`prefixEncodedPassword`进行**获取加密算法和提取纯密文密码**
+- 最终也是委派具体使用的编码器进行匹配这一操作
+- 当找不到对应的密码编码器时，最终会跑出异常，**提醒你要自己选择一个默认密码编码器来取代它**
+
 # OAuth2
 
 **OAuth 就是一种授权机制。数据的所有者告诉系统，同意授权第三方应用进入系统，获取这些数据。系统从而产生一个短期的进入令牌（token），用来代替密码，供第三方应用使用。**
