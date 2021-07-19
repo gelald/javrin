@@ -1290,3 +1290,17 @@ JWE由五部分组成
 7. 对5个部分分别进行Base64编码
 
 JWE的计算过程相对繁琐，不够轻量级，因此**适合与数据传输而非token认证**，但该协议也足够安全可靠，用简短字符串描述了传输内容，**兼顾数据的安全性与完整性**。
+
+# RedisTokenStore
+
+存储token的方式有很多：JWT、Redis、JDBC、InMemory
+
+![](https://gitee.com/ngyb/pic/raw/master/Token%E7%BB%A7%E6%89%BF%E4%BD%93%E7%B3%BB.png)
+
+## Redis存储Token的优势
+
+- 登录信息一般不需要长效储存，使用Redis可以减少DB的压力
+- Redis可以实现Token的时效性，Token过期失效自动删除
+- Redis的响应速度非常快，如果不出现网络问题，基本上是毫秒级别相应
+- 使用Redis可以避免单点的问题，在分布式系统中，无论是哪一个机器处理请求都是从Redis获取Token
+
