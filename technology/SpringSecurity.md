@@ -1,3 +1,9 @@
+# 概念
+
+认证（Authentication）：识别某个用户是否是已注册的合法用户
+
+授权（Authorization）：识别某个用户具有哪些权限，一般在认证之后进行
+
 # 基本使用
 
 ## 开启SpringSecurity
