@@ -44,17 +44,25 @@ Nginx需要截获并记录sessionId与服务器的IP地址做关联，请求转�
 
 **把Session集中存储在某个地方，服务端和Nginx均无需自己存储会话状态**，可以存在数据库或缓存。服务端、Nginx、Redis都可以方便水平扩展
 
-## 微服务独立认证服务阶段
+## 微服务阶段-Auth Service+Token
 
 ![image-20210801175542818](/Users/ngyb/Library/Application Support/typora-user-images/image-20210801175542818.png)
 
 由一个特定的服务统一承担登录认证、会话管理、令牌颁发、校验职责
 
-## 微服务认证+网关服务阶段
+## 微服务阶段-Auth Service+网关+Token
 
 ![image-20210801175557528](/Users/ngyb/Library/Application Support/typora-user-images/image-20210801175557528.png)
 
-认证服务职责不变，网关做统一的令牌校验工作
+认证服务职责不变，网关做统一发送令牌到认证服务校验的工作
+
+## 微服务阶段-Auth Service+网关+JWT
+
+![](https://gitee.com/ngyb/pic/raw/master/20210801185818.png)
+
+当访问流量大的时候，会对Auth Service的访问压力比较大，可能成为性能的瓶颈
+
+**可以采用JWT令牌，自包含数据和签名，所以网关可以自行解析和校验**
 
 # 基本使用
 
@@ -1325,9 +1333,9 @@ JSON内容要经Base64编码生成字符串成为Payload。
 
 ### Signature 签名
 
- 这个部分header与payload**通过header中声明的加密方式**，使用密钥secret进行加密，生成签名。
+ 这个部分header与payload先进行base64编码再通过header中声明的加密方式，使用密钥secret进行加密，生成签名。
 
- JWS的主要目的是保证了数据在传输过程中不被修改，验证数据的完整性。但**由于仅采用Base64对消息内容编码(header与payload)，因此不保证数据的不可泄露性，所以不适合用于传输敏感数据。**
+ JWS的主要目的是**保证了数据**在传输过程中**不被修改**，验证数据的完整性。但由于仅采用Base64对消息内容编码(header与payload)，因此**不保证数据的不可泄露性，所以不适合用于传输敏感数据**。
 
 ## JWE
 
@@ -1348,6 +1356,26 @@ JWE由五部分组成
 7. 对5个部分分别进行Base64编码
 
 JWE的计算过程相对繁琐，不够轻量级，因此**适合与数据传输而非token认证**，但该协议也足够安全可靠，用简短字符串描述了传输内容，**兼顾数据的安全性与完整性**。
+
+## JWT流程
+
+Client：客户端
+
+Auth Server：认证服务器
+
+Resource Server：资源服务器
+
+### HMAC流程
+
+![](https://gitee.com/ngyb/pic/raw/master/20210801193743.png)
+
+Auth Server需要与Resource Server提前商定好用于签名、校验的密钥secret，并且**必须保证secret不能泄漏**，否则不安全，攻击者可以利用这个secret来伪造令牌
+
+### RSA流程
+
+![](https://gitee.com/ngyb/pic/raw/master/20210801193801.png)
+
+Auth Server在生成JWT的时候使用私钥进行加密，Resource Server在校验JWT的时候使用公钥进行解密。**RSA方式更加安全**，secret需要Auth Server和Resource Server双方都保密，私钥只存在于Auth Server，只需保证私钥不被泄漏即可
 
 # RedisTokenStore
 
