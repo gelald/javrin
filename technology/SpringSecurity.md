@@ -8,6 +8,8 @@
 
 ## 单块阶段
 
+![](https://gitee.com/ngyb/pic/raw/master/20210801175433.png)
+
 由于Http请求具有无状态性，两个Http请求是互不关联的，服务器怎么识别当前用户已经登录？如何记住用户登录状态？
 
 **使用服务器端的Session和浏览器端的Cookie来共同实现**
@@ -15,6 +17,8 @@
 服务器端使用Session（可以理解为一个哈希表）来记录用户数据、数据的时间戳（超时不更新会自动删除），浏览器端使用Cookie来记录服务器端的sessionId，后续浏览器端发送请求的时候把Cookie带上，用于服务器端校验用户登录状态及其他信息
 
 ## 粘性会话阶段(Sticky Session)
+
+![](https://gitee.com/ngyb/pic/raw/master/20210801175500.png)
 
 由于服务端做了集群，Nginx对服务端进行负载均衡
 
@@ -36,13 +40,19 @@ Nginx需要截获并记录sessionId与服务器的IP地址做关联，请求转�
 
 ## 集中会话阶段(Centralized Session)
 
+![](https://gitee.com/ngyb/pic/raw/master/20210801175521.png)
+
 **把Session集中存储在某个地方，服务端和Nginx均无需自己存储会话状态**，可以存在数据库或缓存。服务端、Nginx、Redis都可以方便水平扩展
 
 ## 微服务独立认证服务阶段
 
+![image-20210801175542818](/Users/ngyb/Library/Application Support/typora-user-images/image-20210801175542818.png)
+
 由一个特定的服务统一承担登录认证、会话管理、令牌颁发、校验职责
 
 ## 微服务认证+网关服务阶段
+
+![image-20210801175557528](/Users/ngyb/Library/Application Support/typora-user-images/image-20210801175557528.png)
 
 认证服务职责不变，网关做统一的令牌校验工作
 
