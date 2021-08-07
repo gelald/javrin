@@ -917,101 +917,111 @@ ImportSelector更为灵活，还可以实现批量装配，并且可以根据上
 
 ## @Autowired
 
-- 构造方法注入
+### 基于 constrctor 注入
 
-  ```java
-  private DependencyA dependencyA;
-  private DependencyB dependencyB;
-  private DependencyC dependencyC;
-   
-  @Autowired
-  public DI(DependencyA dependencyA, DependencyB dependencyB, DependencyC dependencyC) {
-      this.dependencyA = dependencyA;
-      this.dependencyB = dependencyB;
-      this.dependencyC = dependencyC;
-  }
-  ```
+```java
+private DependencyA dependencyA;
+private DependencyB dependencyB;
+private DependencyC dependencyC;
+ 
+@Autowired
+public DI(DependencyA dependencyA, DependencyB dependencyB, DependencyC dependencyC) {
+    this.dependencyA = dependencyA;
+    this.dependencyB = dependencyB;
+    this.dependencyC = dependencyC;
+}
+```
 
-  - 优点：基于constructor的注入，会**固定依赖注入的顺序**；该方式不允许我们创建bean对象之间的循环依赖关系，这种限制其实是一种利用构造器来注入的益处 - 当你甚至没有注意到使用setter注入的时候，Spring能解决循环依赖的问题
-  - **明显缺点**：假如我们需要注入的对象特别多的时候，我们的构造器就会显得非常的冗余、不好看，非常影响美观和可读性，维护起来也较为困难
+> 在Spring 4.3 版本后，如果这个类只有一个构造方法，那么这个构造方法上面的`@Autowired`可以省略
 
-- setter方法注入
+- 优点：基于constructor的注入，会**固定依赖注入的顺序**；该方式不允许我们创建bean对象之间的循环依赖关系，这种限制其实是一种利用构造器来注入的益处 - 当你甚至没有注意到使用setter注入的时候，Spring能解决循环依赖的问题
+- **明显缺点**：假如我们需要注入的对象特别多的时候，我们的构造器就会显得非常的冗余、不好看，非常影响美观和可读性，维护起来也较为困难。解决手段：使用Lombok插件中的`@RequiredArgsConstructor`注解，省去手动编写构造方法的工作
 
-  ```java
-  private DependencyA dependencyA;
-  private DependencyB dependencyB;
-  private DependencyC dependencyC;
-   
-  @Autowired
-  public void setDependencyA(DependencyA dependencyA) {
-      this.dependencyA = dependencyA;
-  }
-   
-  @Autowired
-  public void setDependencyB(DependencyB dependencyB) {
-      this.dependencyB = dependencyB;
-  }
-   
-  @Autowired
-  public void setDependencyC(DependencyC dependencyC) {
-      this.dependencyC = dependencyC;
-  }
-  ```
+### 基于 setter 注入
 
-  - 优点：基于setter的注入，只有**当对象是需要被注入的时候它才会帮助我们注入依赖，而不是在初始化的时候就注入**；另一方面如果你使用基于constructor注入，CGLIB不能创建一个代理，迫使你使用基于接口的代理或虚拟的无参数构造函数
-  - 缺点：我们不能将对象设为final的
+```java
+private DependencyA dependencyA;
+private DependencyB dependencyB;
+private DependencyC dependencyC;
+ 
+@Autowired
+public void setDependencyA(DependencyA dependencyA) {
+    this.dependencyA = dependencyA;
+}
+ 
+@Autowired
+public void setDependencyB(DependencyB dependencyB) {
+    this.dependencyB = dependencyB;
+}
+ 
+@Autowired
+public void setDependencyC(DependencyC dependencyC) {
+    this.dependencyC = dependencyC;
+}
+```
 
-- 通过filed变量注入
+> 在Spring 4.3 版本后，setter方法上面的`@Autowired`可以省略
 
-  ```java
-  @Autowired
-  private DependencyA dependencyA;
-   
-  @Autowired
-  private DependencyB dependencyB;
-   
-  @Autowired
-  private DependencyC dependencyC;
-  ```
+- 优点：基于setter的注入，只有**当对象是需要被注入的时候它才会帮助我们注入依赖，而不是在初始化的时候就注入**；另一方面如果你使用基于constructor注入，CGLIB不能创建一个代理，迫使你使用基于接口的代理或虚拟的无参数构造函数
+- 缺点：我们不能将对象设为final的
 
-  - 优点：**精短，可读性高**，不需要多余的代码，也方便维护
-  - 缺点：
-    - 这样不符合JavaBean的规范，而且很有可能引起空指针
-    - 同时也不能将对象标为final的
-    - 类与DI容器高度耦合，我们不能在外部使用它
-    - 类不通过反射不能被实例化（例如单元测试中），你需要用DI容器去实例化它，这更像集成测试
+### 基于 filed 注入
 
-- 总结
+```java
+@Autowired
+private DependencyA dependencyA;
+ 
+@Autowired
+private DependencyB dependencyB;
+ 
+@Autowired
+private DependencyC dependencyC;
+```
 
-  - 强制性的依赖性或者当目标不可变时，使用构造函数注入（**应该说尽量都使用构造器来注入**）
-  - 可选或多变的依赖使用setter注入（**建议可以使用构造器结合setter的方式来注入**）
-  - 在大多数的情况下避免field域注入（**感觉大多数同学可能会有异议，毕竟这个方式写起来非常简便，但是它的弊端确实远大于这些优点**）
-  - Spring 4 推荐constructor注入
+- 优点：**精短，可读性高**，不需要多余的代码，也方便维护
+- 缺点：
+  - 添加依赖过于简单，往往导致一个类注入了非常多的bean，违背单一职责原则
+  - 无法构建不可变对象（`final`修饰的变量），导致有空指针异常的可能
+  - 类与容器高度耦合，不能在容器外部单独实例化；类不能绕过反射进行实例化（例如单元测试中），必须通过依赖容器才能去实例化它，这更像集成测试
+
+### 装配顺序
+
+例子，Svc接口有三个实现类SvcA、SvcB、SvcC
+
+```java
+@Autowired
+@Qualifier(value="svcB")
+private Svc svcA;
+```
+
+1. 默认按照`type`在上下文中查找匹配的bean。即查找**类型**是Svc的bean
+2. 如果没有`@Qualifier`注解，则按照变量名进行匹配。即查找**名字**为svcA的bean
+3. 如果有`@Qualifier`注解，则按照`@Qualifier`中指定的`name`进行匹配。即查找**名字**为svcB的bean
+4. 如果上述情况都没找到，由于`@Autowired`的required值默认为true，会导致报错
+
+### 总结
+
+- 强制性的依赖性或者当目标不可变时，使用构造函数注入（**尽量都使用构造器来注入**）
+- 可选或多变的依赖使用setter注入（**可以使用构造器结合setter的方式来注入**）
+- 在大多数的情况下避免field域注入（**感觉大多数同学可能会有异议，毕竟这个方式写起来非常简便，但是它的弊端确实远大于这些优点**）
+- Spring 4 推荐constructor注入
+
+## @Inject
+
+在Spring 的环境下，**`@Inject`和`@Autowired` 是相同的** ，因为它们的依赖注入都是使用`AutowiredAnnotationBeanPostProcessor`来处理的。
 
 ## @Resource
 
-明确一点：不属于Spring的注解，JDK1.6支持的注解　　`package javax.annotation.Resource`
+这是JDK的注解，不属于Spring，但是Spring实现了对它的支持
 
-和@Autowired功能相似，都是注入bean
+`@Resource`有两个重要的属性：`name`和`type`，而Spring 将`@Resource`注解的`name`属性解析为bean的名字，而`type`属性则解析为bean的类型。
 
-不同点：
+### 装配顺序
 
-1. @Autowired默认按类型注入；可以使用按名称注入(配合@Qualifier注解)
-
-   ```java
-   @Autowired
-   @Qualifier("userDao")
-   private UserDao userDao; 
-   ```
-
-2. @Resource默认按名称注入(通过name属性进行指定)；**如果name为空就用属性名**
-
-   ```java
-   @Resource(name="userDao")
-   private UserDao userDao;
-   ```
-
-3. 总的来说@Autowired自动注解，但是如果一个类，两个实现类，Autowired就不知道注入哪一个实现类，需要使用Qualifier或使用Resource，有name属性，可以区分
+1. 如果同时指定了`name`和`type`，则Spring会从上下文中寻找两项条件都唯一匹配的bean进行装配，否则抛出异常
+2. 如果指定了`name`，则Spring会从上下文中查找**名字**为指定值的bean进行装配
+3. 如果指定了`type`，则Spring会从上下文中查找**类型**为指定值的bean进行装配
+4. 如果`name`和`type`都没有指定，则**默认按照名字**来进行装配；如果**没有则按照类型**进行装配；如果还是没有，则抛出异常
 
 ## @Scope
 
