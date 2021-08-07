@@ -889,6 +889,8 @@ ImportSelector更为灵活，还可以实现批量装配，并且可以根据上
   - 表示请求该方法的路径
 - value：路径
 - method：请求方法：get/post等
+- consumes：指定处理请求的提交内容类型（Content-Type），也就是说前端发送过来的数据必须要符合这种内容类型。例如application/json，text/html等
+- produces：指定返回的内容类型，**仅当request请求头中的(Accept)类型中包含该指定类型才返回**
 
 ## @RestController
 
