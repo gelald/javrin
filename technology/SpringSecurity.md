@@ -89,11 +89,12 @@ Nginx需要截获并记录sessionId与服务器的IP地址做关联，请求转�
     ```
 - 默认的账号为`user`，默认的密码在启动时会出现在控制台中
 
-##### 验证方式:
+**验证方式**：
+
 - 表单验证方式: 登录时跳转到一张全新的网页, 带有一个登录表单
 - HTTP Basic方式: 弹出一个类似Alert的窗口来填写用户名密码
 
-#### 角色-资源访问控制
+### 角色-资源访问控制
 方便演示，把用户和角色存放在内存中
 - 继承WebSecurityConfigurerAdapter抽象类
 - 重写`protected void configure(AuthenticationManagerBuilder auth) throws Exception`方法记录账号与配置角色
@@ -136,6 +137,51 @@ Nginx需要截获并记录sessionId与服务器的IP地址做关联，请求转�
     ```
 - 当使用admin1账号时，访问两个资源都成功；当使用user1账号时，只能访问/product下的资源，访问/admin下的资源则提示没有权限
 
+## URL拦截匹配规则
+
+### 规则注册顺序
+
+完成规则注册主要的类为`AbstractConfigAttributeRequestMatcherRegistry`
+
+匹配规则用`UrlMapping`来表示
+
+![](https://gitee.com/ngyb/pic/raw/master/20210810170136.png)
+
+1. SpringSecurity会将所有`.antMatchers("/api/**").xxx()`的规则在代码中从上到下（按注册优先级顺序）放入一个`ArrayList<UrlMapping>`，**先注册的规则放在前面，后注册的规则放在后面**
+
+   ![](https://gitee.com/ngyb/pic/raw/master/20210810165838.png)
+
+2. 然后对这个`urlMappings`进行处理，按顺序遍历，以`requestMatcher`为key，以`configAttrs`为value放到一个`LinkedHashMap`中，**同一个URL，不同的执行规则，后存储的会覆盖先存储的**，这个`LinkedHashMap`就是最终的规则集合
+
+   ![](https://gitee.com/ngyb/pic/raw/master/20210810170702.png)
+
+### 规则匹配顺序
+
+完成规则匹配主要的类为`DefaultFilterInvocationSecurityMetadataSource`
+
+当SpringSecurity从请求中取出访问的URL时，会通过之前得到的这个`LinkedHashMap`来遍历匹配URL，第一个能匹配上这个URL的规则，那么就是最终执行的规则
+
+![](https://gitee.com/ngyb/pic/raw/master/20210810171917.png)
+
+### 匹配问题
+
+```java
+http.authorizeRequests().antMatchers("/api/**").denyAll();    		//拒绝访问
+
+http.authorizeRequests().antMatchers("/api/**").authenticated();    //需认证通过
+
+http.authorizeRequests().antMatchers("/api/**").permitAll();    	//无条件允许访问
+```
+
+
+
+1. 一个url可以匹配多个规则：如 /api/bbb/ccc 这个url ，既可以匹配 /** ，又可以匹配 /api/**，最终会匹配哪条规则呢？
+
+   > 因为存储规则的时候是先放在ArrayList的，所以先注册的规则最终会放在LinkedHashMap前面，后续匹配的时候就会先匹配，一旦匹配上，后续的任何规则都不再匹配。**所以第一条能匹配上的，就是最终会执行的规则。**
+
+2. 存在相同url 的匹配规则，如上面例子中 "/api/**" 一共有三条规则，一个denyAll，一个authenticated，一个permitAll ，最终会匹配哪条规则呢？
+
+   > 在ArrayList转换成LinkedHashMap的时候，同一个URL的，后面的匹配规则会覆盖掉前面的匹配规则。**所以最终执行的规则是同一个URL最后注册的规则。**
 
 # 核心组件
 
@@ -171,7 +217,7 @@ SpringSecurity过滤器链上的第一个过滤器,请求的第一个过滤器,�
 - 响应的最后一个过滤器,响应进来时把SecurityContext从线程中拿出来,**清除线程中的SecurityContext,放入session中**
 
 ## Authentication
-认证,一般用于表示当前用户,SecurityContext中使用Authentication来存储的用户验证信息
+认证,一般用于表示当前用户，SecurityContext中使用Authentication来存储的用户验证信息
 ```java
 public interface Authentication extends Principal, Serializable {
     /**
@@ -248,7 +294,7 @@ public interface UserDetails extends Serializable {
 ```
 
 ## UserDetailsService
-只有一个方法,目的是获取UserDetails
+只有一个方法，目的是获取UserDetails
 ```java
 public interface UserDetailsService {
     /**
@@ -257,7 +303,7 @@ public interface UserDetailsService {
     UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 }
 ```
-通常开发时会自定义一个CustomUserDetailsService来实现这个接口,并重写loadUserByUsername方法
+通常开发时会自定义一个CustomUserDetailsService来实现这个接口,并重写`loadUserByUsername`方法
 可以通过查询数据库、缓存等来获取用户信息,组装到User中,这个User`org.springframework.security.core.userdetails.User`是实现UserDetails接口的
 如果查询不到,那么可以使用提供的UsernameNotFoundExcepion`org.springframework.security.core.userdetails.UsernameNotFoundException`来抛出异常
 
@@ -336,7 +382,7 @@ public final class NoOpPasswordEncoder implements PasswordEncoder {
 
 ### DelegatingPasswordEncoder
 
-随着Spring Security5之前默认的`NoOpPasswordEncoder`已经被弃用，那么可以相信默认的编码器换成了另一个特定算法的编码器，这样会带来两个问题：
+随着Spring Security5之前默认的`NoOpPasswordEncoder`已经被弃用，默认的编码器被换成了另一个特定算法的编码器，这样会带来两个问题：
 
 - 有许多使用旧密码编码的应用程序无法轻松迁移
 - 密码存储的最佳做法(算法)可能会再次发生变化
@@ -354,8 +400,7 @@ public final class NoOpPasswordEncoder implements PasswordEncoder {
 #### 构造方法
 
 ```java
-public DelegatingPasswordEncoder(String idForEncode,
-                                 Map<String, PasswordEncoder> idToPasswordEncoder) {
+public DelegatingPasswordEncoder(String idForEncode, Map<String, PasswordEncoder> idToPasswordEncoder) {
   if(idForEncode == null) {
     throw new IllegalArgumentException("idForEncode cannot be null");
   }
@@ -434,8 +479,7 @@ encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
 encoders.put("scrypt", new SCryptPasswordEncoder());
 encoders.put("sha256", new StandardPasswordEncoder());
 
-PasswordEncoder passwordEncoder =
-    new DelegatingPasswordEncoder(idForEncode, encoders);
+PasswordEncoder passwordEncoder = new DelegatingPasswordEncoder(idForEncode, encoders);
 ```
 
 #### 密码存储格式
@@ -476,8 +520,7 @@ public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
   PasswordEncoder delegate = this.idToPasswordEncoder.get(id);
   if(delegate == null) {
     //如果找不到对应的密码编码器则使用默认密码编码器进行匹配判断,此时比较的密码字符串是 prefixEncodedPassword
-    return this.defaultPasswordEncoderForMatches
-      .matches(rawPassword, prefixEncodedPassword);
+    return this.defaultPasswordEncoderForMatches.matches(rawPassword, prefixEncodedPassword);
   }
   //从 prefixEncodedPassword 中提取获得 encodedPassword 
   String encodedPassword = extractEncodedPassword(prefixEncodedPassword);
@@ -490,7 +533,7 @@ public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
 - `prefixEncodedPassword`是`DelegatingPasswordEncoder`标准密码格式`{加密算法}密文密码`
 - 中间会通过`prefixEncodedPassword`进行**获取加密算法和提取纯密文密码**
 - 最终也是委派具体使用的编码器进行匹配这一操作
-- 当找不到对应的密码编码器时，最终会跑出异常，**提醒你要自己选择一个默认密码编码器来取代它**
+- 当找不到对应的密码编码器时，最终会抛出异常，**提醒你要自己选择一个默认密码编码器来取代它**
 
 # OAuth2
 
