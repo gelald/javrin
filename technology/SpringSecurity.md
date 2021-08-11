@@ -173,8 +173,6 @@ http.authorizeRequests().antMatchers("/api/**").authenticated();    //需认证�
 http.authorizeRequests().antMatchers("/api/**").permitAll();    	//无条件允许访问
 ```
 
-
-
 1. 一个url可以匹配多个规则：如 /api/bbb/ccc 这个url ，既可以匹配 /** ，又可以匹配 /api/**，最终会匹配哪条规则呢？
 
    > 因为存储规则的时候是先放在ArrayList的，所以先注册的规则最终会放在LinkedHashMap前面，后续匹配的时候就会先匹配，一旦匹配上，后续的任何规则都不再匹配。**所以第一条能匹配上的，就是最终会执行的规则。**
