@@ -1,8 +1,15 @@
 # 概念
 
-认证（Authentication）：识别某个用户是否是已注册的合法用户
+认证（Authentication）：验证某个用户是否是在系统中已注册的合法用户
 
-授权（Authorization）：识别某个用户具有哪些权限，一般在认证之后进行
+授权（Authorization）：授予某个用户具有哪些权限，一般在认证之后进行。实现授权的方式有：Cookie、Session、Token、OAuth
+
+## Cookie和Session的区别
+
+1. 从安全性看，Session存储在服务端，Cookie存储在客户端，所以Session比Cookie安全
+2. 从存储的内容看，Session可以存储任意数据类型，Cookie只支持存字符串数据，如果想要设置其他类型数据则需要转换成字符串
+3. 从有效期看，Cookie可设置为长时间保存，Session一般失效的时间较短，客户端关闭或者Session超时都会使其失效
+4. 从存储大小看，单个Cookie保存的数据不能超过4KB，Session没有存储大小限制，但是如果存储太多数据会占用较多服务器资源
 
 # 安全架构的演进
 
