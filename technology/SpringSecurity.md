@@ -1344,7 +1344,15 @@ public interface ResourceServerTokenServices {
 
 # JWT
 
-随着移动互联网的兴起，传统基于session/cookie的web网站认证方式转变为了基于OAuth2等开放授权协议的单点登录模式（SSO，Single Sign On），相应的基于服务器session+浏览器cookie的Auth手段也发生了转变，JWT(Json Web Token)的出现成为了当前的热门的Token Auth机制。JWT是一个非常轻巧的规范，这个规范允许我们使用JWT在两个组织之间传递安全可靠的信息。
+随着移动互联网的兴起，传统基于session/cookie的web网站认证方式转变为了基于OAuth2等开放授权协议的单点登录模式（SSO，Single Sign On），相应的基于服务器session+浏览器cookie的Auth手段也发生了转变，JWT(Json Web Token)的出现成为了当前的热门的Token Auth机制。JWT是一个非常轻巧的规范，这个规范允许我们使用JWT在两个组织之间传递安全可靠的信息。session/cookie得方式把认证信息放在了服务端，jwt把认证信息放在了客户端，减轻了服务端的内存压力
+
+## 特点
+
+- JWT是无状态的
+- JWT 不仅可以用于认证，也可以用于交换信息，因为payload部分可以自定义内容
+- JWT可以防止篡改，因为JWT包含了签名
+- JWT不能存放敏感数据，因为payload部分只进行了base64编码
+- JWT是一次性的，如果想修改内容，必须重新颁发一个
 
 JWT(Json Web Token)有两种实现方式：JWS(Json Web Signature)与JWE(Json Web Encryption)
 
@@ -1369,11 +1377,12 @@ JSON内容要经Base64编码生成字符串成为Header。
 
 负载中有**5个内容**是由**JWT的标准来定义**的
 
-- iss：该JWT的签发者
-- sub：该JWT所面向的用户
-- aud：接受该JWT的一方
-- exp(expires)：过期时间，例子中是一个时间戳
-- iat(issued at)：签发时间
+- iss(issuer)：签发者
+- sub(subject)：主题
+- aud(audience)：接收者
+- exp(expires)：过期时间，时间戳
+- iat(issued at)：签发时间，时间戳
+- jti(jwt id)：编号
 
 负载的内容还可以**自定义追加**
 
@@ -1412,6 +1421,8 @@ Client：客户端
 Auth Server：认证服务器
 
 Resource Server：资源服务器
+
+JWT签名算法一般会有两个选择：HS256（HMACSHA256、对称算法）和RS256（RSASHA256、非对称算法）
 
 ### HMAC流程
 
