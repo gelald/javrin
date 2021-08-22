@@ -299,7 +299,7 @@ public void test4() throws IOException {
         - mapper 映射器
 ## environments标签
 数据库环境配置，支持多环境配置
-![](https://gitee.com/ngyb/pic/raw/master/20200809172804.png) 
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20200809172804.png) 
 事务管理器(transactionManager)类型有:
 
 - **JDBC** 直接使用了JDBC的提交和回滚设置，依赖于从数据源得到的连接来管理事务作用域
@@ -474,7 +474,7 @@ List<User> user = userMapper.findAll();
 
 用户和订单的关系如下
 
-![](https://gitee.com/ngyb/pic/raw/master/20210509230738.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210509230738.png)
 
 从订单的角度看，和用户的关系为一对一
 
@@ -548,7 +548,7 @@ public class order {
 
 用户和订单的关系如下
 
-![](https://gitee.com/ngyb/pic/raw/master/20210509230738.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210509230738-20210822184514564.png)
 
 从用户的角度看，和订单的关系是多对一
 
@@ -602,7 +602,7 @@ public class User {
 
 用户和角色的关系如下
 
-![](https://gitee.com/ngyb/pic/raw/master/20210510003032.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210510003032.png)
 
 从用户的角度看，用户和角色的关系是多对多
 

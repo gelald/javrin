@@ -56,7 +56,7 @@ public int binarySearch(int[] nums, int target) {
 
 滑动窗口模式是用于在给定数组或链表中从第一个元素开始**滑动一个特定大小的窗口**并逐个元素地向右滑，并根据你所求解的问题调整窗口的长度。
 
-![](https://gitee.com/ngyb/pic/raw/master/20210816145253.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210816145253.png)
 
 ## 适用场景
 
@@ -77,7 +77,7 @@ public int binarySearch(int[] nums, int target) {
 
 二指针通常在排序数组或链表中搜索配对时很有用；**比如当你必须将一个数组的每个元素与其它元素做比较时**。如果只有一个指针，必须继续在数组中循环回来才能找到答案。这种使用单个迭代器进行来回在时间和空间复杂度上都很低效——这个概念被称为「渐进分析（asymptotic analysis）」
 
-![](https://gitee.com/ngyb/pic/raw/master/20210816153450.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210816153450.png)
 
 ## 适用场景
 
@@ -98,7 +98,7 @@ public int binarySearch(int[] nums, int target) {
 
 通过以不同的速度进行移动（比如在一个循环链表中），该算法证明这两个指针注定会相遇。**只要这两个指针在同一个循环中，快速指针就会追赶上慢速指针**
 
-![](https://gitee.com/ngyb/pic/raw/master/20210816155229.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210816155229.png)
 
 ## 适用场景
 

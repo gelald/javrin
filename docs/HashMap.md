@@ -4,9 +4,9 @@
 
 - HashMap的数据结构是：**数组+链表+红黑树**
 
-  ![image-20200625165758447](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg4n24g07uj31500jeq5e.jpg)
+  ![image-20200625165758447](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gg4n24g07uj31500jeq5e.jpg)
 
-- 数据存储形式：key-value形式；用Node对象来管理，记录了key、value、hash、next(指向下一个结点所持有的引用)![image-20200625223702194](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg4wuvac6yj30x807i0tl.jpg)
+- 数据存储形式：key-value形式；用Node对象来管理，记录了key、value、hash、next(指向下一个结点所持有的引用)![image-20200625223702194](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gg4wuvac6yj30x807i0tl.jpg)
 
 - 引入红黑树的目的：减少链表长度，查询/插入的效率更高
 
@@ -58,7 +58,7 @@
      this.threshold = tableSizeFor(initialCapacity);//把数组大小调整成2的n次幂
      ```
 
-     ![image-20200626000041882](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg4z9x8veej31ba0g40ul.jpg)
+     ![image-20200626000041882](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gg4z9x8veej31ba0g40ul.jpg)
 
    - **面试题：为什么HashMap中的hash不使用key.hashCode()，而是采用结果的高低16位做异或运算**
 
@@ -178,7 +178,7 @@
     //位置只有两种可能：1、在旧数组下标的位置；2、在旧数组下标+旧数组容量的位置
   ```
 
-  ![image-20200626160734777](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gg5r80fninj31j70u0e66.jpg)
+  ![image-20200626160734777](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gg5r80fninj31j70u0e66.jpg)
 
 
 
@@ -610,7 +610,7 @@ A、B两个线程插入数据到数组中的位置相同。假设A分到的时�
 
 简单来说就是其他线程影响了原有线程中e节点和next节点的位置，造成环链
 
-![image-20200722110604379](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggzkm9cjjej30u02g2e81.jpg)
+![image-20200722110604379](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggzkm9cjjej30u02g2e81.jpg)
 
 ### HashMap、ConcurrentHashMap的区别
 
@@ -640,11 +640,11 @@ JDK 1.7 中，采用分段锁的机制，实现并发的更新操作，底层采
 2. HashEntry 用来封装映射表的键-值对；
 3. 每个桶是由若干个 HashEntry 对象链接起来的链表
 
-![img](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggymu3ustxj30mb0cct9y.jpg)
+![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggymu3ustxj30mb0cct9y.jpg)
 
 JDK 1.8 中，采用Node + CAS + Synchronized来保证并发安全。取消类 Segment，直接用 table 数组存储键值对；当 HashEntry 对象组成的链表长度超过 TREEIFY_THRESHOLD 时，链表转换为红黑树，提升性能。底层变更为数组 + 链表 + 红黑树。
 
-![img](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1ggymujqrg6j30lc0793ye.jpg)
+![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggymujqrg6j30lc0793ye.jpg)
 
 ### ConcurrentHashMap 在 JDK 1.8 中，为什么要使用内置锁 synchronized 来代替重入锁 ReentrantLock？
 
