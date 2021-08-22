@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./files.svg"/>
+  <img src="resources/files.svg"/>
 </p>
 
 <h1 align="center">docs-archive</h1>
