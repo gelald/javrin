@@ -114,7 +114,7 @@ SnowFlake 算法，是 Twitter 开源的分布式 id 生成算法。其核心思
 
 ## 格式
 
-![](https://gitee.com/ngyb/pic/raw/master/813155-20200511162334239-459232117.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/813155-20200511162334239-459232117.png)
 
 - 1bit 首位无效符
 - 41bit 时间戳（毫秒级），41位可以表示2^41 -1个数字，2^41-1毫秒，换算后是69年。一般不是存时间戳，而是存当前时间戳和设定的初始时间戳(一般是id生成器开始使用的时间)的差值，且一般不会完全用完41位，没用到的补0
@@ -387,7 +387,7 @@ update id_generator set max_id = (max_id+step), version = (version+1) where vers
 
 双buffer方案达到了Id都是从内存中获取，性能更好，允许数据库宕机的时间更长了，因为会有一个线程观察什么时候去自动获取Id，在两个buffer之间自行切换
 
-![](https://gitee.com/ngyb/pic/raw/master/640.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/640.png)
 
 1. 从buffer1中获取Id
 2. 当buffer1中的Id已经使用了10%后，先判断buffer2中有没有去获取过Id，如果没有就立即发起请求获取Id线程，此线程把获取到的Id存放到buffer2中

@@ -4,7 +4,7 @@
 
 UML使用面向对象设计的建模工具，但独立于任何具体程序设计语言
 
-![](https://gitee.com/ngyb/pic/raw/master/20210519173435.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210519173435.png)
 
 # 结构图
 
@@ -18,15 +18,15 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 
 一种拥有的关系，具有方向性
 
-**普通箭头实线的表示单向关系，箭头指向被拥有者**![](https://gitee.com/ngyb/pic/raw/master/20210528152414.png)
+**普通箭头实线的表示单向关系，箭头指向被拥有者**![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528152414.png)
 
-**不用箭头实线的表示双向关系**![](https://gitee.com/ngyb/pic/raw/master/20210528152433.png)
+**不用箭头实线的表示双向关系**![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528152433.png)
 
 ##### 聚合关系
 
 整体与部分的关系。**不同的生命周期**
 
-**用带空心菱形的实线表示，菱形指向整体，箭头指向个体**![](https://gitee.com/ngyb/pic/raw/master/20210527142356.png)
+**用带空心菱形的实线表示，菱形指向整体，箭头指向个体**![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210527142356.png)
 
 ##### 组合关系
 
@@ -67,11 +67,11 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 
 #### 类图、关系案例
 
-![](https://gitee.com/ngyb/pic/raw/master/20210528153025.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528153025.png)
 
 #### 案例二《大话设计模式》
 
-![](https://gitee.com/ngyb/pic/raw/master/20210528160102.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528160102.png)
 
 # 交互图
 
@@ -102,14 +102,15 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 - par 并行：并行执行
 - Loop 循环：片段重复一定次数
 
-![](https://gitee.com/ngyb/pic/raw/master/20210528165112.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528165112.png)
 
-![](https://gitee.com/ngyb/pic/raw/master/20210528170059.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528170059.png)
 
-![](https://gitee.com/ngyb/pic/raw/master/20210528170155.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528170155.png)
 
-![](https://gitee.com/ngyb/pic/raw/master/20210528170243.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528170243.png)
 
 ### 时序图案例
 
 ![image-20210528171201505](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20210528171201505.png)
+

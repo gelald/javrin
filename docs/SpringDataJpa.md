@@ -24,7 +24,7 @@
 
   
 
-  ![](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gfsrory7h9j30k80cogn9-20210312220056561.jpg)
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrory7h9j30k80cogn9-20210312220056561.jpg)
 
 
 
@@ -54,5 +54,5 @@
 
 **类结构关系图**
 
-![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrosdgs1j316a0q20ve.jpg)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrosdgs1j316a0q20ve.jpg)
 

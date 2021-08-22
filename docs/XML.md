@@ -86,8 +86,8 @@ Extensible Markup Language
 使用
 
 1. 填写xml文档的根元素
-2. 引入xsi前缀.  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-3. 引入xsd文件命名空间.  xsi:schemaLocation="http://www.itcast.cn/xml  student.xsd"
+2. 引入xsi前缀.  `xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"`
+3. 引入xsd文件命名空间.  `xsi:schemaLocation="http://www.itcast.cn/xml  student.xsd"`
 4. 为每一个xsd约束声明一个前缀,作为标识
 
 例子
@@ -130,7 +130,7 @@ Extensible Markup Language
 
 **操作方式**
 
-1. DOM（服务器）：将标记语言文档一次性加载进内存，在内存中形成一棵DOM树![](https://gitee.com/ngyb/pic/raw/master/007S8ZIlgy1gfsrtx9en0j31ry0pigws.jpg)
+1. DOM（服务器）：将标记语言文档一次性加载进内存，在内存中形成一棵DOM树![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrtx9en0j31ry0pigws.jpg)
    - 优点：操作方便，可以对文档进行crud的所有操作
    - 缺点：一次性加载，比较占内存
 2. SAX（移动端）：逐行读取，急于事件驱动。读取一行释放一行，在内存中永远只有一行
