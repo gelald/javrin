@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="resources/files.svg"/>
-</p>
+![logo](resources/favicon.ico)
 
 <h1 align="center">docs-archive</h1>
 
