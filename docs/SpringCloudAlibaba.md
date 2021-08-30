@@ -10,3 +10,28 @@
 | Spring Cloud Finchley       | 2.0.3.RELEASE                     | 2.0.X.RELEASE       |
 | Spring Cloud Edgware        | 1.5.1.RELEASE(停止维护，建议升级) | 1.5.X.RELEASE       |
 
+# Nacos
+
+## 开发时遇见的问题
+
+### Ignore The Empty Nacos Configuration And Get It Based On DataId警告
+
+
+
+以order-server应用为例，在nacos上新建了DataId为`order-server-dev.yaml`的配置文件，在启动时控制台会输出以下警告日志
+
+> Ignore the empty nacos configuration and get it based on dataId[order-server] & group[business-app]
+>
+> Ignore the empty nacos configuration and get it based on dataId[order-server-dev.yaml] & group[business-app]
+
+
+
+当应用使用nacos作为配置中心时，应用启动时nacos配置文件客户端会轮询三个DataId
+
+- ${spring.application.name}
+- ${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+- ${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+
+
+
+所以说，这些警告日志都是正常的，因为只有一个配置文件的DataID符合上面轮询的条件，其他的不符合，单纯打印出来警告日志
