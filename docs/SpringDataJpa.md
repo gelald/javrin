@@ -56,3 +56,38 @@
 
 ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrosdgs1j316a0q20ve.jpg)
 
+
+
+## 开发时遇到的问题
+
+### Could not safely identify store assignment for repository candidate interface
+
+当启动引入了Spring Data Jpa依赖的应用时，控制台输出下列日志
+
+> [org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport] 283 - Spring Data Elasticsearch - Could not safely identify store assignment for repository candidate interface…
+>
+> [org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport] 283 - Spring Data Redis - Could not safely identify store assignment for repository candidate interface…
+
+#### 原因
+
+应用引入了Spring Data Jpa作为持久层框架的同时引入了Redis、Elasticsearch等Spring Data支持的数据库(Spring Data对这些数据库封装并提供了一系列方法，方便完成增删查改)，但未把它们作为数据持久化存储源repository使用。类似的还有MongoDB
+
+以Redis为例，`RedisRepositoriesAutoConfiguration`里面的注解`@ConditionalOnProperty`会判断 `spring.data.redis.repositories.enable `这个配置项的属性，如果不存在(默认为true)或若存在且属性值为true会自动扫描**继承**`org.springframework.data.repository.Repository`的实体Repository接口
+
+![RedisRepositoriesAutoConfiguration中判断属性逻辑](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210830163455.png)
+
+#### 解决方法
+
+在配置文件中显式地将上面提到的属性设置为false，那么这些自动配置类就不会扫描了
+
+```yaml
+spring:
+  data:
+    redis:
+      repositories:
+        enabled: false
+    elasticsearch:
+      repositories:
+        enabled: false
+```
+
