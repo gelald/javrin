@@ -1,4 +1,6 @@
-# 概念
+# SpringDataJpa
+
+## 概念
 
 - JPA：Java Persistence API。**JPA是一组Java持久层Api的规范**，通过注解或者XML描述【对象-关系表】之间的映射关系，并将实体对象持久化到数据库中。
   
@@ -55,6 +57,173 @@
 **类结构关系图**
 
 ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrosdgs1j316a0q20ve.jpg)
+
+
+
+## Jpa的映射策略
+
+在Hibernate5.x的版本中，Hibernate将实体映射到数据库的表中时，会经历两个步骤
+
+1. 从对象模型提取一个适合的**逻辑名称**，这个逻辑名称可以通过`@Table`、`@Column`等注解完成，也可以通过指定`ImplicitNamingStrategy`完成
+2. 将上述得到的逻辑名称转换成**物理名称**，这个物理名称由`PhysicalNamingStrategy`决定
+
+
+
+### ImplicitNamingStrategy
+
+隐式命名策略，当一个实体没有显示地命名映射到数据库表或属性没有显示地命名映射到数据库表字段时（没有使用`@Table`、`@Column`等注解），需要隐式地确定具体映射的表或字段，那么表名隐式的被认为是实体名，或者`@Entity`中的`name`属性
+
+在配置文件中的键名为：`spring.jpa.hibernate.naming.implicit-strategy`
+
+有五个可以指定的值：
+
+- `org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl`
+- `org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl`
+- `org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl`
+- `org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl`
+- `org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy`
+
+一般开发时常用的做法会在实体上使用`@Table`注解标记映射的表、在属性上使用`@Column`注解标记映射的字段，隐式命名策略少用
+
+
+
+### PhysicalNamingStrategy
+
+物理命名策略，用于转换“逻辑名称”(隐式或显式)的表或列成一个物理名称
+
+在配置文件中的键名为：`spring.jpa.hibernate.naming.physical-strategy`
+
+有两个可以指定的值：
+
+- `org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl`
+- ``org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy`
+
+
+
+#### PhysicalNamingStrategyStandardImpl
+
+当物理命名策略指定为这个值时，表名列名都不做修改，直接映射（CreateTime ==> CreateTime）
+
+
+
+##### 证明
+
+```java
+public class PhysicalNamingStrategyStandardImpl implements PhysicalNamingStrategy, Serializable {
+    public static final PhysicalNamingStrategyStandardImpl INSTANCE = new PhysicalNamingStrategyStandardImpl();
+
+    public PhysicalNamingStrategyStandardImpl() {
+    }
+
+    public Identifier toPhysicalCatalogName(Identifier name, JdbcEnvironment context) {
+        return name;
+    }
+
+    public Identifier toPhysicalSchemaName(Identifier name, JdbcEnvironment context) {
+        return name;
+    }
+
+    public Identifier toPhysicalTableName(Identifier name, JdbcEnvironment context) {
+        return name;
+    }
+
+    public Identifier toPhysicalSequenceName(Identifier name, JdbcEnvironment context) {
+        return name;
+    }
+
+    public Identifier toPhysicalColumnName(Identifier name, JdbcEnvironment context) {
+        return name;
+    }
+}
+```
+
+无论是数据库名、列名等方法，都是直接返回true，对名字不做修改，所以这个命名策略是直接映射的
+
+
+
+#### SpringPhysicalNamingStrategy
+
+当物理命名策略指定为这个值时，首字母小写，大写字母变为小写且前面加下划线（CreateTime ==> create_time）
+
+
+
+##### 证明
+
+```java
+public class SpringPhysicalNamingStrategy implements PhysicalNamingStrategy {
+    public SpringPhysicalNamingStrategy() {
+    }
+
+    public Identifier toPhysicalCatalogName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+        return this.apply(name, jdbcEnvironment);
+    }
+
+    public Identifier toPhysicalSchemaName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+        return this.apply(name, jdbcEnvironment);
+    }
+
+    public Identifier toPhysicalTableName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+        return this.apply(name, jdbcEnvironment);
+    }
+
+    public Identifier toPhysicalSequenceName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+        return this.apply(name, jdbcEnvironment);
+    }
+
+    public Identifier toPhysicalColumnName(Identifier name, JdbcEnvironment jdbcEnvironment) {
+        return this.apply(name, jdbcEnvironment);
+    }
+
+    private Identifier apply(Identifier name, JdbcEnvironment jdbcEnvironment) {
+        if (name == null) {
+            return null;
+        } else {
+            StringBuilder builder = new StringBuilder(name.getText().replace('.', '_'));
+
+            for(int i = 1; i < builder.length() - 1; ++i) {
+                if (this.isUnderscoreRequired(builder.charAt(i - 1), builder.charAt(i), builder.charAt(i + 1))) {
+                    builder.insert(i++, '_');
+                }
+            }
+
+            return this.getIdentifier(builder.toString(), name.isQuoted(), jdbcEnvironment);
+        }
+    }
+
+    protected Identifier getIdentifier(String name, boolean quoted, JdbcEnvironment jdbcEnvironment) {
+        if (this.isCaseInsensitive(jdbcEnvironment)) {
+            name = name.toLowerCase(Locale.ROOT);
+        }
+
+        return new Identifier(name, quoted);
+    }
+
+    protected boolean isCaseInsensitive(JdbcEnvironment jdbcEnvironment) {
+        return true;
+    }
+
+    private boolean isUnderscoreRequired(char before, char current, char after) {
+        return Character.isLowerCase(before) && Character.isUpperCase(current) && Character.isLowerCase(after);
+    }
+}
+```
+
+查看源码可以看出：`apply`方法将大写前加下划线、`getIdentifier`方法将大写变为小写，所以这个命名策略映射是把驼峰转换成下划线的
+
+
+
+### PhysicalNamingStrategy和ImplicitNamingStrategy的区别
+
+从逻辑上看
+
+- `ImplicitNamingStrategy`只管模型对象层次的处理
+- `PhysicalNamingStrategy`只管映射成真实的数据名称的处理
+
+从处理场景上看
+
+- 仅仅只有当没有显式地提供名称时才会使用，也就是说当对象模型中已经指定了`@Table`或者`@Entity`等name时，设置的`ImplicitNamingStrategy`并不会起作用
+
+- 无论对象模型中是否显式地指定列名或者已经被隐式决定，`PhysicalNamingStrategy`都会应用，所以**发挥决定性作用**的是`PhysicalNamingStrategy`
 
 
 
