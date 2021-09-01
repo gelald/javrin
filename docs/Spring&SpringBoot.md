@@ -913,7 +913,11 @@ ImportSelector更为灵活，还可以实现批量装配，并且可以根据上
 
 ### @RequestBody
 
-用于获取请求体并且ContentType为application/json格式的参数，自动反序列化成Java对象
+获取请求体并且ContentType为application/json格式的参数，将JSON数据反序列化成Java对象
+
+### @ResponseBody
+
+将Java对象序列化为JSON数据，用来作为返回数据输出到前端
 
 ## @Autowired
 
@@ -1406,8 +1410,18 @@ private Long id;
 一般作用在属性上，用来声明此属性不需要参与序列化
 
 ### @JsonFormat @DateTimeFormat
-@JsonFormat用于Date类型属性序列化的过程。有两个属性：pattern指定属性序列化成字符串后的日期格式；timezone指定所属时区，再对时间进行调整，因为数据库查询默认是零时区。
-@DateTimeFormat用于Date类型属性反序列化的过程。日期字符串按照其中pattern指定的格式传过来，可以自动反序列化成日期类型
+
+`DateTimeFormat`
+
+- 在请求非JSON数据时（如：`@RequestParam`、form-data），使用`@DateTimeFormat可以把日期String类型转换成对应的日期类型(Date、LocalDate等)`
+- 在请求JSON数据的场景中，该注解的作用会失效
+- pattern属性填写接受哪种格式的`String`类型的日期数据，如`yyyy-MM-dd HH:mm:ss`可以接受`2020-12-12 20:00:00`格式的数据
+
+`JsonFormat`
+
+- 在请求非JSON数据时（如：`@RequestParam`、form-data），使用`@DateTimeFormat`不能完成返回的日期数据格式化，需要搭配`@JsonFormat`完成返回时格式化的工作
+- 在请求JSON数据时且使用了`@RequestBody`注解，使用`@JsonFormat`能实现接受参数时`String`类型的日期数据反序列化成对应的日期类型，也能实现在方法返回时日期数据序列化成对应格式的`String`类型的日期
+- pattern属性填写接受哪种格式的`String`类型的日期数据，如`yyyy-MM-dd HH:mm:ss`可以接受`2020-12-12 20:00:00`格式的数据；timezone属性填写当前时区，一般填写`GMT+8`，因为有可能数据库所在的服务器时间不是东八区会造成时间误差
 
 ## SpringBoot中关于事务的内容
 
