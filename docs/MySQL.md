@@ -1364,6 +1364,8 @@ InnoDB支持行锁和表锁；MyISAM支持表锁
 
 # 日志
 
+MySQL日志主要包括错误日志、一般查询日志、慢查询日志、**事务日志**、**二进制**日志几大类
+
 日志刷新操作
 
 mysql:
@@ -1531,7 +1533,65 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
 
 ### redo log
 
-重做日志，提供前滚操作
+**redo log**（重做日志）是**InnoDB**存储引擎独有的，它让MySQL拥有了崩溃恢复的能力，恢复数据时InnoDB会使用redo log来保证数据的完整性和持久性
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210902170055.png)
+
+#### redo log的引入
+
+因为MySQL的IO代价的缘故，MySQL客户端不会每次都直接操作磁盘
+
+在执行查询语句时，MySQL会从磁盘中把一页的数据（称为数据页）加载出来放入**Buffer Pool**中，后续的查询都与这个Buffer Pool进行交互，减少磁盘IO开销，提升性能
+
+在执行更新语句时，MySQL的做法也同样如此，当Buffer Pool里面的数据需要更新时，先在Buffer Pool里面进行更新，等待后续Buffer Pool进行刷脏，然后会把在哪个数据页上做了哪些修改记录到**redo log buffer**（称为重做日志缓存）里面，等待**后续刷盘到redo log文件里面**
+
+**从更新操作也可以看出，MySQL在写文件的处理中一般会伴随缓存+文件的组合**
+
+redo log中的记录是由**表空间号+数据页号+偏移量+修改数据长度+具体修改的数据**组成
+
+
+
+**总结**
+
+不把数据页直接刷盘，而用`redo log`进行修改内容的记录的原因
+
+1. 数据页大小是`16KB=16384Byte`，可能也就修改了数据页中几`Byte`的数据，没有必要把完整的数据页进行刷盘，**IO代价太大**
+2. 数据页刷盘是**随机写**，因为一个数据页对应的位置可能在硬盘文件的随机位置，所以性能是很差的；而`redo log`是**顺序写**，刷盘速度很快
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210902172253.png)
+
+#### redo log刷盘时机
+
+InnoDB存储引擎为redo log的刷盘策略提供了 `innodb_flush_log_at_trx_commit` 参数，它支持三种策略。另外InnoDB存储引擎有一个后台线程，每隔1秒，就会把redo log buffer中的内容写入到**page cache（文件系统缓存）**，然后调用**fsync刷盘**
+
+- 0：每次事务提交时不进行刷盘操作，只是等待后台线程进行每秒的刷盘
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906165553.png)
+
+- 1：每次事务提交时都进行刷盘操作**（默认）**，除了后台线程进行的每秒的刷盘外，一旦事务提交就进行主动刷盘
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906170211.png)
+
+- 2：每次事务提交时都只把 redo log buffer 内容写入 page cache，等待后台线程每秒的刷盘，把page cache的内容写入redo log文件
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906170444.png)
+
+#### redo log文件组
+
+硬盘上存储的 `redo log` 日志文件是以一个**日志文件组**的形式出现的，每个的`redo`日志文件大小都是一样的
+
+比如可以配置为一组`4`个文件，每个文件的大小是 `1GB`，那么整个 `redo log` 日志文件组可以记录`4G`的内容
+
+它采用的是**环形数组**形式，从头开始写，写到末尾又回到头循环写
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906171107.png)
+
+在日志文件组中有两个重要的属性
+
+- `write pos`：当前记录的位置，插入记录的位置
+- `checkpoint`：当前擦除的位置，从`redo log`恢复数据的开始位置
+
+如果`write pos`追上了`checkpoint`，**那就说明当前记录的`redo log`已经满了，如果再记录的话会把上一次开始记录的内容覆盖掉**，所以需要停下来先清空一些记录，把`checkpoint`往前推进
 
 #### redo log和bin log区别
 
@@ -1937,10 +1997,6 @@ mysql5.5版本后默认的存储引擎是InnoDB
 - 没有大小限制，内容可以追加
 - 可以被所有存储引擎使用
 - 可以用于数据恢复和主从复制
-
-真实版
-
-![真实的MySQL体系架构](https://gitee.com/ngwingbun/picgo-image/raw/master/images/mysql%20construct.png)
 
 ### InnoDB存储结构
 
