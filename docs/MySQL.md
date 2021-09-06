@@ -1595,8 +1595,10 @@ InnoDB存储引擎为redo log的刷盘策略提供了 `innodb_flush_log_at_trx_c
 
 #### redo log和bin log区别
 
-- redo log位于innodb存储引擎层，bin log位于server层
-- redo log记录的是数据库中每个页的修改，bin log记录的是逻辑性的语句(SQL语句)
+- `redo log`是**`InnoDB`存储引擎特有的**，位于**存储引擎层**；记录的内容是**表空间号+数据页号+偏移量+修改数据长度+具体修改的数据**
+- `binlog`位于**MySQL Server层**；记录的内容是**语句的原始逻辑（SQL语句）**。不管用什么存储引擎，**只要发生了表数据更新，都会产生 `binlog` 日志**
+
+
 
 ### undo log
 
