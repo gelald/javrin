@@ -1669,6 +1669,34 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
 
 
 
+## 两阶段提交
+
+在执行更新语句时，会记录`redo log`和`binlog`两份日志，`redo log`在事务执行过程中可以不断写入（因为`InnoDB`存储引擎有一个后台线程，每隔1秒，就会把`redo log buffer`中的内容写入到`page cache`，然后调用`fsync`刷盘）；而`binlog`只有在事务提交时才写入，所以`redo log`和`binlog`的写入时机是不一致的
+
+### redo log和binlog两份日志不一致导致的问题
+
+以`update T set c = 1 where id = 2`为例，如果写完`redo log `后，`binlog`写入的过程中发生了异常
+
+由于`binlog`没写完就异常，这时候`binlog`里面没有对应的修改记录。因此，之后用`binlog`日志恢复从库的数据时，就会少这一次更新，恢复出来的这一行`c`值是`0`，而原库因为`redo log`日志恢复，这一行`c`值是`1`，最终数据不一致
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909112032.png)
+
+### 两阶段提交原理
+
+为了防止出现数据不一致的问题，MySQL将`redo log`的写入拆成了两个步骤`prepare`和`commit`，这就是**两阶段提交**
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909112205.png)
+
+
+
+- 当写入`binlog`时发生异常，MySQL会检查`redo log`处于什么阶段，如果是`prepare`阶段，并且也没有对应的`binlog`日志时，就会回滚事务
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909113524.png)
+
+- 当`redo log`设置`commit`阶段发生异常，此时虽然`redo log`还是处于`prepare`阶段，但是能通过事务Id在`binlog`中找到对应的`binlog`日志，所以可以认为这是完整的记录，就会把事务提交
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909113538.png)
+
 # 数据库设计
 
 ## 多表之间的关系
