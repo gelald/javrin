@@ -1364,15 +1364,17 @@ InnoDB支持行锁和表锁；MyISAM支持表锁
 
 # 日志
 
+MySQL日志主要包括错误日志、一般查询日志、慢查询日志、**事务日志**、**二进制**日志几大类
+
 日志刷新操作
 
-mysql:
+mysql
 
 ```mysql
 FLUSH LOGS;
 ```
 
-shell:
+shell
 
 ```shell
 mysqladmin flush-logs
@@ -1380,9 +1382,9 @@ mysqladmin flush-logs
 
 ## 错误日志
 
-记录MySQL服务启动和停止正确和错误的信息，还记录了mysqld实例运行过程中发生的错误事件信息
+记录MySQL服务启动和停止正确和错误的信息，还记录了`mysqld`实例运行过程中发生的错误事件信息
 
-查看错误日志的位置:
+查看错误日志的位置
 
 ```mysql
 show variables like 'log_error';
@@ -1392,9 +1394,9 @@ show variables like 'log_error';
 
 查询日志可以分为一般查询日志和慢查询日志，通过查询时间`long_query_time`的值来判定
 
-建议关闭这种日志，**默认是关闭的**，因为一般查询日志记录的意义不大，且数据量巨大，一般查询日志记录的不仅仅是select语句，几乎所有的语句都会记录
+建议关闭这种日志，**默认是关闭的**，因为一般查询日志记录的意义不大，且数据量巨大，一般查询日志记录的不仅仅是`select`语句，几乎所有的语句都会记录
 
-一般查询日志相关变量:
+一般查询日志相关变量
 
 ```
 general_log=off # 是否启用一般查询日志，为全局变量，必须在global上修改。
@@ -1442,11 +1444,12 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
   -g PATTERN   `grep: only consider stmts that include this string`：通过grep来筛选select语句。
 ```
 
-## 二进制日志(bin log)
+## 二进制日志(binlog)
 
-- 二进制日志包含了**引起或可能引起数据库改变**(如update、delete语句但没有匹配行)的事件信息，但绝不会包括select和show这样的查询语句。语句以**"事件"的形式保存**，所以包含了**时间、事件开始和结束位置等信息**。
+- `binlog`（归档日志）包含了**引起或可能引起数据库改变**(如`update`、`delete`语句但没有匹配行)的事件信息，但绝不会包括`select`和`show`这样的查询语句。语句以**"事件"的形式保存**，所以包含了**时间、事件开始和结束位置等信息**。
 - 对于事务表的操作，二进制日志**只在事务提交的时候一次性写入**，提交前的每个二进制日志记录都先cache，提交时写入。
 - 对于事务表来说，一个事务中可能包含多条二进制日志事件，它们会在提交时一次性写入；而对于非事务表的操作，每次执行完语句就直接写入。
+- MySQL数据库的**数据备份**、**主备**、**主主**、**主从**都需要`binlog`来同步数据，保证数据一致性
 
 ### 查看二进制日志
 
@@ -1478,15 +1481,62 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
 - `purge binary logs to 'filename.000006'`，清空000006之前的所有日志文件
 - `purge binary logs before '2020-01-01 10:00:00'`，删除指定日期之前的所有日志。但是若指定的时间处在正在使用中的日志文件中，将无法进行purge
 
-### 二进制日志格式
+### binlog日志格式
 
-- statement，记录为SQL语句形式，缺陷：无法记录`uuid()`、`now()`等动态值
-- row，保证了动态值确定性，相关行的每一列的值都在日志中保存下来，缺陷：导致日志文件变得非常大
-- mixed，mysql自己确定使用statement还是row形式，默认使用statement，以下几种情况会使用row形式
-  - 表的存储引擎为NDB，这时对表的DML操作都会以row的格式记录
-  - 使用`now()`、`uuid()`、`user()`等函数
+- `statement`，记录为SQL语句形式，如：`update T set update_time=now() where id=1`，记录的内容如下：
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210907111312.png)
+
+  同步数据时，就执行记录里面的SQL语句
+
+  缺陷：由于`uuid()`、`now()`这些方法每次执行的值都是不一样的，所以**无法记录动态值**
+
+- `row`，记录为SQL语句及其操作的具体数据，保证了动态值确定性，记录的内容如下：
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210907111928.png)
+
+  `row`格式记录的内容看不到详细信息，要通过`mysqlbinlog`工具解析出来。
+
+  缺陷：导致**日志文件变得非常大**，恢复与同步时会更消耗`IO`资源，影响执行速度
+
+- `mixed`，MySQL自己确定使用`statement`还是`row`形式，默认使用`statement`，以下几种情况会使用`row`形式
+  
+  - 表的存储引擎为NDB，这时对表的`DML`操作都会以`row`的格式记录
+  - 使用`now()`、`uuid()`、`user()`等可能引起数据不一致的函数
   - 使用`insert delay`语句
   - 使用临时表
+
+### binlog 刷盘时机
+
+在事务执行的过程中，先把内容写入到`binlog cache`中，在日志提交时，会把`binlog cache`中的内容写入`page cache`中，然后等待刷盘写入到`binlog`文件中
+
+因为一个事务的`binlog`不能被拆开，无论这个事务多大，也要**确保一次性写入**，所以系统会给每个线程分配一个块内存作为`binlog cache`，可以通过`binlog_cache_size`参数控制单个线程 `binlog cache` 大小，如果存储内容超过了这个参数，就要暂存到磁盘`Swap`
+
+`binlog`刷盘策略提供了`sync_binlog`参数
+
+- 0：每次事务提交时都只把 `binlog buffer` 内容写入 `page cache`，等待后台线程每秒的刷盘，把`page cache`的内容写入`binlog`文件**（默认）**
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210908143542.png)
+
+  由于`binlog cache`写入到`page cache`都是内存中的操作，不涉及到磁盘的操作，所以性能很高
+
+  缺点：当机器宕机，而且`page cache`还没进行刷盘操作时，`page cache`中本该记录到`binlog`日志中的内容会丢失
+
+- 1：每次事务提交时都会把`page cache`的内容进行刷盘
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210908141410.png)
+
+  每次事务提交都执行一次完整的记录流程，从`binlog cache`到`page cache`再到磁盘，数据安全不易丢失
+
+  缺点：每次提交事务都进行写磁盘的操作，性能不高
+
+- N(N>1)，折中方案，每次提交事务都把`binlog cache`的内容写入到`page cache`，但是累积N个事务后，才把`page cache`中的内容进行刷盘
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210908144438.png)
+
+  在出现`IO`瓶颈的场景里，将`sync_binlog`设置成一个比较大的值，可以提升性能
+
+  缺点：如果机器宕机，那么会丢失最近的N个事务的`binlog`日志
 
 ### 二进制日志相关变量
 
@@ -1531,16 +1581,121 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
 
 ### redo log
 
-重做日志，提供前滚操作
+**redo log**（重做日志）是**InnoDB存储引擎独有**的，它让MySQL拥有了**崩溃恢复**的能力，恢复数据时`InnoDB`会使用`redo log`来保证数据的完整性和持久性
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210902170055.png)
+
+#### redo log引入
+
+因为MySQL的IO代价的缘故，MySQL客户端不会每次都直接操作磁盘
+
+在执行查询语句时，MySQL会从磁盘中把一页的数据（称为数据页）加载出来放入**Buffer Pool**中，后续的查询都与这个`Buffer Pool`进行交互，减少磁盘IO开销，提升性能
+
+在执行更新语句时，MySQL的做法也同样如此，当`Buffer Pool`里面的数据需要更新时，先在`Buffer Pool`里面进行更新，当内存中(`Buffer Pool`)数据和硬盘中的数据不一致时，那么内存中的数据称为**脏页**，等待后续`Buffer Pool`进行**刷脏**，然后会把在哪个数据页上做了哪些修改记录到**redo log buffer**（称为重做日志缓存）里面，等待**后续刷盘到redo log文件里面**
+
+**从更新操作也可以看出，MySQL在写文件的处理中一般会伴随缓存+文件的组合**
+
+redo log中的记录是由**表空间号+数据页号+偏移量+修改数据长度+具体修改的数据**组成
+
+
+
+**总结**
+
+不把数据页直接刷盘，而用`redo log`进行修改内容的记录的原因
+
+1. 数据页大小是`16KB=16384Byte`，可能也就修改了数据页中几`Byte`的数据，没有必要把完整的数据页进行刷盘，**IO代价太大**
+2. 数据页刷盘是**随机写**，因为一个数据页对应的位置可能在硬盘文件的随机位置，所以性能是很差的；而`redo log`是**顺序写**，刷盘速度很快
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210902172253.png)
+
+#### redo log刷盘时机
+
+`InnoDB`存储引擎为`redo log`的刷盘策略提供了 `innodb_flush_log_at_trx_commit` 参数，它支持三种策略。另外`InnoDB`存储引擎有一个后台线程，每隔1秒，就会把`redo log buffer`中的内容写入到**page cache（文件系统缓存）**，然后调用**fsync刷盘**
+
+- 0：每次事务提交时不进行刷盘操作，只是等待后台线程进行每秒的刷盘
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906165553.png)
+
+- 1：每次事务提交时都进行刷盘操作**（默认）**，除了后台线程进行的每秒的刷盘外，一旦事务提交就进行主动刷盘
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906170211.png)
+
+- 2：每次事务提交时都只把 `redo log buffer` 内容写入 `page cache`，等待后台线程每秒的刷盘，把`page cache`的内容写入`redo log`文件
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906170444.png)
+
+#### redo log文件组
+
+硬盘上存储的 `redo log` 日志文件是以一个**日志文件组**的形式出现的，每个的`redo`日志文件大小都是一样的
+
+比如可以配置为一组`4`个文件，每个文件的大小是 `1GB`，那么整个 `redo log` 日志文件组可以记录`4G`的内容
+
+它采用的是**环形数组**形式，从头开始写，写到末尾又回到头循环写
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906171107.png)
+
+在日志文件组中有两个重要的属性
+
+- `write pos`：当前记录的位置，插入记录的位置
+- `checkpoint`：当前擦除的位置，从`redo log`恢复数据的开始位置
+
+如果`write pos`追上了`checkpoint`，**那就说明当前记录的`redo log`已经满了，如果再记录的话会把上一次开始记录的内容覆盖掉**，所以需要停下来先清空一些记录，把`checkpoint`往前推进
 
 #### redo log和bin log区别
 
-- redo log位于innodb存储引擎层，bin log位于server层
-- redo log记录的是数据库中每个页的修改，bin log记录的是逻辑性的语句(SQL语句)
+- 日志的位置
+  - `redo log`是`InnoDB`存储引擎特有的，位于**存储引擎层**
+  - `binlog`位于**MySQL Server层**
+- 日志的内容
+  - `redo log`记录的格式是**表空间号+数据页号+偏移量+修改数据长度+具体修改的数据**
+  - `binlog`记录的内容是**语句的原始逻辑（SQL语句）**，不管用什么存储引擎，只要发生了表数据更新，都会产生`binlog`日志
+- 两者都属于持久化的保证，但是侧重点不同
+  - `redo log`让`InnoDB`存储引擎拥有了崩溃恢复能力
+  - `binlog`保证了`MySQL`集群架构的数据一致性
+
+
 
 ### undo log
 
-回滚日志，提供回滚操作
+`undo log`（回滚日志）保证了事务的**原子性**
+
+当异常发生时，对已执行的操作需要进行**回滚**，在MySQL中，恢复机制是通过`undo log`回滚日志实现的
+
+**回滚日志会先于数据持久化到磁盘上**，这样就保证了即使遇到数据库突然宕机等情况，当用户再次启动数据库的时候，数据库还能够通过查询回滚日志来回滚将之前未完成的事务
+
+#### redo log和undo log区别
+
+MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久性**，使用 **undo log(回滚日志)** 来保证事务的**原子性**。
+
+
+
+## 两阶段提交
+
+在执行更新语句时，会记录`redo log`和`binlog`两份日志，`redo log`在事务执行过程中可以不断写入（因为`InnoDB`存储引擎有一个后台线程，每隔1秒，就会把`redo log buffer`中的内容写入到`page cache`，然后调用`fsync`刷盘）；而`binlog`只有在事务提交时才写入，所以`redo log`和`binlog`的写入时机是不一致的
+
+### redo log和binlog两份日志不一致导致的问题
+
+以`update T set c = 1 where id = 2`为例，如果写完`redo log `后，`binlog`写入的过程中发生了异常
+
+由于`binlog`没写完就异常，这时候`binlog`里面没有对应的修改记录。因此，之后用`binlog`日志恢复从库的数据时，就会少这一次更新，恢复出来的这一行`c`值是`0`，而原库因为`redo log`日志恢复，这一行`c`值是`1`，最终数据不一致
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909112032.png)
+
+### 两阶段提交原理
+
+为了防止出现数据不一致的问题，MySQL将`redo log`的写入拆成了两个步骤`prepare`和`commit`，这就是**两阶段提交**
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909112205.png)
+
+
+
+- 当写入`binlog`时发生异常，MySQL会检查`redo log`处于什么阶段，如果是`prepare`阶段，并且也没有对应的`binlog`日志时，就会回滚事务
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909113524.png)
+
+- 当`redo log`设置`commit`阶段发生异常，此时虽然`redo log`还是处于`prepare`阶段，但是能通过事务Id在`binlog`中找到对应的`binlog`日志，所以可以认为这是完整的记录，就会把事务提交
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909113538.png)
 
 # 数据库设计
 
@@ -1937,10 +2092,6 @@ mysql5.5版本后默认的存储引擎是InnoDB
 - 没有大小限制，内容可以追加
 - 可以被所有存储引擎使用
 - 可以用于数据恢复和主从复制
-
-真实版
-
-![真实的MySQL体系架构](https://gitee.com/ngwingbun/picgo-image/raw/master/images/mysql%20construct.png)
 
 ### InnoDB存储结构
 
