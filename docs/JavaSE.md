@@ -6,7 +6,7 @@
 **JRE**：Java Runtime Environment（java运行环境） 包含jvm和核心类库   **用于运行**
 **JDK**：Java Development Kit（ java开发工具包） 包含jre和开发工具   **用于开发**
 
-![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpkg8zlj30nk0c6wfq.jpg)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpkg8zlj30nk0c6wfq.jpg)
 
 ## Java关键字特性：
 
@@ -315,7 +315,10 @@ public class test{
 1. 对于btye/short/char三种类型来说，如果右侧赋值得数值没有超过范围，那么javac编译器会自动隐含地为我们补上一个(byte)/(short)/(char)
    1. 如果没有超过左侧的范围，编译器补上强转
    2. 如果右侧超过了左侧范围，那么直接报错
-2. 在给变量进行赋值的时候，如果右侧的表达式中全都是常量，没有任何变量，那么编译器javac会直接将若干个常量表达式计算得到结果。编译时赋值，不用等到运行时再去耗费cpu计算，这称为编译器的常量优化，但是一旦表达式中有其他变量参与，那么就不能进行这种优化了![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpkykeej30fl04xjtn.jpg)
+   
+2. 在给变量进行赋值的时候，如果右侧的表达式中全都是常量，没有任何变量，那么编译器javac会直接将若干个常量表达式计算得到结果。编译时赋值，不用等到运行时再去耗费cpu计算，这称为编译器的常量优化，但是一旦表达式中有其他变量参与，那么就不能进行这种优化了
+
+   ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpkykeej30fl04xjtn.jpg)
 
 ## switch语句注意
 
@@ -755,8 +758,12 @@ public class test{
 3. 如果内部类变量出现同名：
 
    1. 局部变量，直接引用
+   
    2. 内部类成员变量，this.变量
-   3. 外部类成员变量，外部类.this.变量![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrplbpz3j30eu0att92.jpg)
+   
+   3. 外部类成员变量，外部类.this.变量
+   
+      ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrplbpz3j30eu0att92.jpg)
    
 4. **匿名内部类**：
 
@@ -1544,7 +1551,7 @@ boolean empty(); //判断栈是否为空
 
 ##### 黑色完美平衡
 
-左子树和右子树的黑结点的层数是相等![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpne78rj30vg0lux1r.jpg)
+左子树和右子树的黑结点的层数是相等![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpne78rj30vg0lux1r.jpg)
 
 ##### 搜索
 
@@ -1607,19 +1614,19 @@ boolean empty(); //判断栈是否为空
 
 - LL旋转：**当x位于A的左子树的左子树上时，执行LL旋转**
 
-  ![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpoaj9gj314a0tm7wh.jpg)
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpoaj9gj314a0tm7wh.jpg)
 
 - RR旋转：**当x位于A的右子树的右子树上时，执行RR旋转**
 
-  ![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrppb6goj31ek0u0e81.jpg)
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrppb6goj31ek0u0e81.jpg)
 
 - LR旋转：当x位于A的左子树的右子树上时，执行LR旋转。设A的左子结点为left，left的右子结点为grandchild。**将left的右子结点指向grandchild的左子结点x，grandchild的左子结点指向left，A的左子结点指向grandchild的右子结点(将grandchild的右子节点指向A)，再将grandchild的右子结点指向A，最后将原来指向A的指针指向grandchild。**
 
-  ![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpq7kqlj31h80u0qv5.jpg)
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpq7kqlj31h80u0qv5.jpg)
 
 - RL旋转：当x位于A的右子树的左子树上时，执行RL旋转。设A的右子结点为right，right的左子结点为grandchild。**将right结点的左子结点指向grandchild的右子结点x，将grandchild的右子结点指向right，将A的右子结点指向grandchild的左子结点(将grandchild左子节点指向A)，将grandchild的左子结点指向A，最后将原来指向A的指针指向grandchild。**
 
-  ![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpr3hmaj31g40u0npd.jpg)
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpr3hmaj31g40u0npd.jpg)
 
 
 
@@ -1630,7 +1637,7 @@ boolean empty(); //判断栈是否为空
 - 数组的长度是不可变的，集合的长度是可变的
 - 数组中存储的是同一类元素，可以存储基本数据类型、引用数据类型。集合存储的都是对象，要存基本数据类型只能用其包装类
 
-单列集合结构图：![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpreee3j31ni0nstqc.jpg)
+单列集合结构图：![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpreee3j31ni0nstqc-20210912121238781.jpg)
 
 
 
@@ -1709,7 +1716,9 @@ public Object[] toArray();	//把集合的元素存到数组中
 
 #### LinkedList
 
-- #### LinkedList是一个双向链表![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrps8713j31c60lqale.jpg)
+- LinkedList是一个双向链表
+
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrps8713j31c60lqale-20210912121332088.jpg)
 
 - LinkedList的实现是不同步的
 
@@ -1744,7 +1753,7 @@ public Object[] toArray();	//把集合的元素存到数组中
   1. 不允许存储重复元素
   2. 没有索引，没有带索引的方法，不能使用普通for循环遍历
 - 注意：因为Collection同时是Set（没有索引）、List（有索引）的父类，所以Collection的方法是**没有索引**的，Set接口的方法也没有索引，**因此它的方法就是Collection的方法**，着重学习其子类
-- Set集合不允许存储重复元素的原理：set集合在调用add方法时，会调用元素的hashCode方法和equals方法，判断元素是否重复![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpt18lfj321k0u0u0x.jpg)
+- Set集合不允许存储重复元素的原理：set集合在调用add方法时，会调用元素的hashCode方法和equals方法，判断元素是否重复![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpt18lfj321k0u0u0x.jpg)
 
 #### *HashMap：哈希表
 
@@ -1776,7 +1785,7 @@ public Object[] toArray();	//把集合的元素存到数组中
 
   - 数组结构：把元素分组（相同哈希值的元素分为一组）
   - 链表/红黑树结构：把相同哈希值的元素连接到一起
-  - 数组-链表结构：![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrptq93tj310y0laak0.jpg)
+  - 数组-链表结构：![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrptq93tj310y0laak0.jpg)
   - 数组-红黑树结构：如果链表所挂元素超过8个，自动把链表转红黑树，提高查询速度
 
 - 两个元素不同，但哈希值相同，哈希冲突
@@ -1842,7 +1851,7 @@ Comparable和Comparator的区别：
 - 传入的对象-自己=降序排序
 - 组合排序
 
-![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpuavrfj30p008ijx0.jpg)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpuavrfj30p008ijx0.jpg)
 
 
 
@@ -1956,7 +1965,7 @@ void load(Reader reader);//同上
 
 ### 异常体系
 
-![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpuqyd3j312i0fygrs.jpg)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpuqyd3j312i0fygrs.jpg)
 
 ### Throwable
 
@@ -2380,7 +2389,7 @@ public boolean equals(Object other);	//判断是否为同一个对象
 
 #### 产生原因
 
-​	![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpw073pj31nm0u0u0y.jpg)
+​	![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpw073pj31nm0u0u0y.jpg)
 
 #### 解决方案
 
@@ -2476,7 +2485,7 @@ ReentrantLock Lock接口的实现类
 
 ### Timed Waiting：计时等待
 
-<img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrst0kjkj30zw0mggv8.jpg"/>
+<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrst0kjkj30zw0mggv8.jpg"/>
 
 两种方式进入：
 
@@ -2494,7 +2503,7 @@ void notifyAll()	//唤醒在此对象监视器上等待的所有线程
 
 ### Blocked：锁阻塞
 
-<img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrswpywlj30zs0mgdpe.jpg"/>
+<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrswpywlj30zs0mgdpe.jpg"/>
 
 ### Waiting：无限等待
 
@@ -2508,7 +2517,7 @@ void notifyAll()	//唤醒在此对象监视器上等待的所有线程
 - 为什么要使用：多个线程并发执行时，在默认情况下CPU是随机切换线程的，当我们需要多个线程来共同完成一个任务，并且我们希望他们有规律地执行，那么多个线程之间就需要一些协调通信，以此来帮我们达到多线程共同操作一份数据。
 - 如何保证线程间通信有效利用资源：多个线程在处理同一个资源，并且任务不同时，需要线程通信来帮助线程之间对同一个变量的操作，避免对同一共享变量的争夺。**通过等待与唤醒机制**来使各个线程能有效地利用资源
 - 生产者-消费者模型
-- 模型分析![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpx213aj32490u0hdt.jpg)
+- 模型分析![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpx213aj32490u0hdt.jpg)
 
 
 
@@ -2516,7 +2525,7 @@ void notifyAll()	//唤醒在此对象监视器上等待的所有线程
 
 ### 线程池概念
 
-一个容纳多个线程的容器（LinkedList、ArrayList、HashSet、HashMap），其中的线程可以反复利用，省去了频繁创建线程对象的操作，无序重复创建线程而消耗过多资源![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpxget1j30ke0csgmp.jpg)
+一个容纳多个线程的容器（LinkedList、ArrayList、HashSet、HashMap），其中的线程可以反复利用，省去了频繁创建线程对象的操作，无序重复创建线程而消耗过多资源![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpxget1j30ke0csgmp.jpg)
 
 ### 使用线程池原因
 
@@ -3256,9 +3265,9 @@ public Socket accept();	//侦听并接受此套接字的连接
 
 实现：
 
-- 客户端：![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpyksc2j30ys09iaq4.jpg)
+- 客户端：![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpyksc2j30ys09iaq4.jpg)
 
-- 服务器：![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrpzj2uuj31460bwqmg.jpg)
+- 服务器：![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrpzj2uuj31460bwqmg.jpg)
 
 - 阻塞问题：
 
@@ -3490,7 +3499,7 @@ System.out::println;
 
 **抽象概念**：将类的各个组成部分封装成为其他对象，这就是反射机制
 
-![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrq0dx9yj31yx0u0tre.jpg)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrq0dx9yj31yx0u0tre.jpg)
 
 ### 好处
 
@@ -3632,9 +3641,9 @@ public interface 注解名 extends java.lang.annotation.Annotation {}
 要求：
 
 	1. 返回值类型：基本数据类型、String、Enum、注解、以上类型的数组
-	2. 定义了属性，在使用时需要给属性赋值。就是在使用时，给接口中每一个抽象方法赋值；或者在抽象方法后加上default，给属性一个默认值 。如果只有一个属性并且属性名就叫value，那么可以省略，直接赋值。<img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrt3p1w6j30l80bydgt.jpg"/>
+	2. 定义了属性，在使用时需要给属性赋值。就是在使用时，给接口中每一个抽象方法赋值；或者在抽象方法后加上default，给属性一个默认值 。如果只有一个属性并且属性名就叫value，那么可以省略，直接赋值
 
-<img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrt73ikij30sa066t9i.jpg"/>
+<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrt3p1w6j30l80bydgt.jpg"/>
 
 
 
@@ -3760,7 +3769,7 @@ public interface 注解名 extends java.lang.annotation.Annotation {}
 
    答案：序列化，反序列化都正常，B端新增加的int字段被赋予了**默认值**0。
 
-5. 总结：只要serialVersionUID不一致，序列化一定失败，反之则一定成功。![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrq0qkztj30e407qdfz.jpg)
+5. 总结：只要serialVersionUID不一致，序列化一定失败，反之则一定成功。![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrq0qkztj30e407qdfz.jpg)
 
 **序列化保存的是对象的状态，静态变量属于类的状态，因此 序列化并不保存静态变量。**
 

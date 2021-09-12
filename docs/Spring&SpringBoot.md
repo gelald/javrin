@@ -6,7 +6,7 @@
 
 三层架构
 
-![ssm三层架构](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrp3ldh9j31bv0qzac3.jpg)
+![ssm三层架构](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrp3ldh9j31bv0qzac3.jpg)
 
 ## 程序耦合和解耦
 
@@ -482,7 +482,7 @@ public class SpringJunitTest {
 
 ### 基于JDK的动态代理
 
-![image-20200711183642107](https://tva1.sinaimg.cn/large/007S8ZIlgy1ggn7trpl4aj30r20euq73.jpg)
+![image-20200711183642107](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggn7trpl4aj30r20euq73.jpg)
 
 寻找目标对象实现的接口，对接口动态地生成一个代理实现对象，目标对象与代理对象是兄弟关系的
 
@@ -517,7 +517,7 @@ public class ProxyTest {
 
 ### 基于cglib的动态代理
 
-![image-20200711183918941](https://tva1.sinaimg.cn/large/007S8ZIlgy1ggn7wgbsnoj30m60fqtbr.jpg)
+![image-20200711183918941](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggn7wgbsnoj30m60fqtbr.jpg)
 
 对目标对象动态地生成一个子对象
 
@@ -647,11 +647,11 @@ public static void main(final String[] args) {
 
 没有异常抛出的通知执行
 
-![image-20200712001518331](https://tva1.sinaimg.cn/large/007S8ZIlgy1ggnhm1nw9ij30bs09amxq.jpg)
+![image-20200712001518331](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggnhm1nw9ij30bs09amxq.jpg)
 
 有异常抛出的通知执行
 
-![image-20200712001543888](https://tva1.sinaimg.cn/large/007S8ZIlgy1ggnhmhix3gj30a406c74l.jpg)
+![image-20200712001543888](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggnhmhix3gj30a406c74l.jpg)
 
 ### 注解方式的AOP开发
 
@@ -1248,7 +1248,7 @@ library:
   2. resources目录下的config目录下的配置文件
   3. resources目录下的配置文件
 
-  ![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gfsrp5jrztj30vz0u0e2f.jpg)
+  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrp5jrztj30vz0u0e2f.jpg)
   
   SpringBoot读取配置文件顺序
   
