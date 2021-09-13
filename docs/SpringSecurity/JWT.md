@@ -1,6 +1,8 @@
 # JWT
 
-随着移动互联网的兴起，传统基于session/cookie的web网站认证方式转变为了基于OAuth2等开放授权协议的单点登录模式（SSO，Single Sign On），相应的基于服务器session+浏览器cookie的Auth手段也发生了转变，JWT(Json Web Token)的出现成为了当前的热门的Token Auth机制。JWT是一个非常轻巧的规范，这个规范允许我们使用JWT在两个组织之间传递安全可靠的信息。session/cookie得方式把认证信息放在了服务端，jwt把认证信息放在了客户端，减轻了服务端的内存压力
+随着移动互联网的兴起，传统基于`Session+Cookie`的Web网站认证方式转变成了基于`OAuth2`等开放授权协议的单点登录模式（SSO，Single Sign On），相应的基于服务器`Session+Cookie`的Auth手段也转变成JWT(Json Web Token)为代表的Token Auth机制。
+
+JWT是一个非常轻巧的规范，这个规范允许我们使用JWT在两个组织之间传递安全可靠的信息。`Session+Cookie`的方式把认证信息放在了服务端，JWT把认证信息放在了客户端，减轻了服务端的内存压力
 
 ## 特点
 
@@ -68,7 +70,7 @@ JWE由五部分组成
 6. 算法会随之生成一个128位的认证标记**Authentication Tag**
 7. 对5个部分分别进行Base64编码
 
-JWE的计算过程相对繁琐，不够轻量级，因此**适合与数据传输而非token认证**，但该协议也足够安全可靠，用简短字符串描述了传输内容，**兼顾数据的安全性与完整性**。
+JWE的计算过程相对繁琐，不够轻量级，因此**适合与数据传输而非Token认证**，但该协议也足够安全可靠，用简短字符串描述了传输内容，**兼顾数据的安全性与完整性**。
 
 ## JWT流程
 

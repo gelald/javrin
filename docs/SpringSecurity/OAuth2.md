@@ -864,7 +864,7 @@ public RedisTokenStore redisTokenStore(){
   "access_token": "x8U6xmAK0MeFDEJ0",
   //token类型是一个票据类型，还有授权码类型等等
   "token_type": "bearer",
-  //用与刷新access_token（资源访问token）的token
+  //用于刷新access_token（资源访问token）的token
   "refresh_token": "0qLDRZE70MeFDEI!",
   //access_token剩余存活时间（单位是秒）
   "expires_in": 29658,
