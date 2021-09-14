@@ -97,7 +97,7 @@
 
 #### 架构 
 
-![](https://gitee.com/ngyb/pic/raw/master/zuul%E6%9E%B6%E6%9E%84.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/zuul%E6%9E%B6%E6%9E%84.png)
 
 - Zuul Servlet负责接入请求
 
@@ -121,7 +121,7 @@
 
 #### 过滤器生命周期
 
-![](https://gitee.com/ngyb/pic/raw/master/%E8%BF%87%E6%BB%A4%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/%E8%BF%87%E6%BB%A4%E5%99%A8%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png)
 
 - 可以自定义前置过滤器，设置各种过滤条件
 
@@ -131,7 +131,7 @@
 
 #### 架构
 
-![](https://gitee.com/ngyb/pic/raw/master/Gateway%E6%9E%B6%E6%9E%84.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/Gateway%E6%9E%B6%E6%9E%84.png)
 
 - Proxy Filter 代理过滤器就是路由过滤器 负责路由到对应的服务
 

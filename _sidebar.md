@@ -5,7 +5,12 @@
   * [jvm](docs/b-4jvm.md)
 
 * Spring
-  * [SpringSecurity](docs/SpringSecurity.md)
+  * [SpringMVC](docs/SpringMVC.md)
+
+* SpringSecurity
+  * [SpringSecurity基础](docs/SpringSecurity/SpringSecurity.md)
+  * [SpringSecurityOAuth2](docs/SpringSecurity/OAuth2.md)
+  * [JWT](docs/SpringSecurity/JWT.md)
 
 * 计算机基础
   * [计算机网络](docs/Network.md)

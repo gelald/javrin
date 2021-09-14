@@ -1,116 +1,99 @@
 # UML
 
-统一建模语言（Unified Modeling Language），是一种为面向对象系统的产品进行说明、可视化和编制文档的**一种标准语言**。
+统一建模语言（Unified Modeling Language），是一种为**面向对象**系统的产品进行说明、可视化和编制文档的**标准语言**。
 
 UML使用面向对象设计的建模工具，但独立于任何具体程序设计语言
 
 ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210519173435.png)
 
-# 结构图
+## 关系描述
 
-## 静态图
+- 关联：一种拥有的关系，具有方向性
+  - **普通箭头实线**的表示**单向关系**，**箭头**指向**被拥有者**
 
-### 类图
+  - **没有箭头实线**的表示**双向关系**
 
-#### 关系描述
+- 聚合：整体与部分的关系。**不同的生命周期**
+  - 用**带空心菱形的实线**表示，**菱形**指向**整体**，**箭头**指向**个体**
 
-##### 关联关系
+- 组合：整体与部分的关系，组合比聚合更加**严格**。**相同的生命周期**
+  - 用**带实心菱形的实线**表示，**菱形**指向**整体**，**箭头**指向**个体**
 
-一种拥有的关系，具有方向性
+- 泛化：表示一个**更泛化**的元素和一个**更具体**的元素之间的关系。父类与子类的关系
+  - 用**带三角箭头的实线**表示，**箭头**指向**父类**
 
-**普通箭头实线的表示单向关系，箭头指向被拥有者**![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528152414.png)
+- 实现：实现类与接口的关系
+  - 用**带三角箭头的虚线**表示，**箭头**指向**接口**
 
-**不用箭头实线的表示双向关系**![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528152433.png)
-
-##### 聚合关系
-
-整体与部分的关系。**不同的生命周期**
-
-**用带空心菱形的实线表示，菱形指向整体，箭头指向个体**![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210527142356.png)
-
-##### 组合关系
-
-整体与部分的关系，组合比聚合更加严格。**相同的生命周期，人和手**
-
-**用带实心菱形的实线表示，菱形指向整体，箭头指向个体**![image-20210527145559530](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20210527145559530.png)
-
-##### 泛化关系
-
-表示一个更泛化的元素和一个更具体地元素之间地关系。**与继承地概念相同**
-
-**用带三角箭头地实线表示，箭头指向父类**![image-20210527163801461](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20210527163801461.png)
-
-##### 实现关系
-
-类与接口地关系
-
-**用带三角箭头的虚线表示，箭头指向接口**![image-20210527163910615](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20210527163910615.png)
-
-##### 依赖关系
-
-如果一个类的改动会影响到另一个类，则两个类之间存在依赖关系，一般而言，依赖是单向的
-
-**用带普通箭头的虚线表示，箭头指向被依赖者**![image-20210527164028177](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20210527164028177.png)
+- 依赖：如果一个类的改动会影响到另一个类，则两个类之间存在依赖关系，**一般而言，依赖是单向的**
+  - 用**带普通箭头的虚线**表示，**箭头**指向**被依赖者**
 
 
 
-![image-20210527164239202](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20210527164239202.png)
+## 类图
 
-- `+`表示public
-- `-`表示private
-- `#`表示protected
-- `~`表示default，可省略
-- 字段和方法返回值的数据类型非必须
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913152524.png)
+
+- `+`：`public`
+- `-`：`private`
+- `#`：`protected`
+- `~`：`default`，可省略
+- 字段和方法返回值的数据类型**可省略**
 - **抽象**类或抽象方法用**斜体**表示
 - **静态**类或静态方法加**下划线**
 - 如果是接口需要在类名上方加<\<Interface>\>
 
-#### 类图、关系案例
+### 类图案例
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528153025.png)
+#### 案例一
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913155546.png)
 
 #### 案例二《大话设计模式》
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528160102.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913160834.png)
 
-# 交互图
+
 
 ## 时序图
 
-时序图描述对象之间消息的发送顺序，强调时间顺序。时序图是一个二维图，横轴代表对象，纵轴表示时间，消息在各对象之间横向传递，依照时间顺序纵向排列。用箭头表示消息、用竖虚线表示对象的生命线
+时序图描述对象之间消息的发送顺序，**强调时间顺序**。时序图是一个二维图，**横轴代表对象**，**纵轴表示时间**，消息在各对象之间横向传递，依照时间顺序纵向排列。用箭头表示消息、用竖虚线表示对象的生命线
 
 **可以直观的描述并发进程**
 
 ###  组成元素
 
-#### 角色（Actor）
+- 角色（Actor）：系统角色：人、机器，一般是一个入口
 
-#### 对象（Object）
+- 对象（Object）：类名
 
-#### 生命线（Lifeline）
+- 生命线（Lifeline）：对象所存在的时间
 
-#### 控制焦点（Focus of Control）
+- 控制焦点（Focus of Control）：激活，当前执行的逻辑
 
-#### 消息（Message）
+- 消息（Message）：同步消息、异步消息
 
-#### 自关联消息
+- 自关联消息：方法自身调用、一个对象的某个方法调用另一个方法
 
-#### 组合片段
+- 组合片段
+  - Opt 选项：包含一个可能发生或可能不发生的序列，可以在临界中指定序列发生的条件
 
-- Opt 选项：包含一个可能发生或可能不发生的序列，可以在临界中指定序列发生的条件
-- Alt 抉择：包含一个片段列表，这些片段包含备选的消息序列，**仅能发生一个序列**
-- par 并行：并行执行
-- Loop 循环：片段重复一定次数
+    ![image-20210913164725091](/Users/ngyb/Library/Application Support/typora-user-images/image-20210913164725091.png)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528165112.png)
+  - Alt 抉择：包含一个片段列表，这些片段包含备选的消息序列，**仅能发生一个序列**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528170059.png)
+    ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913164626.png)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528170155.png)
+  - Par 并行：并行执行
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210528170243.png)
+    ![image-20210913164838389](/Users/ngyb/Library/Application Support/typora-user-images/image-20210913164838389.png)
+
+  - Loop 循环：片段重复一定次数
+
+    ![image-20210913164905544](/Users/ngyb/Library/Application Support/typora-user-images/image-20210913164905544.png)
 
 ### 时序图案例
 
-![image-20210528171201505](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20210528171201505.png)
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913165451.png)
 
+图像无法加载
