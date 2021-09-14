@@ -12,6 +12,11 @@
   * [SpringSecurityOAuth2](docs/SpringSecurity/OAuth2.md)
   * [JWT](docs/SpringSecurity/JWT.md)
 
+* 消息队列
+  * [消息队列基础内容](docs/MessageQueue/MessageQueue.md)
+  * [RabbitMQ](docs/MessageQueue/RabbitMQ.md)
+  * [RocketMQ](docs/MessageQueue/RocketMQ.md)
+
 * 计算机基础
   * [计算机网络](docs/Network.md)
   * [算法](docs/Algorithm.md)
