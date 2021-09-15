@@ -17,6 +17,10 @@
   * [RabbitMQ](docs/消息队列/RabbitMQ.md)
   * [RocketMQ](docs/消息队列/RocketMQ.md)
 
+* 设计模式
+  * [设计原则](docs/设计模式/设计原则.md)
+  * [工厂模式](docs/设计模式/设计模式.md)
+
 * 计算机基础
   * [计算机网络](docs/Network.md)
   * [算法](docs/Algorithm.md)
