@@ -68,7 +68,7 @@
 - **Routing Key**：路由关键字，Exchange交换机根据路由规则把这个关键字进行消息路由。由Exchange、Queue、Routing Key三者唯一决定一个消息的线路
 - **Producer**：消息生产者
 - **Consumer**：消息消费者，消费者通过监听的机制获取事件
-- **Channel**：消息通道，在客户端的连接里可以建立多个Channel，每个Channel代表一个会话任务。在保持的TCP长连接中，创建和释放虚拟的连接
+- **Channel**：消息通道，在客户端的连接里可以建立多个Channel，每个Channel代表一个会话任务。在保持的TCP长连接中，创建和释放**虚拟的连接**
 
 
 
