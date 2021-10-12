@@ -373,7 +373,13 @@
 
 ### 消息发送确认机制
 
-确认消息是否成功发送，confirm机制
+确认消息是否成功发送
+
+> confirm机制：消息的确认，是指生产者投递消息后，如果 `Broker` 收到消息，则会给生产者一个应答。生产者进行接收应答，用来确定这条消息是否正常的发送到 `Broker` ，这种方式也是消息的**可靠性投递的核心保障**
+
+> return机制：消息路由的确认，是指生产者投递消息到 `Broker` 后，需要由交换机进行消息的路由（如果有交换机参与工作），如果指定的路由键无法路由到指定队列上，那么会返回生产者一个**路由失败**的消息，但是需要设置`Mandatory`模式
+
+
 
 - 配置文件
 
@@ -400,7 +406,7 @@
       public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
           RabbitTemplate rabbitTemplate = new RabbitTemplate();
           rabbitTemplate.setConnectionFactory(connectionFactory);
-          //设置开启Mandatory,才能触发回调函数,无论消息推送结果怎么样都强制调用回调函数
+          //设置开启Mandatory,才能触发ReturnsCallback回调函数
           rabbitTemplate.setMandatory(true);
           //只要消息成功发到rabbitmq的server,无论是否到达交换机、队列中,都触发这个方法
           rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
