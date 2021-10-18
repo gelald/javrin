@@ -96,7 +96,7 @@
 有两个可以指定的值：
 
 - `org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl`
-- ``org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy`
+- `org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy`
 
 
 
