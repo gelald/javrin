@@ -538,7 +538,161 @@
 
 ### 消息接收确认机制
 
+- 自动确认**（默认）**，`AcknowledgeMode.NONE`。
 
+  RabbitMQ成功将消息发出（即将消息成功写入TCP Socket）中立即认为本次投递已经被正确处理，不管消费者端是否成功处理本次投递。
+  所以这种情况如果消费端消费逻辑抛出异常，也就是**消费端没有处理成功这条消息**，**那么就相当于丢失了消息**。
+  一般这种情况需要使用try catch捕捉异常后，打印日志用于追踪数据，以防这条消息丢失，这样找出对应数据再做后续处理。
+
+- 根据情况确认
+
+- 手动确认，`Acknowledge.MANUAL`。
+
+  消费者收到消息后，手动调用`basic.ack`/`basic.nack`/`basic.reject`后，`RabbitMQ`收到这些消息后才认为投递成功
+
+  - `basic.ack`：用于肯定确认
+
+    `channel.basicAck(long deliveryTag, boolean multiple)`：消费当前消息
+
+    `deliverTag`参数表示当前消息数据的唯一Id
+
+    `multiple`参数表示是否针对多条消息，如果是`false`那么代表消费单条消息；如果是`true`那么针对当前通道的消息的`deliverTag`小于当前这条消息的，都消费
+
+  - `basic.nack`：用于否定确认
+
+    `channel.basicNack(long deliveryTag, boolean multiple, boolean requeue)`：拒绝消费当前消息
+
+    `deliverTag`参数表示当前消息数据的唯一Id
+
+    `multiple`参数表示是否针对多条消息，如果是`false`那么代表拒绝单条消息；如果是`true`那么针对当前通道的消息的`deliverTag`小于当前这条消息的，都拒绝消费
+
+  - `basic.reject`：用于否定确认，但是限制一次只能拒绝单条消息
+
+    `channel.basicReject(long deliveryTag, boolean requeue)`：拒绝消费当前消息
+
+    如果`requeue`参数设置为`true`，那么将数据重新放入队列中，下次还会继续消费。一般会在出现异常的时候，catch异常拒绝消费再选择是否重新入列，但是**需要谨慎使用，否则会出现消费-入列-消费-入列的循环，导致消息堆积**
+
+    如果`requeue`参数设置为`false`，那么会通知`RabbitMQ`这条消息不需要了，把这个消息丢弃
+
+
+
+设置手动监听类的时候，前面使用`RabbitListener`的消息监听类需要注释掉，**以免造成多个同类型监听器监听同一个队列**
+
+配置手动确认消息监听类的时候可以指定多个队列，然后可以在监听类中根据队列做判断
+
+- 配置类
+
+  ```java
+  @Slf4j
+  @Configuration
+  public class RabbitConsumerConfiguration {
+      private final ManualAckListener manualAckListener;
+  
+      public RabbitConsumerConfiguration(ManualAckListener manualAckListener) {
+          this.manualAckListener = manualAckListener;
+      }
+  
+      @Bean
+      public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionFactory connectionFactory) {
+          SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
+          container.setConcurrentConsumers(1);
+          container.setMaxConcurrentConsumers(1);
+          //RabbitMQ默认是自动确认，这里改为手动确认消息
+          container.setAcknowledgeMode(AcknowledgeMode.MANUAL);
+          //设置队列
+          container.setQueueNames(
+                  RabbitConstant.PUBLISH_SUBSCRIBE_MANUAL_QUEUE,
+                  RabbitConstant.ROUTING_MANUAL_QUEUE
+          );
+          //手动确认消息监听类
+          container.setMessageListener(manualAckListener);
+          return container;
+      }
+  }
+  ```
+
+- 消息监听类
+
+  ```java
+  @Slf4j
+  @Component
+  public class ManualAckListener implements ChannelAwareMessageListener {
+      @Override
+      public void onMessage(Message message, Channel channel) throws IOException {
+          //消息的id
+          long deliveryTag = message.getMessageProperties().getDeliveryTag();
+          log.info("消息的id: {}", deliveryTag);
+          try {
+              //消息来自的队列
+              final String consumerQueue = message.getMessageProperties().getConsumerQueue();
+              log.info("消费的主题消息来自: {}", consumerQueue);
+              if (RabbitConstant.PUBLISH_SUBSCRIBE_MANUAL_QUEUE.equals(consumerQueue)) {
+                  log.info("执行FanoutQueue中的消息的业务处理流程");
+              }
+              if (RabbitConstant.ROUTING_MANUAL_QUEUE.equals(consumerQueue)) {
+                  log.info("执行DirectQueue中的消息的业务处理流程");
+              }
+              channel.basicAck(deliveryTag, false);
+          } catch (Exception e) {
+              e.printStackTrace();
+              channel.basicReject(deliveryTag, true);
+          }
+  
+      }
+  }
+  ```
+
+  
 
 ## RabbitMQ面试题
 
+### 消息是怎么路由的
+
+生产者生产消息后消息带有 routing Key，消费者队列根据routing Key 被绑定到交换器上，消息到达交换器根据交换器规则匹配，常见的交换机如下：`fanout`扇形交换机，如果交换机收到消息，就会把消息的副本广播到所有绑定的队列上；`direct`直连交换机，如果路由键完全匹配，消息就会被投递到相应的队列上；`topic`主题交换机，如果消息符合多个队列的路由键通配符，那么会把这个消息的副本投递到所有符合的队列上
+
+### RabbitMQ消息基于什么传输
+
+**信道**是生产者消费者和RabbitMQ通信的渠道。以发布订阅模式来说，生产者`publish`消息到队列和消费者`subscribe`队列都是通过信道来完成的。信道是建立在TCP连接上的**虚拟连接**，RabbitMQ通过一个TCP连接来建立多个信道来达到多个线程处理的目的，这个TCP连接被多个线程共享，信道有唯一的ID来保证信道私有性，对应唯一的线程使用。用信道而不用 TCP 的原因是由于 **TCP 连接的创建和销毁开销较大**，且并发数受系统资源限制，会造成性能瓶颈
+
+### 如何保证RabbitMQ消息不丢失
+
+可能发生消息丢失的地方：生产者丢失消息、队列丢失消息、消费者丢失消息
+
+- 生产者丢失消息
+
+RabbitMQ提供**`transaction`和`confirm`机制**来确保生产者不丢失消息
+
+`transaction` 机制：发送消息前，开启事务`channel.txSelect()`，然后发送消息，如果发送过程中出现什么异常，事务就会回滚`channel.txRollback()`，如果发送成功则提交事务`channel.txCommit()`。注意：事务卡顿会导致后面无法发送，官方说加入事务机制MQ**会降速250倍**。
+
+`confirm` 机制：生产者确认发送消息，一旦信道进入 `confirm` 模式，所有在该信道上发布的消息都将会被指派一个从1开始的唯一的ID，一旦消息被投递到所有匹配的队列之后，**`RabbitMQ` 就会发送一个包含消息的唯一ID 的 `Ack` 消息给生产者，这就使得生产者知道消息已经正确到达目的队列了。**如果 `RabbitMQ` 没能处理该消息，则会发送一个 `Nack` (not acknowledged) 消息给生产者，这时生产者可以进行重试操作。
+
+- 队列丢失消息
+
+处理队列丢失数据的情况，一般是**开启持久化**的配置
+
+1. 队列持久化：`durable=true`
+
+2. 消息持久化：`deliveryMode=2`
+
+这个持久化可以搭配生产者 `confirm` 机制使用，可以在消息持久化磁盘后，再给生产者发送一个 `Ack` 的信号
+
+此外，持久化是一个权衡问题，持久化可能导致系统QPS下降，所以一般仅对关键消息进行持久化处理，且保证持久化不会成为系统瓶颈
+
+- 消费者丢失消息
+
+处理消费者丢失数据的情况，一般使用**手动确认收到消息**的方式
+
+自动确认的情况：当消费者收到消息后，处理消息前，会**自动回复 `RabbitMQ` 已收到消息**，这时如果处理消息失败，就会丢失这个消息
+
+手动确认的情况：只有当消费者成功消费消息后，才**手动回复**确认收到的消息。消费者跟消息队列的连接不中断，`RabbitMQ` 给了消费者足够长的时间来处理消息，保证数据的最终一致性。
+
+注意点：
+
+1. 消费者接收到消息却没有确认消息，连接也未断开，则 `RabbitMQ` 认为该消费者繁忙，将不会给该消费者分发更多的消息
+2. 如果消费者接收到消息，在确认之前断开了连接或取消订阅，`RabbitMQ` 会认为消息没有被分发，然后重新分发给下一个订阅的消费者，**这时可能存在消息重复消费的隐患，需要去重**
+
+### 如何保证RabbitMQ消息不重复
+
+消息重复的情况有：生产者重复发送消息、消费者重复消费消息
+
+一般的解决方法是**通过幂等性来保证重复消费的消息不对结果产生影响**
