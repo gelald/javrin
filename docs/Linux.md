@@ -925,3 +925,79 @@ wget –ftp-user=USERNAME –ftp-password=PASSWORD url
 - 想快速下载并且没有担心参数标识的需求-wget
 
 - 想做一些更复杂的使用-curl
+
+
+
+# Terminal
+
+## oh-my-zsh
+
+### 安装oh-my-zsh
+
+```shell
+# 第一步 （确保你的系统中有 zsh、git、wget、curl）
+sudo apt install zsh
+# 第二步 （使用脚本进行安装，这里安装完成后会询问是否把oh-my-zsh修改默认shell）
+sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+```
+
+
+
+### 安装oh-my-zsh插件
+
+```shell
+# zsh-autosuggestions插件 （类似代码提示）
+git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions
+# zsh-syntax-highlighting插件 （语法检测，输入的命令是否存在等）
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
+```
+
+修改配置文件使插件生效
+
+```shell 
+vim ~/.zshrc
+```
+
+找到插件那一部分
+
+```shell
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+```
+
+保存后执行
+
+```shell
+source ~/.zshrc
+```
+
+
+
+### 安装oh-my-zsh主题
+
+[oh-my-zsh主题库](https://github.com/ohmyzsh/ohmyzsh/wiki/Themes) 需要的可以从上面下载
+
+修改配置文件使主题生效
+
+```shell
+vim ~/.zshrc
+```
+
+找到主题那一部分，使用系统自带的`ys`主题
+
+```shell
+# Set name of the theme to load --- if set to "random", it will
+# load a random theme each time oh-my-zsh is loaded, in which case,
+# to know which specific one was loaded, run: echo $RANDOM_THEME
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
+#ZSH_THEME="robbyrussell"
+ZSH_THEME="ys"
+```
+
+保存后执行
+
+```shell
+source ~/.zshrc
+```
+
