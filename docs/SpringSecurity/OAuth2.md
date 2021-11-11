@@ -218,7 +218,7 @@ https://b.com/oauth/token?
 
 ## 从client_credentials模式看token生成
 
-虽然凭证式(cliennt_credentials)和其他模式有所不同，但是**总体上的抽象是固定的**，只是具体的实现类会被响应地替换。我们从**最简单**的凭证式去看spring security oauth2内部的运作流程，**方便理解**
+虽然凭证式(cliennt_credentials)和其他模式有所不同，但是**总体上的抽象是固定的**，只是具体的实现类会被相应地替换。我们从**最简单**的凭证式去看spring security oauth2内部的运作流程，**方便理解**
 
 **首先开启Debug信息**
 
