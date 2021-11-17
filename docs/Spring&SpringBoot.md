@@ -921,12 +921,14 @@ ImportSelector更为灵活，还可以实现批量装配，并且可以根据上
 
 ## @Autowired
 
-### 基于 constrctor 注入
+### Spring中三种依赖注入的方式
+
+#### 基于 constrctor 注入
 
 ```java
-private DependencyA dependencyA;
-private DependencyB dependencyB;
-private DependencyC dependencyC;
+private final DependencyA dependencyA;
+private final DependencyB dependencyB;
+private final DependencyC dependencyC;
  
 @Autowired
 public DI(DependencyA dependencyA, DependencyB dependencyB, DependencyC dependencyC) {
@@ -938,10 +940,10 @@ public DI(DependencyA dependencyA, DependencyB dependencyB, DependencyC dependen
 
 > 在Spring 4.3 版本后，如果这个类只有一个构造方法，那么这个构造方法上面的`@Autowired`可以省略
 
-- 优点：基于constructor的注入，会**固定依赖注入的顺序**；该方式不允许我们创建bean对象之间的循环依赖关系，这种限制其实是一种利用构造器来注入的益处 - 当你甚至没有注意到使用setter注入的时候，Spring能解决循环依赖的问题
+- 优点：基于constructor的注入，会**固定依赖注入的顺序**；该方式不允许我们创建bean对象之间的循环依赖关系，这种限制其实是一种利用构造器来注入的益处 - 当你甚至没有注意到使用setter注入的时候，Spring**能解决循环依赖**的问题
 - **明显缺点**：假如我们需要注入的对象特别多的时候，我们的构造器就会显得非常的冗余、不好看，非常影响美观和可读性，维护起来也较为困难。解决手段：使用Lombok插件中的`@RequiredArgsConstructor`注解，省去手动编写构造方法的工作
 
-### 基于 setter 注入
+#### 基于 setter 注入
 
 ```java
 private DependencyA dependencyA;
@@ -969,7 +971,7 @@ public void setDependencyC(DependencyC dependencyC) {
 - 优点：基于setter的注入，只有**当对象是需要被注入的时候它才会帮助我们注入依赖，而不是在初始化的时候就注入**；另一方面如果你使用基于constructor注入，CGLIB不能创建一个代理，迫使你使用基于接口的代理或虚拟的无参数构造函数
 - 缺点：我们不能将对象设为final的
 
-### 基于 filed 注入
+#### 基于 filed 注入
 
 ```java
 @Autowired
