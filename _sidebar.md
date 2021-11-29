@@ -18,6 +18,7 @@
   - 行为型设计模式
     - [委派模式](docs/设计模式/委派模式)
     - [模板方法模式](docs/设计模式/模板方法模式)
+    - [策略模式](docs/设计模式/策略模式)
 - Spring
   - [SpringMVC](docs/SpringMVC.md)
 - SpringSecurity
