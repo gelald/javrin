@@ -21,6 +21,7 @@
     - [策略模式](docs/设计模式/策略模式)
     - [责任链模式](docs/设计模式/责任链模式)
     - [迭代器模式](docs/设计模式/迭代器模式)
+    - [命令模式](docs/设计模式/命令模式)
 - Spring
   - [SpringMVC](docs/SpringMVC.md)
 - SpringSecurity
