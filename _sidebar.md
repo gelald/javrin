@@ -23,6 +23,7 @@
     - [迭代器模式](docs/设计模式/迭代器模式)
     - [命令模式](docs/设计模式/命令模式)
     - [状态模式](docs/设计模式/状态模式)
+    - [备忘录模式](docs/设计模式/备忘录模式)
 - Spring
   - [SpringMVC](docs/SpringMVC.md)
 - SpringSecurity
