@@ -24,6 +24,7 @@
     - [命令模式](docs/设计模式/命令模式)
     - [状态模式](docs/设计模式/状态模式)
     - [备忘录模式](docs/设计模式/备忘录模式)
+    - [中介者模式](docs/设计模式/中介者模式)
 - Spring
   - [SpringMVC](docs/SpringMVC.md)
 - SpringSecurity
