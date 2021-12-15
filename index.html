@@ -7,9 +7,8 @@
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <link rel="icon" href="resources/favicon.ico" type="image/x-icon"/>
-  <link rel="stylesheet" href="//unpkg.com/docsify/themes/vue.css">
-  <!-- <link rel="stylesheet" href="//unpkg.com/docsify/themes/buble.css"> -->
-  <!-- <link rel="stylesheet" href="//unpkg.com/docsify/themes/dark.css"> -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/vue.css">
+  <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/buble.css"> -->
 </head>
 <body>
   <div id="app">正在加载中,请稍等~</div>
@@ -32,19 +31,24 @@
         noData: '找不到结果',
         // 搜索标题的最大程级, 1 - 6
         depth: 3,
-      }
+      },
+      //切换页面后自动跳转到页面顶部
+      auto2top: true
     }
   </script>
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
-  <!--全文搜索-->
-  <script src="https://cdn.bootcss.com/docsify/4.5.9/plugins/search.min.js"></script>
-  <!--Java代码高亮-->
-  <script src="//unpkg.com/prismjs/components/prism-java.js"></script>
-  <!-- 复制代码到剪贴板 -->
-  <script src="//unpkg.com/docsify-copy-code"></script>
+  <!-- docsify核心文件 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/docsify.min.js"></script>
+  <!-- 搜索插件 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/plugins/search.min.js"></script>
   <!-- 图片缩放 -->
-  <script src="//unpkg.com/docsify/lib/plugins/zoom-image.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/plugins/zoom-image.min.js"></script>
+  <!-- emoji插件 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/plugins/emoji.min.js"></script>
   <!-- 字数统计 -->
-  <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-count@1.1.0/dist/countable.min.js"></script>
+  <!-- 复制代码到剪贴板 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2.1.1/dist/docsify-copy-code.min.js"></script>
+  <!-- Java代码高亮 -->
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-java.min.js"></script>
 </body>
 </html>
