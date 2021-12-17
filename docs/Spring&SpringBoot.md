@@ -1154,7 +1154,184 @@ public @interface ConditionalOnProperty {
 
 # 常见操作--推文
 
-## SpringBoot读取配置文件
+## SpringBoot 读取配置文件
+
+### 配置文件默认路径
+
+如果没有更改默认的配置文件位置，那么 SpringBoot 会从以下这四个位置加载配置文件
+
+- 模块根目录下的 config 目录下的配置文件
+- 模块根目录下的配置文件
+- resources 目录（classpath）下的 config 目录下的配置文件
+- resources 目录（classpath）下的配置文件
+
+如果需要修改配置文件位置，可以在启动命令中加入 `--spring.config.location` 来修改
+
+
+
+### 配置文件加载优先级
+
+SpringBoot 应用加载配置文件会有优先级，各个配置文件会进行互补配置，但高优先级的配置项会覆盖低优先级的配置项
+
+#### 同一应用中
+
+- 模块根目录下的 config 目录下的配置文件
+- 模块根目录下的配置文件
+- resources 目录（classpath）下的 config 目录下的配置文件
+- resources 目录（classpath）下的配置文件
+
+#### 不同类型
+
+- properties
+- yaml
+- yml
+
+从 `spring-boot-starter-parent` 中看到这三种文件的加载顺序，从上往下加载，下面的会覆盖上面的
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20211213153125.png)
+
+
+
+### @Value
+
+#### 基本使用
+
+在配置文件中定义好的配置，使用 `@Value` 通过 el 表达式来读取，读取的规则是 `${配置路径}`
+
+```yaml
+custom:
+	savePath : /Users/a/Desktop/test998/
+```
+
+```java
+@Component
+public class TestService {
+    
+    // "/Users/a/Desktop/test998/"
+    @Value("${custom.savePath}")
+    private  String savePath ;
+}
+```
+
+
+
+#### 默认值
+
+如果在 el 表达式中指定默认值的话，那么当读取配置文件发现键不存在时使用默认值
+
+```java
+@Component
+public class TestService {
+    
+    // "abcdef"
+    @Value("${custom.savePath:abcdef}")
+    private  String savePath ;
+}
+```
+
+
+
+#### @PropertySource
+
+一般来说用得不多，因为配置文件都处于默认情况下是不需要的
+
+需要使用 `@PropertySource` 的情况是
+
+- 配置文件不在默认目录下
+- 多配置文件引用。如果多个配置文件中有同名的属性值，则取数组中最后一个配置文件中的属性
+
+
+
+#### 读取数组数据
+
+```yaml
+test:
+  array1: aaa,bbb,ccc
+  array2: 111,222,333
+  array3: 11.1,22.2,33.3
+```
+
+虽然数组在具体业务代码中数据操作上没有 `List` 等集合方便，但是在这方面比集合更为方便，不需要额外的配置类，而且仅仅使用逗号分割即可
+
+读取时直接指定属性路径，并把接收的属性设置为具体类型的数组即可，甚至可以设置默认值
+
+```java
+@Value("${test.array1:}")
+private String[] testArray1;
+
+@Value("${test.array2:}")
+private int[] testArray2;
+
+@Value("${test.array3:}")
+private double[] testArray3;
+```
+
+冒号后的值表示当 key 不存在的时候使用的默认值，数组的 length 为 0，**并非为空数组**
+
+
+
+#### 读取集合数据
+
+```yaml
+test:
+  collection:
+    list:
+      - aaa
+      - bbb
+      - ccc
+    set:
+      - 111
+      - 222
+      - 333
+      - 111
+    map:
+      name: zhangsan
+      sex: male
+      math: 90
+      english: 85
+```
+
+集合这类数据结构在操作中拥有着无可比拟的简便性，但是读取集合数据并非一蹴而就，具体读取时有两种渠道
+
+- 新增配置类
+
+  这个方式比较贴合面向对象的方式，并且当在 maven 中引入 configuration-processor 依赖后，可以把配置文件的键和配置类的属性名建立联系（输入时会提示键名）。缺点是当配置需要变动时，配置类需要修改，不符合开闭原则
+
+  ```xml
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+  </dependency>
+  ```
+
+  ```java
+  @Data
+  @Component
+  @ConfigurationProperties("test.collection")
+  public class CollectionProperties {
+      private List<String> list;
+      private Set<Integer> set;
+      private Map<String, Object> map;
+  }
+  ```
+
+  然后使用的时候就像普通的 bean 一样注入就可以了
+
+  ```java
+  @Autowired
+  private CollectionProperties collectionProperties;
+  ```
+
+- el 表达式读取
+
+  这个方式是使用 `@Value` 的方式，结合 el 表达式中的条件语句使用
+
+
+
+
+
+
 
 ```yaml
 # application.yml
