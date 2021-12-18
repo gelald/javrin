@@ -1194,6 +1194,8 @@ SpringBoot 应用加载配置文件会有优先级，各个配置文件会进行
 
 ### @Value
 
+Spring 为大家提供许多开箱即用的功能，`@Value` 就是一个极其常用的功能，它能将配置信息注入到 bean 中去
+
 #### 基本使用
 
 在配置文件中定义好的配置，使用 `@Value` 通过 el 表达式来读取，读取的规则是 `${配置路径}`
@@ -1231,17 +1233,6 @@ public class TestService {
 
 
 
-#### @PropertySource
-
-一般来说用得不多，因为配置文件都处于默认情况下是不需要的
-
-需要使用 `@PropertySource` 的情况是
-
-- 配置文件不在默认目录下
-- 多配置文件引用。如果多个配置文件中有同名的属性值，则取数组中最后一个配置文件中的属性
-
-
-
 #### 读取数组数据
 
 ```yaml
@@ -1273,6 +1264,58 @@ private double[] testArray3;
 #### 读取集合数据
 
 ```yaml
+test2:
+  collection:
+    list: aaa,bbb,ccc
+    set: 111,222,333,111
+```
+
+集合这类数据结构在操作中拥有着无可比拟的简便性，但是读取集合数据并非一蹴而就，不像读取数组时那么简单方便，需要借助 el 表达式来完成
+
+先使用 `split()` 函数进行切分，为了避免不配置这个 key 时会报错，需要加上默认值
+
+```java
+@Value("#{'${test2.collection.list:}'.split(',')}")
+private List<String> testList;
+```
+
+但是这样做还有个问题，当不配置该 key 值，默认值会为 `""` ，它的 size = 1（不同于数组，length = 0），这样解析出来的 list 就不是空了，这样会产生数据不一致的问题，所以要在使用 `split()` 函数之前先判定是否为空，所以最终版为
+
+```java
+@Value("#{'${test2.collection.list:}'.empty ? null : '${test2.collection.list:}'.split(',')}")
+private List<String> testList;
+@Value("#{'${test2.collection.set:}'.empty ? null : '${test2.collection.set:}'.split(',')}")
+private Set<String> setList;
+```
+
+
+
+#### @PropertySource
+
+一般来说用得不多，因为配置文件都处于默认情况下是不需要的
+
+需要使用 `@PropertySource` 的情况是
+
+- 配置文件不在默认目录下
+- 多配置文件引用。如果多个配置文件中有同名的属性值，则取数组中最后一个配置文件中的属性
+
+
+
+#### 总结
+
+平常开发中，读取配置文件的情况还是很常见的，使用 `@Value` 结合 el 表达式来读取配置文件的方式能覆盖绝大部分的应用场景，用起来也相对方便；而对于自定义的配置我个人不是十分推荐这种做法，在团队的开发中，使用 `@Value` 来读取配置文件与维护配置文件的统一管控可能存在难度，配置文件的修改可能无法及时同步到代码上，我倾向于使用面向对象的方式管理自定义的配置
+
+
+
+### @ConfigurationProperties
+
+相较于 `@Value` 的使用简便，这个 `@ConfigurationProperties` 注解则略显笨重，需要用一个配置类来组织自定义的配置
+
+#### 基本使用
+
+#### 读取集合数据
+
+```yaml
 test:
   collection:
     list:
@@ -1291,153 +1334,65 @@ test:
       english: 85
 ```
 
-集合这类数据结构在操作中拥有着无可比拟的简便性，但是读取集合数据并非一蹴而就，具体读取时有两种渠道
+集合数据的读取，除了可以使用 `@Value` + el 表达式 的方式读取，也可以使用配置类来完成
 
-- 新增配置类
+新增配置类这个方式比较贴合面向对象的方式，并且当在 maven 中引入 configuration-processor 依赖后，可以把配置文件的键和配置类的属性名建立联系（输入时会提示键名）。缺点是当配置需要变动时，配置类需要修改，不符合开闭原则
 
-  这个方式比较贴合面向对象的方式，并且当在 maven 中引入 configuration-processor 依赖后，可以把配置文件的键和配置类的属性名建立联系（输入时会提示键名）。缺点是当配置需要变动时，配置类需要修改，不符合开闭原则
-
-  ```xml
-  <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
-  </dependency>
-  ```
-
-  ```java
-  @Data
-  @Component
-  @ConfigurationProperties("test.collection")
-  public class CollectionProperties {
-      private List<String> list;
-      private Set<Integer> set;
-      private Map<String, Object> map;
-  }
-  ```
-
-  然后使用的时候就像普通的 bean 一样注入就可以了
-
-  ```java
-  @Autowired
-  private CollectionProperties collectionProperties;
-  ```
-
-- el 表达式读取
-
-  这个方式是使用 `@Value` 的方式，结合 el 表达式中的条件语句使用
-
-
-
-
-
-
-
-```yaml
-# application.yml
-wuhan2020: 2020年初武汉爆发了新型冠状病毒，疫情严重，但是，我相信一切都会过去！武汉加油！中国加油！
-
-my-profile:
-  name: Guide哥
-  email: koushuangbwcx@163.com
-
-library:
-  location: 湖北武汉加油中国加油
-  books:
-		name: 天才基本法
-    description: 二十二岁的林朝夕在父亲确诊阿尔茨海默病这天，得知自己暗恋多年的校园男神裴之即将出国深造的消息——对方考取的学校，恰是父亲当年为她放弃的那所。
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-configuration-processor</artifactId>
+    <optional>true</optional>
+</dependency>
 ```
 
-- 通过`@Value`读取比较简单的配置信息
+```java
+@Data
+@Component
+@ConfigurationProperties(prefix = "test.collection")
+public class CollectionProperties {
+    private List<String> list;
+    private Set<Integer> set;
+    private Map<String, Object> map;
+}
+```
 
-  ```Java
-  @Value("${wuhan2020}")
-  private String wuhan;
-  ```
+如果使用了 `@Component` 注解，就把这个配置类标记成一个 bean ，然后使用的时候就像普通的 bean 一样注入就可以了
 
-  **`@value`这种方式Spring是不推荐的。**
+```java
+@Autowired
+private CollectionProperties collectionProperties;
+```
 
-- 通过`@ConfigurationProperties`读取并新建一个bean来管理其中的所有属性
 
-  ```java
-  @Component
-  @ConfigurationProperties(prefix = "my-profile")
-  class ProfileProperties {
-      private String name;
-      private String email;
-  
-      //setter、getter
-  }
-  ```
 
-  **由于用bean来管理属性，并且使用了`@Component`，所以可以像其他bean一样注入使用**
+#### @EnableConfigurationProperties
 
-- 通过`@ConfigurationProperties`和`@EnableConfigurationProperties`的组合
+有时候 `ConfigurationProperties` 注解会配合这个注解进行使用，由一个大的配置类来管理多个 Properties ，这种做法的不足是需要新加配置类来进行统一管理，一般把 Properties 都写到同一个包路径下也可以达到统一管理的目的，但是这种做法的统一性会更强
 
-  ```java
-  //ProfileProperties.java
-  //注意单独的bean移除了@Component
-  @ConfigurationProperties("my-profile")
-  public class ProfileProperties {
-     private String name;
-     private String email;
-    
-  	//setter、getter
-  }
-  
-  /***************华丽的分割线******************/
-  
-  //ReadPropertiesConfiguration.java
-  //注意@EnableConfigurationProperties能接收数组，所以可以管理多个Properties
-  @Configuration
-  @EnableConfigurationProperties(ProfileProperties.class)
-  public class ReadPropertiesConfiguration {
-  }
-  ```
+```java
+@Data
+@ConfigurationProperties(prefix = "biz.order")
+public class OrderModuleProperties {
+    // ...
+}
 
-  **这种方式在多Properties的时候比较推荐，一个Configuration管理多个Properties，不需要在每个Properties上都加入`@Component`注解**
 
-- 通过`@PropertySource`来特定读取**.properties**格式的文件
+@Data
+@ConfigurationProperties(prefix = "biz.pay")
+public class PayModuleProperties {
+    // ...
+}
 
-  ```properties
-  # profile.properties
-  my-profile.name=Guide哥
-  my-profile.email=koushuangbwcx@163.com
-  ```
 
-  ```java
-  //Profile.java
-  @Component
-  @PropertySource("classpath:profile.properties")
-  class Profile {
-  	@Value("${name}")
-  	private String name;
-    @Value("${email}")
-    private String email;
-    
-    //setter、getter
-  }
-  ```
+@Configuration
+@EnableConfigurationProperties(value = {OrderModuleProperties.class, PayModuleProperties.class})
+public class CustomPropertiesConfiguration {
+    // ...
+}
+```
 
-  **这种使用`@PropertySource`的方式只适用于.properties格式的文件的读取；可以像一般JavaBean一样注入使用**
 
-- **不容忽视的点**：Spring加载配置文件的优先级
-
-  1. 模块根目录下的config目录下的配置文件
-  2. resources目录下的config目录下的配置文件
-  3. resources目录下的配置文件
-
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrp5jrztj30vz0u0e2f.jpg)
-  
-  SpringBoot读取配置文件顺序
-  
-  1. bootstrap.yml
-  2. bootstrap.yaml
-  3. bootstrap.properties
-  4. nacos配置文件(如果使用nacos作为注册中心)
-  5. application.yml
-  6. application.yaml
-  7. application.properties
 
 ## SpringBoot异常处理
 
