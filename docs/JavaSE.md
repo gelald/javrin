@@ -2178,7 +2178,46 @@ void load(Reader reader);//同上
   */
   ```
 
-  
+
+
+
+### try-with-resource 处理机制
+
+JAVA 的一大特性就是 JVM 会对内部资源实现自动回收，即自动 GC，给开发者带来了极大的便利。但是 JVM 对外部资源的引用却无法自动回收，例如数据库连接，网络连接以及输入输出 IO 流等，这些连接就需要我们手动去关闭，不然会导致外部资源泄露，连接池溢出以及文件被异常占用等。
+
+传统的手动释放外部资源一般放在一般放在 try{}catch(){}finally{} 机制的 finally 代码块中，因为 finally 代码块中语句是肯定会被执行的，即保证了外部资源最后一定会被释放。同时考虑到 finally 代码块中也有可能出现异常， finally 代码块中也有一个 try{}catch(){} ，这种写法是经典的传统释放外部资源方法，显然是非常繁琐的。
+
+```java
+FileInputStream fileInputStream = null;
+try {
+    fileInputStream = new FileInputStream(new File("test"));
+   	fileInputStream.read();
+} catch (IOException e) {
+    e.printStackTrace();
+} finally {
+    if (fileInputStream != null) {
+        try {
+            fileInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+在 JDK 1.7 之后有了这种 try-with-resource 处理机制。但是有一个条件就是，自动关闭的资源需要实现 Closeable 接口或者 AutoCloseable 接口，因为只有实现了这两个接口才能自动调用 `close()` 方法，这种机制的写法相对比较简洁
+
+```java
+try (FileInputStream fileInputStream = new FileInputStream(new File("test"))) {
+    fileInputStream.read();
+} catch (IOException e) {
+    e.printStackTrace();
+}
+```
+
+其实这种写法的底层实现原理仍是上面的形式，不过在编译后的 catch{} 代码块中有一个 `addSuppressed()` 方法，即异常抑制方法，如果业务处理和关闭连接都出现了异常，业务处理的异常会抑制关闭连接的异常，只抛出业务处理中的异常，仍然可以通过 `getSuppressed()` 方法获得关闭连接的异常。
+
+
 
 ### 自定义异常类
 
