@@ -1152,6 +1152,8 @@ public @interface ConditionalOnProperty {
 - 可以不必按照prefix+name来确定键，可以省略prefix，直接用name来确定
 - 如果指定了matchIfMissing为ture，那么配置文件中不填写该属性也可以正常地加载bean
 
+
+
 # 常见操作--推文
 
 ## SpringBoot 读取配置文件
@@ -1189,6 +1191,23 @@ SpringBoot 应用加载配置文件会有优先级，各个配置文件会进行
 从 `spring-boot-starter-parent` 中看到这三种文件的加载顺序，从上往下加载，下面的会覆盖上面的
 
 ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20211213153125.png)
+
+#### 配置中心
+
+SpringBoot 应用配置优先级：命令行参数 > 操作系统环境变量 > 应用外的配置文件 > 应用内的配置文件
+
+SpringCloud 应用引入配置文件中配置优先级：配置中心 > 命令行参数 > 操作系统环境变量 > 应用内的配置文件
+
+设计者认为配置中心的优先级就是最高的，不允许外部修改，如果需要覆盖，要在远程配置中加入这段配置
+
+```yaml
+spring:
+	cloud:
+		config:
+			allowOverride: true
+			overrideNode: true
+			overrideSystemProperties: false
+```
 
 
 
