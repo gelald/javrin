@@ -421,7 +421,7 @@ DNS1:			DNS服务器
    TYPE=Ethernet
    PROXY_METHOD=none
    BROWSER_ONLY=no
-   BOOTPROTO=static		#static:静态IP;dncp:自动获取IP
+   BOOTPROTO=static		#static:静态IP;dhcp:自动获取IP
    DEFROUTE=yes
    IPADDR=192.168.1.180	#IP地址
    NETMAST=255.255.255.0	#子网掩码,C类网络一般写法
