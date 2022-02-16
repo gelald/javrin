@@ -615,7 +615,7 @@ servlet就是一个**接口**，定义了Java类被tomcat识别到的**规则**
 </servlet-mapping>
 ```
 
-## **执行原理**：
+## 执行原理
 
 1. 当服务器接收到浏览器的请求后，解析请求的url，获取资源路径
 2. 查找web.xml去寻找有没有对应的<url-pattern>
