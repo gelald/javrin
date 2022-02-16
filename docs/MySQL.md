@@ -1954,9 +1954,58 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
 
 ## 索引避雷
 
-1. 以“%”开头的LIKE语句，模糊匹配
-2. OR语句前后没有同时使用索引
-3. 数据类型出现隐式转化(如varchar不加单引号的话可能会自动转换为int型)
+1. 不满足最左索引匹配原则
+
+2. 如果使用 `select *` 但是没有有效命中组合索引，尽量使得查询的列命中组合索引让查询走 `全索引扫描` ，比 `全表扫描` 要快，原理是 `索引覆盖`
+
+3. 查询语句中索引列使用了函数、进行了运算会导致索引失效
+
+4. 数据类型出现隐式转化(如varchar不加单引号的话可能会自动转换为int型)，类型不一致导致索引失效
+
+5. like的条件左边包含 `%` 导致索引失效
+
+6. where 语句中两个索引列进行比较导致索引失效
+
+7. OR 语句前后条件没有同时使用索引导致索引失效
+
+8. `not in` 、`not exist` 条件导致索引失效，`not in` **不会让主键索引失效**
+
+9. `order by` 的情况，where 和 limit 必须至少要有一个
+
+   1. 不使用 where ，但是使用 limit ，order by 后面的条件遵循联合索引的最左匹配原则能命中索引
+
+      ```mysql
+      explain select * from user
+      order by code,age,name
+      limit 100;
+      ```
+
+   2. 使用 where ，不使用 limit，order by 可以和 where 一起遵循最左匹配原则；如果匹配断层的话（比如命中第一第三个索引），还是能命中索引，但是需要再做一次 `filesort` 排序
+
+      ```mysql
+      explain select * from user
+      where code='101'
+      order by name;
+      ```
+
+   3. order by 多个条件需要保持相同的排序才可以命中索引
+
+      ```mysql
+      explain select * from user
+      order by code desc,age desc
+      limit 100;
+      ```
+
+   4. 不可以对不同的索引进行排序，会导致索引失效，进行全表扫描
+
+      ```mysql
+      explain select * from user
+      order by code, height
+      limit 100;
+      ```
+
+      
+
 
 # MySQL执行流程与架构
 
@@ -2168,7 +2217,7 @@ mysql5.5版本后默认的存储引擎是InnoDB
 
 主键索引、普通索引、唯一索引的区别：
 
-- 主键索引一张表内只允许有一个，值需要唯一，而且不允许空值，可以作为其他表的外键
+- 主键索引一张表内只允许有一个，值需要唯一，而且不允许空值，可以作为其他表的外键，主键索引使用 `not in` 关键字仍然可以走索引
 - 唯一索引一张表内可以有多个，值需要唯一，但是可以允许控制，不可以作为外键
 - 普通索引对值没有约束，一般只用于排序
 
