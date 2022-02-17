@@ -70,3 +70,104 @@ BeanDefinitionReader读取并解析所有的配置文件，但是配置信息有
 BeanFactory根据BeanDefinition通过反射的手段进行Bean的实例化。但是这些创建出来的Bean有可能是原生的Bean，有可能是代理的Bean，Spring为了统一操作，都把这些Bean都封装到一个叫BeanWrapper对象中(持有了Bean的引用)
 
 最终缓存到IoC容器中的是BeanWrapper对象
+
+## 30个类实现DI功能
+
+实现给对象自动赋值的功能，解决循环依赖注入的问题，依照组合复用原则
+
+### 什么是循环依赖
+
+循环依赖存在于下列情况
+
+
+
+A依赖B
+
+B依赖A
+
+```java
+public class BeanA {
+    @Autowired
+    private BeanB b;
+}
+////////////////////
+public class BeanB {
+    @Autowired
+    private BeanA a;
+}
+```
+
+
+
+A依赖B
+
+B依赖A
+
+B依赖C
+
+C依赖A
+
+```java
+public class BeanA {
+    @Autowired
+    private BeanB b;
+}
+////////////////////
+public class BeanB {
+    @Autowired
+    private BeanA a;
+    @Autowired
+    private BeanC c;
+}
+////////////////////
+public class BeanC {
+    @Autowired
+    private BeanA a;
+}
+```
+
+
+
+A依赖A
+
+```java
+public class BeanA {
+    @Autowired
+    private BeanA a;
+}
+```
+
+
+
+### 不支持循环依赖的情况
+
+1. 通过构造器注入
+2. 非单例的Bean
+
+
+
+### 实现基本思路
+
+获取对象getBean()开始
+
+加一个容器，只要是存在相互依赖的关系，就标记一下
+
+把已经创建好的bean，放到一个新的缓存里面，先不做依赖注入
+
+> 假设IQueryService依赖了IModifyService，那么这时候需要递归调用getBean("modifyService")
+
+在创建新的bean之前，加一个循环依赖的判断
+
+> 首先去一级缓存检查是否有这个值，有就取出来，没有就递归调用getBean
+
+依赖注入的方法
+
+> 原来是从三级缓存中拿值出来，现在要改成用getBean取出来
+
+
+
+一级缓存：保存已经完成依赖注入的Bean，成熟的Bean
+
+二级缓存：保存早期的纯净的Bean，没有做依赖注入的
+
+三级缓存：为以后的AOP实现动态代理做准备
