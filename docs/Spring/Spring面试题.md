@@ -2,7 +2,7 @@
 
 它们之间的关系
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220111243.png)
+<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220111243.png" style="zoom:33%;" />
 
 - Spring 是轻量级的 Java 开发框架，负责创建各种 Bean 实例，并维护着 Bean 与 Bean 之间的关系。其中有两个核心的功能：IoC 控制反转、AOP 面向切面，另外还为开发提供很多全面的基础架构支持，包含很多开箱即用的模块，如：SpringJDBC、SpringSecurity，极大提高应用开发效率。
 
