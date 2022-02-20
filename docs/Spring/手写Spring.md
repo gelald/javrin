@@ -65,3 +65,11 @@ DispatcherServlet 完成IoC、DI、MVC功能显然不太合理，需要进行逐
 
 ### 核心角色简述
 
+singletonObjects：一级缓存，保存已经完成依赖注入的成熟 Bean
+
+earlySingletonObjects：二级缓存，保存未完成依赖注入的纯净 Bean
+
+singletonFactories：三级缓存，保存的是代理的 Bean，在 AOP 模块中发挥作用
+
+### 实现基本思路
+
