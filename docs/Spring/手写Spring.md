@@ -69,8 +69,6 @@ DispatcherServlet 完成IoC、DI、MVC功能显然不太合理，需要进行逐
 
    <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220155738.png" style="zoom:50%;" />
 
-   
-
 2. 两个对象之间互相依赖
 
    <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220155836.png" style="zoom:50%;" />
@@ -82,20 +80,79 @@ DispatcherServlet 完成IoC、DI、MVC功能显然不太合理，需要进行逐
 ### 循环依赖的情况
 
 - 单例的 setter 注入（能解决）
+
 - 多例的 setter 注入 （不能解决）
+
+  > 多例的 Bean 使用一次就创建一次，不需要缓存起来。不使用缓存也就无法解决循环引用，程序启动会报错。
+
 - 构造器注入（不能解决）
+
+  > 使用构造器注入时，需要在延时加载的情况下才能解决循环依赖。
+  >
+  > 因为整个流程大致是先创建后注入的，构造器注入把依赖注入的工作放到创建这一步，当 BeanA 需要 BeanB 的时候，发现这个 BeanB 还没创建，这时候就出问题了。但是当把 BeanA 设置成延时加载的情况下，等 BeanB 完成创建了，这时候 BeanA 的创建和依赖注入工作就可以完成了。
+
 - 单例的代理对象 setter 注入（有可能解决）
+
+  > Bean 初始化完成后，后面还需要进行一步二级缓存中的对象和原始对象是否相等的检查。如果被注入的 Bean 是代理对象，那么这一步检查无法通过。
+  >
+  > 为什么说有可能解决，因为**类加载顺序会影响 Bean 的实例化过程**，默认情况下 Spring 是根据路径+文件名进行扫描，如果说这个被注入的代理 Bean 比当前正在实例化的 Bean 要后加载，那么不会出现在二级缓存中，也就不需要进行检查
+
 - DependsOn循环依赖（不能解决）
+
+  > `AbstractBeanFactory` 中的 `doGetBean` 方法会检查dependsOn的实例有没有循环依赖，如果有循环依赖则抛异常。
+
+  ```java
+  //如果当前Bean有依赖Bean
+  if (dependsOn != null) {
+  	for (String dep : dependsOn) {
+  		if (isDependent(beanName, dep)) {
+  			throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
+  		}
+          //递归调用getBean方法，获取当前Bean的依赖Bean
+          registerDependentBean(dep, beanName);
+          //把被依赖Bean注册给当前依赖的Bean
+          getBean(dep);
+      }
+  }
+  ```
+
+  
 
 ### 核心角色简述
 
-singletonObjects：一级缓存，保存已经完成依赖注入的成熟 Bean
+singletonObjects：一级缓存，保存完成实例化、注入、初始化的 Bean 实例
 
-earlySingletonObjects：二级缓存，保存未完成依赖注入的纯净 Bean
+earlySingletonObjects：二级缓存，保存完成实例化的 Bean 实例
 
-singletonFactories：三级缓存，保存的是代理的 Bean，在 AOP 模块中实现动态代理发挥作用
+singletonFactories：三级缓存，保存 Bean 的创建工厂，便于后面扩展有机会创建代理对象，在 AOP 模块中实现动态代理发挥作用
 
 singletonsCurrentlyInCreation：保存正在创建的 Bean 的 BeanName，为了标记这个 Bean 正在创建
 
 ### 实现基本思路
+
+加一个容器，只要是正在实例化的 Bean ，就把它的 BeanName 缓存下来
+
+1. 根据 beanName 从 BeanDefinitionMap 中拿到自己的 BeanDefinition
+2. 去一级缓存中检查这个 Bean 是否已经完成实例化
+   1. 如果返回不是 `null` 说明已经完成实例化，就返回这个Bean
+   2. 如果返回是 `null` 说明还没完成，就往下走
+3. 使用反射的方式进行实例化
+4. 把创建出来的实例添加到一级缓存中
+5. 把创建 Bean 的工厂添加到三级缓存中，为了考虑后面有可能需要一个代理对象，可以从里面拿到代理对象
+6. 执行依赖注入，依赖注入的逻辑就是递归调用上述步骤
+
+---
+
+检查这个 Bean 是否完成实例化的具体逻辑
+
+1. 检查一级缓存
+   1. 如果一级缓存有，就返回一级缓存中的值
+   2. 如果一级缓存没有，且这个 Bean 不是正在实例化的，就返回 `null`
+   3. 如果一级缓存没有，且这个 Bean 正在进行实例化，**说明有循环依赖**，往下走
+2. 检查二级缓存
+   1. 如果二级缓存有，就返回二级缓存中的值
+   2. 如果二级缓存没有，往下走
+3. 检查三级缓存
+   1. 如果三级缓存没有这个对象的工厂，就返回 `null`
+   2. 如果三级缓存有这个对象的工厂，从三级缓存中拿到对象工厂并创建这个对象，把 Bean 放入二级缓存，移除三级缓存中的工厂对象，这样不用每次都要去三级缓存中创建对象，提升性能
 
