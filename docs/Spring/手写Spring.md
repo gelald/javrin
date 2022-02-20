@@ -61,7 +61,31 @@ DispatcherServlet 完成IoC、DI、MVC功能显然不太合理，需要进行逐
 
 ## 实现 DI 功能
 
-关注 Spring 如何通过三级缓存，完成自动赋值和解决循环依赖的问题。使用了工厂模式、原型模式、单例模式。
+关注 Spring 如何完成自动赋值和通过三级缓存解决循环依赖的问题。遵循组合复用原则
+
+### 什么是循环依赖
+
+1. 自己依赖自己的直接依赖
+
+   <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220155738.png" style="zoom:50%;" />
+
+   
+
+2. 两个对象之间互相依赖
+
+   <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220155836.png" style="zoom:50%;" />
+
+3. 多个对象之间的间接依赖
+
+   <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220155859.png" style="zoom:50%;" />
+
+### 循环依赖的情况
+
+- 单例的 setter 注入（能解决）
+- 多例的 setter 注入 （不能解决）
+- 构造器注入（不能解决）
+- 单例的代理对象 setter 注入（有可能解决）
+- DependsOn循环依赖（不能解决）
 
 ### 核心角色简述
 
@@ -69,7 +93,9 @@ singletonObjects：一级缓存，保存已经完成依赖注入的成熟 Bean
 
 earlySingletonObjects：二级缓存，保存未完成依赖注入的纯净 Bean
 
-singletonFactories：三级缓存，保存的是代理的 Bean，在 AOP 模块中发挥作用
+singletonFactories：三级缓存，保存的是代理的 Bean，在 AOP 模块中实现动态代理发挥作用
+
+singletonsCurrentlyInCreation：保存正在创建的 Bean 的 BeanName，为了标记这个 Bean 正在创建
 
 ### 实现基本思路
 
