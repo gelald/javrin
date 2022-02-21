@@ -49,7 +49,24 @@ Spring提供了一个监听器`ContextLoaderListener`完成了上述功能的封
 - 视图解析器：ViewResolver  把ModalAndView解析成View
 - 视图：View  封装着视图的信息
 
+
+
+|           组件名            |                             解释                             |
+| :-------------------------: | :----------------------------------------------------------: |
+|      MultipartResolver      | 支持多文件上传的组件<br />把request内部的文件流解析成MultipartFile |
+|       LocaleResolver        |                         本地语言环境                         |
+|        ThemeResolver        |                        主题模板处理器                        |
+|     **HandlerMapping**      |                  保存url和Method的映射关系                   |
+|     **HandlerAdapter**      |                        动态参数适配器                        |
+|  HandlerExceptionResolver   |                          异常拦截器                          |
+| RequestToViewNameTranslator |             视图提取器，从request中提取viewName              |
+|      **ViewResolver**       |                     视图转换器，模板引擎                     |
+|       FlashMapManager       |                          参数缓存器                          |
+
+
+
 ## SpringMVC注解解析
+
 - @Controller，相当于@Component，只不过赋予了语义；把当前类加入到Spring容器中
 - @RequestMapping，把请求的地址进行映射到具体的（某个类的）某个方法上，建立请求URL和处理请求方法之间的对应关系
     - value: 指定请求的URL，和path属性一样
