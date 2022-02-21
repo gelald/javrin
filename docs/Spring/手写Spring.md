@@ -77,6 +77,10 @@ DispatcherServlet 完成IoC、DI、MVC功能显然不太合理，需要进行逐
 
    <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220155859.png" style="zoom:50%;" />
 
+### Spring如何检测是否存在循环依赖
+
+在实例化 Bean 的时候，会给 Bean 进行标记，后面在依赖注入的时候会发生递归调用实例化，如果发现处于创建中的状态，说明有循环依赖。
+
 ### 循环依赖的情况
 
 - 单例的 setter 注入（能解决）
@@ -89,7 +93,7 @@ DispatcherServlet 完成IoC、DI、MVC功能显然不太合理，需要进行逐
 
   > 使用构造器注入时，需要在延时加载的情况下才能解决循环依赖。
   >
-  > 因为整个流程大致是先创建后注入的，构造器注入把依赖注入的工作放到创建这一步，当 BeanA 需要 BeanB 的时候，发现这个 BeanB 还没创建，这时候就出问题了。但是当把 BeanA 设置成延时加载的情况下，等 BeanB 完成创建了，这时候 BeanA 的创建和依赖注入工作就可以完成了。
+  > 因为加入singletonFactories三级缓存的前提是执行了构造器（反射调用），缓存中没有需要引入的对象，所以构造器的循环依赖没法解决。
 
 - 单例的代理对象 setter 注入（有可能解决）
 
@@ -99,7 +103,7 @@ DispatcherServlet 完成IoC、DI、MVC功能显然不太合理，需要进行逐
 
 - DependsOn循环依赖（不能解决）
 
-  > `AbstractBeanFactory` 中的 `doGetBean` 方法会检查dependsOn的实例有没有循环依赖，如果有循环依赖则抛异常。
+  > `AbstractBeanFactory` 中的 `doGetBean` 方法会检查 dependsOn 的实例有没有循环依赖，如果有循环依赖则抛异常。
 
   ```java
   //如果当前Bean有依赖Bean
@@ -116,7 +120,8 @@ DispatcherServlet 完成IoC、DI、MVC功能显然不太合理，需要进行逐
   }
   ```
 
-  
+
+
 
 ### 核心角色简述
 
@@ -137,9 +142,9 @@ singletonsCurrentlyInCreation：保存正在创建的 Bean 的 BeanName，为了
    1. 如果返回不是 `null` 说明已经完成实例化，就返回这个Bean
    2. 如果返回是 `null` 说明还没完成，就往下走
 3. 使用反射的方式进行实例化
-4. 把创建出来的实例添加到一级缓存中
-5. 把创建 Bean 的工厂添加到三级缓存中，为了考虑后面有可能需要一个代理对象，可以从里面拿到代理对象
+4. 把创建 Bean 的工厂添加到三级缓存中，为了考虑后面有可能需要一个代理对象，可以从里面拿到代理对象。创建工厂的时候是利用了上面实例化后的 Bean 的，所以当不需要动态代理的情况下，这个工厂创建出来的 Bean 和完成实例化后的 Bean 是同一个引用
 6. 执行依赖注入，依赖注入的逻辑就是递归调用上述步骤
+6. 把创建好、完成依赖注入的 Bean 放入一级缓存
 
 ---
 
