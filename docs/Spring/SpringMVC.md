@@ -61,7 +61,7 @@ Spring提供了一个监听器`ContextLoaderListener`完成了上述功能的封
 |  HandlerExceptionResolver   |                          异常拦截器                          |
 | RequestToViewNameTranslator |             视图提取器，从request中提取viewName              |
 |      **ViewResolver**       |                     视图转换器，模板引擎                     |
-|       FlashMapManager       |                          参数缓存器                          |
+|       FlashMapManager       |         参数缓存器<br />缓存url中的参数（请求参数）          |
 
 
 
