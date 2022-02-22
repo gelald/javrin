@@ -54,8 +54,8 @@ Spring提供了一个监听器`ContextLoaderListener`完成了上述功能的封
 |           组件名            |                             解释                             |
 | :-------------------------: | :----------------------------------------------------------: |
 |      MultipartResolver      | 支持多文件上传的组件<br />把request内部的文件流解析成MultipartFile |
-|       LocaleResolver        |                         本地语言环境                         |
-|        ThemeResolver        |                        主题模板处理器                        |
+|       LocaleResolver        |                     本地语言环境，国际化                     |
+|        ThemeResolver        |      主题模板处理器<br />简单来说是对换皮肤功能进行支持      |
 |     **HandlerMapping**      |                  保存url和Method的映射关系                   |
 |     **HandlerAdapter**      |                        动态参数适配器                        |
 |  HandlerExceptionResolver   |                          异常拦截器                          |
