@@ -165,3 +165,36 @@ singletonsCurrentlyInCreation：保存正在创建的 Bean 的 BeanName，为了
 
 ## 实现MVC功能
 
+关注前端页面、用户请求如何与后台逻辑建立映射关系
+
+### 前端九大组件介绍
+
+|           组件名            |                             解释                             |
+| :-------------------------: | :----------------------------------------------------------: |
+|      MultipartResolver      | 支持多文件上传的组件<br />把request内部的文件流解析成MultipartFile |
+|       LocaleResolver        |                     本地语言环境，国际化                     |
+|        ThemeResolver        |      主题模板处理器<br />简单来说是对换皮肤功能进行支持      |
+|     **HandlerMapping**      |                  保存url和Method的映射关系                   |
+|     **HandlerAdapter**      |                        动态参数适配器                        |
+|  HandlerExceptionResolver   |                          异常拦截器                          |
+| RequestToViewNameTranslator |             视图提取器，从request中提取viewName              |
+|      **ViewResolver**       |                     视图转换器，模板引擎                     |
+|       FlashMapManager       |         参数缓存器<br />缓存url中的参数（请求参数）          |
+
+### 实现基本思路
+
+为了方便理解，九大组件抽取其中的 HandlerMapping、HandlerAdapter、ViewResolver 这三个组件进行实现
+
+- 初始化阶段，主要完成九大组件的初始化
+
+  - 初始化 HandlerMapping 容器，使用 HandlerMapping 对象来记录 Controller 对象、Method及其定义的 mapping 规则，其中 mapping 规则支持正则表达式
+
+  - 初始化 HandlerAdapter 容器，每一个 HandlerMapping 对应一个方法，也就对应一个 HandlerAdapter
+  - 初始化 ViewResovler ，记录模板文件的路径
+
+- 运行阶段，主要完成请求委派、方法调用、页面渲染并返回的工作
+
+  - 遍历 HandlerMapping 容器，根据 handlerMapping 中的 pattern 进行 url 的匹配，拿到对应的 handlerMapping
+  - 根据 HandlerAdapter 与 HandlerMapping 的映射关系，拿到对应的 HandlerAdapter
+  - HandlerAdapter 进行处理，拿到 ModelAndView。Handler 可以看成是需要执行的 Controller 对象，HandlerAdapter 主要完成的是建立参数列表、反射调用 Handler 中对应的方法、根据返回值构建 ModelAndView 对象
+  - ViewResolver 模板引擎根据 ModelAndView 拿到 View 对象，并将其渲染返回
