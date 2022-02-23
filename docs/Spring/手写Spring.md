@@ -33,7 +33,9 @@
   - 通过反射的方式调用这个 Method，并返回结果
   - 将返回结果输出到浏览器
 
-## 实现IoC功能
+
+
+## 实现 IoC 功能
 
 关注工厂怎么把对象创建出来然后交给用户。使用了工厂模式、原型模式、单例模式。
 
@@ -58,6 +60,8 @@ DispatcherServlet 完成IoC、DI、MVC功能显然不太合理，需要进行逐
 7. 创建 Bean 后，把 Bean 封装成 BeanWrapper
 8. 分别缓存 Bean 与 BeanWrapper
 9. 执行依赖注入
+
+
 
 ## 实现 DI 功能
 
@@ -163,7 +167,7 @@ singletonsCurrentlyInCreation：保存正在创建的 Bean 的 BeanName，为了
 
 
 
-## 实现MVC功能
+## 实现 MVC 功能
 
 关注前端页面、用户请求如何与后台逻辑建立映射关系
 
@@ -180,6 +184,8 @@ singletonsCurrentlyInCreation：保存正在创建的 Bean 的 BeanName，为了
 | RequestToViewNameTranslator |             视图提取器，从request中提取viewName              |
 |      **ViewResolver**       |                     视图转换器，模板引擎                     |
 |       FlashMapManager       |         参数缓存器<br />缓存url中的参数（请求参数）          |
+
+FlashMapManager的作用：`request.forward()` 转发，能自动携带上一次请求的所有参数；`request.redirect()` 重定向，会丢失上一次请求的参数，这时候就需要 FlashMapManager 把参数找回来
 
 ### 实现基本思路
 
@@ -198,3 +204,25 @@ singletonsCurrentlyInCreation：保存正在创建的 Bean 的 BeanName，为了
   - 根据 HandlerAdapter 与 HandlerMapping 的映射关系，拿到对应的 HandlerAdapter
   - HandlerAdapter 进行处理，拿到 ModelAndView。Handler 可以看成是需要执行的 Controller 对象，HandlerAdapter 主要完成的是建立参数列表、反射调用 Handler 中对应的方法、根据返回值构建 ModelAndView 对象
   - ViewResolver 模板引擎根据 ModelAndView 拿到 View 对象，并将其渲染返回
+
+
+
+## 实现 AOP 功能
+
+关注面向切面编程，解耦代码增强与实际逻辑，通知回调。使用了责任链模式、代理模式。
+
+AOP常用于：日志监控、权限控制、事务管理等
+
+### 核心角色简述
+
+AdvisedSupport：解析AOP配置信息，构建切面与切点之间的关系的工具类
+
+AopConfig：保存AOP的配置信息
+
+Advice：通知，完成切面回调的封装
+
+JdkDynamicAopProxy：使用Jdk生成代理类的工具
+
+CglibAopProxy：使用Cglib生成代理类的工具
+
+DefaultAopProxyFactory：创建生成代理类工具的工厂的默认实现
