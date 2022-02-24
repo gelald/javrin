@@ -204,9 +204,9 @@ FlashMapManager的作用：`request.forward()` 转发，能自动携带上一次
 
 为了方便理解，九大组件抽取其中的 HandlerMapping、HandlerAdapter、ViewResolver 这三个组件进行实现
 
-- 初始化阶段，主要完成九大组件的初始化
+- 初始化阶段，主要完成三大组件的初始化
 
-  - 初始化 HandlerMapping 容器，使用 HandlerMapping 对象来记录 Controller 对象、Method及其定义的 mapping 规则，其中 mapping 规则支持正则表达式
+  - 初始化 HandlerMapping 容器，使用 HandlerMapping 对象来记录 Controller 对象、Method 及其定义的 mapping 规则，其中 mapping 规则支持正则表达式
 
   - 初始化 HandlerAdapter 容器，每一个 HandlerMapping 对应一个方法，也就对应一个 HandlerAdapter
   - 初始化 ViewResovler ，记录模板文件的路径
@@ -217,8 +217,6 @@ FlashMapManager的作用：`request.forward()` 转发，能自动携带上一次
   - 根据 HandlerAdapter 与 HandlerMapping 的映射关系，拿到对应的 HandlerAdapter
   - HandlerAdapter 进行处理，拿到 ModelAndView。Handler 可以看成是需要执行的 Controller 对象，HandlerAdapter 主要完成的是建立参数列表、反射调用 Handler 中对应的方法、根据返回值构建 ModelAndView 对象
   - ViewResolver 模板引擎根据 ModelAndView 拿到 View 对象，并将其渲染返回
-
-
 
 ## 实现 AOP 功能
 
@@ -239,3 +237,9 @@ JdkDynamicAopProxy：使用Jdk生成代理类的工具
 CglibAopProxy：使用Cglib生成代理类的工具
 
 DefaultAopProxyFactory：创建生成代理类工具的工厂的默认实现
+
+### 实现基本思路
+
+在手写 DI 功能的时候我们可以了解到，三级缓存的设计是为了可以方便创建代理对象，所以 AOP 的功能也就从这里开始
+
+1. 反射创建对象时，初始化 AopConfig 对象
