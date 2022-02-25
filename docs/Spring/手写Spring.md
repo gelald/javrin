@@ -218,6 +218,8 @@ FlashMapManager的作用：`request.forward()` 转发，能自动携带上一次
   - HandlerAdapter 进行处理，拿到 ModelAndView。Handler 可以看成是需要执行的 Controller 对象，HandlerAdapter 主要完成的是建立参数列表、反射调用 Handler 中对应的方法、根据返回值构建 ModelAndView 对象
   - ViewResolver 模板引擎根据 ModelAndView 拿到 View 对象，并将其渲染返回
 
+
+
 ## 实现 AOP 功能
 
 关注面向切面编程，解耦代码增强与实际逻辑，通知回调。使用了责任链模式、代理模式。
@@ -243,3 +245,86 @@ DefaultAopProxyFactory：创建生成代理类工具的工厂的默认实现
 在手写 DI 功能的时候我们可以了解到，三级缓存的设计是为了可以方便创建代理对象，所以 AOP 的功能也就从这里开始
 
 1. 反射创建对象时，初始化 AopConfig 对象
+1. 把切面表达式转换成正则表达式，与目标类全限定类名进行匹配
+1. 如果匹配上就构建目标对象方法与切面对象方法的关系（一对多关系）
+
+---
+
+其中精华所在是增强方法执行链和目标方法的执行过程
+
+MethodInterceptor 是所有通知类型类的顶层接口，其中有一个 invoke 方法，代表执行该类通知的通知方法。需要增加新的通知类型，只需要执行这个接口即可
+
+MethodInvocation 负责递归调度增强方法与目标方法，其中内部维护了一个索引，这个索引用于在执行链上进行移动
+
+```java
+public class MSMethodInterceptor {
+    ...
+    public Object proceed() throws Throwable {
+        if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
+            // 如果把链中的方法执行完了，那就执行目标类自己的方法
+            return this.method.invoke(this.target, this.arguments);
+        }
+        // 从执行链中获取一个通知回调方法
+        Object interceptorOrInterceptionAdvice = this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
+
+        if (interceptorOrInterceptionAdvice instanceof MSMethodInterceptor) {
+            // 判断类型并强转
+            MSMethodInterceptor methodInterceptor = (MSMethodInterceptor) interceptorOrInterceptionAdvice;
+            return methodInterceptor.invoke(this);
+        } else {
+            return this.proceed();
+        }
+    }
+    ...
+}
+```
+
+假设这个执行链上有三个类型通知的拦截器：before、after、afterThrowing
+
+他们各自的实现分别是
+
+```java
+public class MSMethodBeforeAdviceInterceptor implements MSMethodInterceptor {
+	...
+    @Override
+    public Object invoke(MSMethodInvocation invocation) throws Throwable {
+        // 先执行了before的逻辑，再执行其他的
+        this.before(invocation);
+        return invocation.proceed();
+    }
+    ...
+}
+```
+
+```java
+public class MSAfterReturningAdviceInterceptor implements MSMethodInterceptor {
+	...
+    @Override
+    public Object invoke(MSMethodInvocation invocation) throws Throwable {
+        // 等到其他的执行完成后得到返回值再执行after方法
+        Object returnValue = invocation.proceed();
+        this.after(invocation, returnValue);
+        return returnValue;
+    }
+	...
+}
+```
+
+```java
+public class MSAspectJAfterThrowingAdvice implements MSMethodInterceptor {
+	...
+    @Override
+    public Object invoke(MSMethodInvocation invocation) throws Throwable {
+        try {
+            // 正常执行，如果捕获到异常，就执行afterThrowing方法
+            return invocation.proceed();
+        } catch (Throwable throwable) {
+            this.afterThrowing(invocation, throwable);
+            throw throwable;
+        }
+    }
+    ...
+}
+```
+
+这里的递归链是连接了两个对象，递归着 MethodInvocation#proceed、MethodInterceptor#invoke 这个循环
