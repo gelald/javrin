@@ -9,6 +9,7 @@
   <link rel="icon" href="resources/favicon.ico" type="image/x-icon"/>
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/vue.css">
   <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/buble.css"> -->
+  <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css">
 </head>
 <body>
   <div id="app">正在加载中,请稍等~</div>
@@ -50,5 +51,20 @@
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2.1.1/dist/docsify-copy-code.min.js"></script>
   <!-- Java代码高亮 -->
   <script src="//cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-java.min.js"></script>
+  <!-- git talk支持 -->
+  <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
+  <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
+  <script>
+    const gitalk = new Gitalk({
+      clientID: '45782274e83dca3f4609',
+      clientSecret: '906ad855837e9e56bc6a30ef5116ea99086cae9e',
+      repo: 'note',
+      owner: 'gelald',
+      admin: ['gelald'],
+      id: 'https://gelald.github.io/note/',
+      // facebook-like distraction free mode
+      distractionFreeMode: false
+    })
+  </script>
 </body>
 </html>
