@@ -1,6 +1,22 @@
 - Java
   - [Java基础](docs/JavaSE.md)
-<!-- - 设计模式
+- Spring
+  - [SpringMVC](docs/Spring/SpringMVC.md)
+- SpringSecurity
+  - [SpringSecurity基础](docs/SpringSecurity/SpringSecurity.md)
+  - [SpringSecurityOAuth2](docs/SpringSecurity/OAuth2.md)
+  - [JWT](docs/SpringSecurity/JWT.md)
+- 消息队列
+  - [消息队列基础内容](docs/消息队列/MessageQueue.md)
+  - [RabbitMQ](docs/消息队列/RabbitMQ.md)
+  - [RocketMQ](docs/消息队列/RocketMQ.md)
+- 计算机基础
+  - [计算机网络](docs/网络/Network.md)
+  <!-- - [Linux操作系统](docs/操作系统/Linux.md) -->
+- 容器技术
+  - [Docker](docs/容器/Docker.md)
+  - [Kubernetes](docs/容器/Kubernetes.md)
+- 设计模式
   - [设计原则](docs/设计模式/设计原则)
   - [设计模式总览](docs/设计模式/设计模式总览)
   - 创建型设计模式
@@ -28,26 +44,4 @@
     - [访问者模式](docs/设计模式/访问者模式)
     - [备忘录模式](docs/设计模式/备忘录模式)
     - [状态模式](docs/设计模式/状态模式)
-    - [委派模式](docs/设计模式/委派模式) -->
-- Spring
-  - [SpringMVC](docs/SpringMVC.md)
-- SpringSecurity
-  - [SpringSecurity基础](docs/SpringSecurity/SpringSecurity.md)
-  - [SpringSecurityOAuth2](docs/SpringSecurity/OAuth2.md)
-  - [JWT](docs/SpringSecurity/JWT.md)
-- 消息队列
-  - [消息队列基础内容](docs/消息队列/MessageQueue.md)
-  - [RabbitMQ](docs/消息队列/RabbitMQ.md)
-  - [RocketMQ](docs/消息队列/RocketMQ.md)
-- 设计模式
-  - [设计原则](docs/设计模式/设计原则.md)
-  - [工厂模式](docs/设计模式/设计模式.md)
-  - [单例模式](docs/设计模式/单例模式.md)
-  - [原型模式](docs/设计模式/原型模式.md)
-  - [建造者模式](docs/设计模式/建造者模式.md)
-- 计算机基础
-  - [计算机网络](docs/网络/Network.md)
-  <!-- - [Linux操作系统](docs/操作系统/Linux.md) -->
-- 容器技术
-  - [Docker](docs/容器/Docker.md)
-  - [Kubernetes](docs/容器/Kubernetes.md)
+    - [委派模式](docs/设计模式/委派模式)
