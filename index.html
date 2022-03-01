@@ -1,78 +1,101 @@
 <!DOCTYPE html>
 <html lang="zh-cmn-Hans">
-<head>
-  <meta charset="UTF-8">
-  <title>随便写点</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-  <meta name="description" content="Description">
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <link rel="icon" href="resources/favicon.ico" type="image/x-icon"/>
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/vue.css">
-  <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/buble.css"> -->
-  <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css">
-</head>
-<body>
-  <div id="app">正在加载中,请稍等~</div>
-  <script>
-    window.$docsify = {
-      name: 'docs-archive',
-      repo: 'https://github.com/gelald/note',
-      homepage: 'README.md',
-      //使用_sidebar.md来自定义侧边栏
-      loadSidebar: true,
-      //配置显示目录的层级 数字表示能够显示副标题的级数
-      subMaxLevel:1,
-      //使用_coverpage.md来自定义封面
-      coverpage: true,
-      //全文搜索
-      search: {
-        maxAge: 86400000, // 过期时间，单位毫秒，默认一天
-        paths: 'auto',
-        placeholder: '搜索',
-        noData: '找不到结果',
-        // 搜索标题的最大程级, 1 - 6
-        depth: 3,
-      },
-      //切换页面后自动跳转到页面顶部
-      auto2top: true
-    }
-  </script>
-  <!-- docsify核心文件 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/docsify.min.js"></script>
-  <!-- 搜索插件 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/plugins/search.min.js"></script>
-  <!-- 图片缩放 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/plugins/zoom-image.min.js"></script>
-  <!-- emoji插件 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/plugins/emoji.min.js"></script>
-  <!-- 字数统计 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify-count@1.1.0/dist/countable.min.js"></script>
-  <!-- 复制代码到剪贴板 -->
-  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2.1.1/dist/docsify-copy-code.min.js"></script>
-  <!-- Java代码高亮 -->
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-java.min.js"></script>
-  <!-- git talk支持 -->
-  <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
-  <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
-  <script>
-    const gitalk = new Gitalk({
-      clientID: '45782274e83dca3f4609',
-      clientSecret: '906ad855837e9e56bc6a30ef5116ea99086cae9e',
-      repo: 'note',
-      owner: 'gelald',
-      admin: ['gelald'],
-      // title: location.hash.match(/#(.*?)([?]|$)/)[1],
-      id: location.hash.match(/#(.*?)([?]|$)/)[1],
-      // id: 'https://gelald.github.io/note/',
-      // facebook-like distraction free mode
-      distractionFreeMode: false
-    })
-    // 监听URL中hash的变化，如果发现换了一个MD文件，那么刷新页面，解决整个网站使用一个gitalk评论issues的问题。
-    window.onhashchange = function(event){
-      if(event.newURL.split('?')[0] !== event.oldURL .split('?')[0]) {
-        location.reload()
+  <head>
+    <meta charset="UTF-8" />
+    <title>Notes-Archive</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="Description" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <link rel="icon" href="resources/favicon.ico" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/vue.css"
+    />
+    <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/buble.css"> -->
+    <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css" />
+  </head>
+  <body>
+    <div id="app">正在加载中,请稍等~</div>
+    <script>
+      window.$docsify = {
+        // name: "Notes-Archive",
+        name: `<div style="font-weight:bold">Notes-Archive</div>`,
+        repo: "https://github.com/gelald/note",
+        homepage: "README.md",
+        //使用_sidebar.md来自定义侧边栏
+        loadSidebar: true,
+        //配置显示目录的层级 数字表示能够显示副标题的级数
+        subMaxLevel: 1,
+        //使用_coverpage.md来自定义封面
+        coverpage: true,
+        //全文搜索
+        search: {
+          maxAge: 86400000, // 过期时间，单位毫秒，默认一天
+          paths: "auto",
+          placeholder: "搜索",
+          noData: "找不到结果",
+          // 搜索标题的最大程级, 1 - 6
+          depth: 3,
+        },
+        //切换页面后自动跳转到页面顶部
+        auto2top: true,
+      };
+    </script>
+    <!-- docsify核心文件 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/docsify.min.js"></script>
+    <!-- 搜索插件 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/plugins/search.min.js"></script>
+    <!-- 图片缩放 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/plugins/zoom-image.min.js"></script>
+    <!-- emoji插件 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/plugins/emoji.min.js"></script>
+    <!-- 字数统计 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify-count@1.1.0/dist/countable.min.js"></script>
+    <!-- 复制代码到剪贴板 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2.1.1/dist/docsify-copy-code.min.js"></script>
+    <!-- Java代码高亮 -->
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-java.min.js"></script>
+    <!-- git talk支持 -->
+    <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
+    <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+      // 生成 gitalk 插件
+      let title = location.hash.match(/#(.*?)([?]|$)/);
+      if (title != null) {
+        title = location.hash.match(/#(.*?)([?]|$)/)[1];
       }
-    }
-  </script>
-</body>
+
+      // 限制 50 个字符
+      if (title != null) {
+        title = decodeURI(title.substring(1, title.length));
+        if (title.length >= 50) {
+          title = title.substring(title.length - 50, title.length);
+        }
+      } else {
+        title = "home page";
+      }
+
+      // 为博客提供评论功能
+      const gitalk = new Gitalk({
+        clientID: "45782274e83dca3f4609",
+        clientSecret: "906ad855837e9e56bc6a30ef5116ea99086cae9e",
+        repo: "note",
+        owner: "gelald",
+        admin: ["gelald"],
+        distractionFreeMode: false,
+        title: title,
+        id: title,
+      });
+
+      // 监听URL中hash的变化，如果发现换了一个MD文件，那么刷新页面，解决整个网站使用一个gitalk评论issues的问题。
+      window.onhashchange = function (event) {
+        if (event.newURL.split("?")[0] !== event.oldURL.split("?")[0]) {
+          location.reload();
+        }
+      };
+    </script>
+  </body>
 </html>
