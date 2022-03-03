@@ -4,6 +4,10 @@
   - JavaIO
 - Java基础
   - [Java基础-面向对象](docs/Java基础/面向对象.md)
+  - [Java基础-数据与运算](docs/Java基础/数据与运算.md)
+  - [Java基础-String](docs/Java基础/String.md)
+- UML
+  - [UML图](docs/UML.md)
 - JVM
 - 并发
 - MySQL
