@@ -16,8 +16,8 @@ public final class String
 不可变的优点：
 
 - 可以用于 `HashMap` 中的 key 。因为作为 key 是需要使用 hashcode 的，而 String 类型数据不可变，所以 hashcode 不需要重新计算，效率更高。
-- 可以使用常量池的设计。如果一个字符串已经被创建过了，那么就会从 String 常量池中取得引用。
 
+- 可以使用常量池的设计。如果一个字符串已经被创建过了，那么就会从 String 常量池中取得引用。
 - 安全性。不可变让它具备线程安全的特点，可以在多个线程中使用。再比如可以作为类的全限定类名，在框架中往往大量使用反射，如果这个字符串是可以改变的，那么就无法使用反射的特性。
 
 
@@ -107,6 +107,7 @@ System.out.println(s3 == s2);  	// true
 现在从各个角度对比一下 String 、StringBuilder 、StringBuffer
 
 - 可变性：String 是不可变的；StringBuilder 和 StringBuffer 是可变的。原因：String 底层的字符数组是被 final 修饰的，一旦赋值不可以修改；而 StringBuilder 和 StringBuffer 的都没有。
+
 - 线程安全性：String 是不可变的，多个线程可以共享同一个 String ，所以是线程安全的；StringBuffer 的方法中加了同步锁，所以是线程安全的；StringBuilder 没有加锁，是线程不安全的。
 - 性能方面：StringBuffer 加了锁，导致性能变差；StringBuilder 没有加锁，性能相对来说比较好；String每次都会生成新的对象，性能更差一点。StringBuffer 和 StringBuilder 都不会生成新的对象，所以比 String 来说效率更高。
 - 从使用场景来说：操作少量数据使用 String ；单线程操作大量数据使用 StringBuilder ；多线程操作大量数据使用 StringBuffer 。
