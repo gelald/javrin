@@ -82,5 +82,64 @@ public boolean equals(Object anObject) {
 
 
 
-## hashcode
+## hashCode
+
+返回这个对象的哈希值（由操作系统给出一个整数值）
+
+一般重写 equals 方法的时候，都会重写 hashCode 方法，目的是为了保证两个等价的对象哈希值也相等。因为在某些场景下，我们希望如果两个对象从内容上看是相等的（是等价的），那么它们拥有同一个哈希值。
+
+```java
+String s1 = new String("hello");
+String s2 = new String("hello");
+
+System.out.println(s1.equals(s2));	// true
+System.out.println(s1.hashCode() == s2.hashCode());  // true
+System.out.println(s1 == s2);  // false
+
+Set<String> a = new HashSet<>();
+a.add(s1);
+a.add(s2);
+System.out.println(a); // hello
+```
+
+比如在 HashSet 中，内容同为 hello 的字符串保证只能被添加一次。
+
+> 可以这么理解：equals 为了让开发者知道两个对象等价；hashCode 为了让程序知道两个对象等价
+
+两个对象用 equals 方法判定后相等，则它们的 hashCode 一定相等。但 hashCode 相等的情况下，equals 方法判定不一定相等。因为有可能存在哈希冲突等问题。
+
+
+
+## toString
+
+这个方法一般用于输出对象的信息
+
+默认是 类名+@+hasCode的16进制值 的形式
+
+
+
+## clone
+
+这个方法用于从原对象中拷贝一个新对象出来
+
+值得注意的是：
+
+- clone 方法在 Object 类中使用 `protected` 修饰，一个类如果不显式地重写 clone 方法，那么在其他类中就无法直接调用这个对象的 clone 方法
+- 重写 clone 方法的时候需要实现 Cloneable 接口
+
+拷贝往往伴随着浅拷贝、深拷贝这个话题
+
+### 浅拷贝
+
+拷贝对象的基本数据类型及其包装类型和 String 类型克隆后修改不影响原始对象
+
+引用类型修改后会影响原始对象，存在被覆盖的风险，因为引用的是同一个对象
+
+方式：通过调用父类的 clone 方法
+
+### 深拷贝
+
+拷贝对象中所有属性包括引用类型的属性都被彻底地复制了一份新的出来，修改后都不影响原始对象
+
+方式：通过转成字节流后再转换成对象
 
