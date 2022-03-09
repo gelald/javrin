@@ -62,21 +62,6 @@
     <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
     <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
     <script>
-      // 生成 gitalk 插件
-      let title = location.hash.match(/#(.*?)([?]|$)/);
-      if (title != null) {
-        title = location.hash.match(/#(.*?)([?]|$)/)[1];
-      }
-
-      // 限制 50 个字符
-      if (title != null) {
-        title = decodeURI(title.substring(1, title.length));
-        if (title.length >= 50) {
-          title = title.substring(title.length - 50, title.length);
-        }
-      } else {
-        title = "home page";
-      }
 
       // 为博客提供评论功能
       const gitalk = new Gitalk({
@@ -86,16 +71,22 @@
         owner: "gelald",
         admin: ["gelald"],
         distractionFreeMode: false,
-        title: title,
-        id: title,
+        id: decodeURI(window.location.hash)
       });
 
-      // 监听URL中hash的变化，如果发现换了一个MD文件，那么刷新页面，解决整个网站使用一个gitalk评论issues的问题。
-      // window.onhashchange = function (event) {
-      //   if (event.newURL.split("?")[0] !== event.oldURL.split("?")[0]) {
-      //     location.reload();
-      //   }
-      // };
+      // 检测到hash的变化时，新建一个Gitalk
+      window.onhashchange = function(e) {
+        gitalk = new Gitalk({
+          clientID: "45782274e83dca3f4609",
+          clientSecret: "906ad855837e9e56bc6a30ef5116ea99086cae9e",
+          repo: "note",
+          owner: "gelald",
+          admin: ["gelald"],
+          distractionFreeMode: false,
+          id: decodeURI(window.location.hash)
+        });
+      }
+
     </script>
   </body>
 </html>

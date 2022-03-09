@@ -54,11 +54,15 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 - **静态**类或静态方法加**下划线**
 - 如果是接口需要在类名上方加<\<Interface>\>
 
+
+
 ### 类图案例
 
 #### 案例一
 
 ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913155546.png)
+
+
 
 #### 案例二《大话设计模式》
 
@@ -89,22 +93,17 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 - 组合片段
   - Opt 选项：包含一个可能发生或可能不发生的序列，可以在临界中指定序列发生的条件
 
-    ![image-20210913164725091](/Users/ngyb/Library/Application Support/typora-user-images/image-20210913164725091.png)
-
   - Alt 抉择：包含一个片段列表，这些片段包含备选的消息序列，**仅能发生一个序列**
-
-    <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913164626.png" style="zoom:75%;" />
 
   - Par 并行：并行执行
 
-    ![image-20210913164838389](/Users/ngyb/Library/Application Support/typora-user-images/image-20210913164838389.png)
-
   - Loop 循环：片段重复一定次数
 
-    ![image-20210913164905544](/Users/ngyb/Library/Application Support/typora-user-images/image-20210913164905544.png)
+
+
 
 ### 时序图案例
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220303110340.png)
+下面通过一个小案例加深时序图的理解
 
-图像无法加载
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220303110340.png)
