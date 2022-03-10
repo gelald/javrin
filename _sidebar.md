@@ -10,7 +10,6 @@
   - [Java基础-泛型机制](docs/Java基础/泛型机制.md)
   - [Java基础-异常机制](docs/Java基础/异常机制.md)
   - [Java基础-反射机制](docs/Java基础/反射机制.md)
-  - [Java基础-SPI机制](docs/Java基础/SPI机制.md)
   - [Java基础-高级特性](docs/Java基础/高级特性.md)
 - Java集合
   - [Java集合-ArrayList](docs/Java基础/ArrayList.md)
