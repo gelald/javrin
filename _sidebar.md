@@ -10,7 +10,8 @@
   - [Java基础-泛型机制](docs/Java基础/泛型机制.md)
   - [Java基础-异常机制](docs/Java基础/异常机制.md)
   - [Java基础-反射机制](docs/Java基础/反射机制.md)
-  - [Java基础-高级特性](docs/Java基础/高级特性.md)
+  - [Java基础-函数式接口](docs/Java基础/函数式接口.md)
+  - [Java基础-Stream](docs/Java基础/Stream.md)
 - Java集合
   - [Java集合-ArrayList](docs/Java基础/ArrayList.md)
   - [Java集合-HashMap](docs/Java基础/HashMap.md)
