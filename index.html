@@ -57,9 +57,8 @@
     <!-- git talk支持 -->
     <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
     <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
-    <!-- 暂时先全站用同一个评论 -->
+    <!-- 暂时先全站用同一个Gitalk -->
     <script>
-      console.log(window.location.pathname);
       const gitalk = new Gitalk({
         clientID: "45782274e83dca3f4609",
         clientSecret: "906ad855837e9e56bc6a30ef5116ea99086cae9e",
@@ -67,11 +66,11 @@
         owner: "gelald",
         admin: ["gelald"],
         distractionFreeMode: false,
-        id: window.location.pathname,
+        id: window.location.href,
         title: 'Notes-Archive-Comment'
       });
     </script>
-    <!-- 这个是优化过的评论，可以让每一个页面都拥有不同的评论系统 -->
+    <!-- 这个是处理过的Gitalk，可以让每一个页面都拥有不同的Gitalk -->
     <!-- <script>
 
       let hash = window.location.hash;
