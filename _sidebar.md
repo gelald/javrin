@@ -12,6 +12,7 @@
   - [Java基础-反射机制](docs/Java基础/反射机制.md)
   - [Java基础-函数式接口](docs/Java基础/函数式接口.md)
   - [Java基础-Stream](docs/Java基础/Stream.md)
+  - [Java基础-SPI机制](docs/java/basic/SPI.md)
 - Java集合
   - [Java集合-ArrayList](docs/Java基础/ArrayList.md)
   - [Java集合-HashMap](docs/Java基础/HashMap.md)
