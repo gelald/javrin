@@ -7,8 +7,16 @@
     <meta name="description" content="Description" />
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <link rel="icon" href="resources/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/vue.css"/>
+    <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/vue.css"/> -->
     <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/buble.css"> -->
+    <!-- darklight-theme 主题 -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css"/>
+    <!-- 为了切换主题的图标不要盖住字数统计 -->
+    <style type="text/css">
+      #docsify-darklight-theme {
+        top: 5px;
+      }
+    </style>
     <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css" />
   </head>
   <body>
@@ -31,10 +39,17 @@
         search: {
           maxAge: 86400000, // 过期时间，单位毫秒，默认一天
           paths: "auto",
-          placeholder: "搜索",
-          noData: "找不到结果",
+          placeholder: "请输入关键字进行搜索",
+          noData: "找不到你想要的结果~",
           // 搜索标题的最大程级, 1 - 6
-          depth: 3,
+          depth: 6,
+        },
+        //计算字数的设置
+        count: {
+          countable: true,
+          fontsize: '0.9em',
+          color: 'rgb(90,90,90)',
+          language: 'chinese'
         },
         //切换页面后自动跳转到页面顶部
         auto2top: true
@@ -54,6 +69,10 @@
     <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2.1.1/dist/docsify-copy-code.min.js"></script>
     <!-- Java代码高亮 -->
     <script src="//cdn.jsdelivr.net/npm/prismjs@1.25.0/components/prism-java.min.js"></script>
+    <!-- 分页导航插件 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+    <!-- darklight-theme 主题 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/index.min.js"></script>
     <!-- git talk支持 -->
     <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
     <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
