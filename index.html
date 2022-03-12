@@ -5,15 +5,9 @@
     <title>Notes-Archive</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="description" content="Description" />
-    <meta
-      name="viewport"
-      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <link rel="icon" href="resources/favicon.ico" type="image/x-icon" />
-    <link
-      rel="stylesheet"
-      href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/vue.css"
-    />
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/vue.css"/>
     <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/buble.css"> -->
     <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css" />
   </head>
@@ -21,12 +15,14 @@
     <div id="app">正在加载中,请稍等~</div>
     <script>
       window.$docsify = {
-        // name: "Notes-Archive",
         name: `<div style="font-weight:bold">Notes-Archive</div>`,
         repo: "https://github.com/gelald/note",
         homepage: "README.md",
         //使用_sidebar.md来自定义侧边栏
         loadSidebar: true,
+        alias: {
+          '/.*/_sidebar.md': '/_sidebar.md'
+        },
         //配置显示目录的层级 数字表示能够显示副标题的级数
         subMaxLevel: 3,
         //使用_coverpage.md来自定义封面
@@ -41,7 +37,7 @@
           depth: 3,
         },
         //切换页面后自动跳转到页面顶部
-        auto2top: true,
+        auto2top: true
       };
     </script>
     <!-- docsify核心文件 -->
@@ -61,9 +57,9 @@
     <!-- git talk支持 -->
     <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
     <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <!-- 暂时先全站用同一个评论 -->
     <script>
-
-      // 为博客提供评论功能
+      console.log(window.location.pathname);
       const gitalk = new Gitalk({
         clientID: "45782274e83dca3f4609",
         clientSecret: "906ad855837e9e56bc6a30ef5116ea99086cae9e",
@@ -71,11 +67,26 @@
         owner: "gelald",
         admin: ["gelald"],
         distractionFreeMode: false,
-        id: decodeURI(window.location.hash)
+        id: window.location.pathname,
+        title: 'Notes-Archive-Comment'
       });
+    </script>
+    <!-- 这个是优化过的评论，可以让每一个页面都拥有不同的评论系统 -->
+    <!-- <script>
 
-      // 检测到hash的变化时，新建一个Gitalk
-      window.onhashchange = function(e) {
+      let hash = window.location.hash;
+      // 标识唯一的Gitalk
+      let id;
+      // issue的标题
+      let title;
+      // 为博客提供评论功能
+      let gitalk;
+
+      if(hash == "#/") {
+        // 第一次加载刚好就是首页
+        id = decodeURI(hash);
+        title = window.document.title;
+        
         gitalk = new Gitalk({
           clientID: "45782274e83dca3f4609",
           clientSecret: "906ad855837e9e56bc6a30ef5116ea99086cae9e",
@@ -83,10 +94,87 @@
           owner: "gelald",
           admin: ["gelald"],
           distractionFreeMode: false,
-          id: decodeURI(window.location.hash)
+          id: id,
+          title: title
         });
+
+        // console.log("首次加载的hash: ", hash);
+        // console.log("首次加载的id: ", id);
+        // console.log("首次加载的title: ", title);
+      } else {
+        const index = hash.indexOf("?");
+    
+        if(index == -1) {
+          // 第一次加载是没有锚点的非首页
+          id = decodeURI(hash);
+          title = window.document.title;
+
+          gitalk = new Gitalk({
+            clientID: "45782274e83dca3f4609",
+            clientSecret: "906ad855837e9e56bc6a30ef5116ea99086cae9e",
+            repo: "note",
+            owner: "gelald",
+            admin: ["gelald"],
+            distractionFreeMode: false,
+            id: id,
+            title: title
+          });
+
+          // console.log("首次加载没有锚点的非首页的hash: ", hash);
+          // console.log("首次加载没有锚点的非首页的id: ", id);
+          // console.log("首次加载没有锚点的非首页的title: ", title);
+        } else {
+          // 第一次加载是有锚点的非首页
+          // 需要把锚点后面的内容去掉，不然不能加载Gitalk
+          let modifiedHash = hash.substring(0, index);
+          id = decodeURI(modifiedHash);
+          title = window.document.title;
+
+          gitalk = new Gitalk({
+            clientID: "45782274e83dca3f4609",
+            clientSecret: "906ad855837e9e56bc6a30ef5116ea99086cae9e",
+            repo: "note",
+            owner: "gelald",
+            admin: ["gelald"],
+            distractionFreeMode: false,
+            id: id,
+            title: title
+          });
+
+          // console.log("首次加载有锚点的非首页的hash: ", hash);
+          // console.log("首次加载有锚点的非首页的id: ", id);
+          // console.log("首次加载有锚点的非首页的title: ", title);
+        }
       }
 
-    </script>
+      // 检测到路径的变化时，新建一个Gitalk
+      window.onhashchange = function(e) {
+        // 如果是后面加了?的跳转，不新建Gitalk，因为99%的情况是锚点跳转
+        if(e.newURL.indexOf("?") == -1) {
+          hash = window.location.hash;
+          id = decodeURI(hash);
+          title = e.target.document.title;
+
+          gitalk = new Gitalk({
+            clientID: "45782274e83dca3f4609",
+            clientSecret: "906ad855837e9e56bc6a30ef5116ea99086cae9e",
+            repo: "note",
+            owner: "gelald",
+            admin: ["gelald"],
+            distractionFreeMode: false,
+            id: id,
+            title: title
+          });
+
+          // console.log("我又新建了一个Gitalk~");
+          // console.log("事件: ", e);
+          // console.log("刷新后的hash: ", hash);
+          // console.log("刷新后的id: ", id);
+          // console.log("刷新后的title: ", title);
+        } else {
+          // console.log("同页面的锚点跳转, 不新建Gitalk~");
+        } 
+      }
+    </script> -->
   </body>
 </html>
