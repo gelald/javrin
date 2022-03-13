@@ -13,8 +13,8 @@
   - [Java基础-函数式接口](docs/Java基础/函数式接口.md)
   - [Java基础-Stream](docs/Java基础/Stream.md)
 - Java集合
-  - Java集合-ArrayList
-  - Java集合-HashMap
+  - [Java集合-总览](docs/Java集合/总览.md)
+  - [Java集合-ArrayList](docs/Java集合/ArrayList.md)
 - JVM
 - 并发
 - MySQL
