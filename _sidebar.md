@@ -17,7 +17,9 @@
   - [Java集合-ArrayList](docs/Java集合/ArrayList.md)
   - [Java集合-LinkedList](docs/Java集合/LinkedList.md)
   - [Java集合-ArrayDeque](docs/Java集合/ArrayDeque.md)
-  - [Java集合- PriorityQueue](docs/Java集合/PriorityQueue.md)
+  - [Java集合-PriorityQueue](docs/Java集合/PriorityQueue.md)
+  - [Java集合-TreeMap和TreeSet](docs/Java集合/TreeMap&TreeSet.md)
+  - [Java集合-HashMap](docs/HashMap.md)
 - JVM
 - 并发
 - MySQL
