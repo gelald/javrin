@@ -30,7 +30,6 @@ private static class Node<E> {
 transient Node<E> first;
 // 尾节点
 transient Node<E> last;
-  
 ```
 
 
@@ -47,7 +46,6 @@ public LinkedList(Collection<? extends E> c) {
     this();
     addAll(c);
 }
-
 ```
 
 
@@ -104,7 +102,6 @@ public LinkedList(Collection<? extends E> c) {
   }
   
   
-  
   Node<E> node(int index) {
   	// 查找节点的逻辑
       // 把index和一般容量作比较
@@ -146,7 +143,6 @@ public E getLast() {
         throw new NoSuchElementException();
     return l.item;
 }
-
 ```
 
 按索引获取元素的话，需要使用到上面提到的 `Node<E> node(int index)` 方法，根据索引来决定是从前往后遍历还是从后往前遍历

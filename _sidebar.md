@@ -15,6 +15,9 @@
 - Java集合
   - [Java集合-总览](docs/Java集合/总览.md)
   - [Java集合-ArrayList](docs/Java集合/ArrayList.md)
+  - [Java集合-LinkedList](docs/Java集合/LinkedList.md)
+  - [Java集合-ArrayDeque](docs/Java集合/ArrayDeque.md)
+  - [Java集合- PriorityQueue](docs/Java集合/PriorityQueue.md)
 - JVM
 - 并发
 - MySQL
