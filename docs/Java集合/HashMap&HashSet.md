@@ -116,7 +116,48 @@ static final int tableSizeFor(int cap) {
 
 
 
-## 扩容
+## 容量方面
+
+### 概念
+
+- HashMap 默认长度是 16，符合 2 的 n 次幂的条件，在代码中是这么体现的
+
+  ```java
+  static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
+  ```
+
+- 默认的负载因子是 0.75f
+
+- 默认数组扩容阈值是 16 \* 0.75f = 12，也就是说当数组中元素个数达到12个时，需要进行扩容了
+
+- 默认链表树化阈值是 8，但是这不是充分条件；只有当数组长度达到 64 ，且链表上的元素个数达到 8 个，才会触发转换成红黑树。因为如果当前数组长度小于 64，应该优先进行数组扩容，以减少搜索时间
+
+  ```java
+  static final int TREEIFY_THRESHOLD = 8;
+  static final int MIN_TREEIFY_CAPACITY = 64;
+  
+  final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
+      // ...
+      // 链表元素大于 TREEIFY_THRESHOLD，可以考虑树化
+  	if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+          treeifyBin(tab, hash);
+      // ...
+  }
+  
+  final void treeifyBin(Node<K,V>[] tab, int hash) {
+      // ...
+      // 数组长度小于 MIN_TREEIFY_CAPACITY，优先扩容
+      if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
+          resize();
+      else if ((e = tab[index = (n - 1) & hash]) != null) {
+          // ...
+      }
+  }
+  ```
+
+  
+
+### 扩容
 
 当 HashMap 第一次初始化数组或数组容量超出阈值（数组长度 * 负载因子）时会触发扩容动作
 
@@ -213,7 +254,7 @@ final Node<K,V>[] resize() {
 }
 ```
 
-### (e.hash & oldCap) == 0
+#### (e.hash & oldCap) == 0
 
 计算的关键是这一行，决定扩容链表元素的索引
 
@@ -354,10 +395,156 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
 
 ## 获取元素
 
+获取元素的逻辑其实不难，其实无非是根据键的 hash 值来寻找
+
+如果能在数组中找到对应的元素就返回
+
+如果不行就往后迭代链表或红黑树，根据节点类型执行相应的寻找逻辑
+
+```java
+public V get(Object key) {
+    Node<K,V> e;
+    return (e = getNode(hash(key), key)) == null ? null : e.value;
+}
+
+final Node<K,V> getNode(int hash, Object key) {
+    Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
+    // 计算索引值的公式：(长度-1) & hash
+    if ((tab = table) != null && (n = tab.length) > 0 &&
+        (first = tab[(n - 1) & hash]) != null) {
+        // 数组
+        if (first.hash == hash && // always check first node
+            ((k = first.key) == key || (key != null && key.equals(k))))
+            return first;
+        if ((e = first.next) != null) {
+            // 红黑树
+            if (first instanceof TreeNode)
+                return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+            // 链表
+            do {
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    return e;
+            } while ((e = e.next) != null);
+        }
+    }
+    return null;
+}
+```
+
 
 
 ## 删除元素
 
+删除元素的逻辑总体上看是做了两件事情
+
+1. 使用获取元素的逻辑找到需要删除的元素
+2. 分别执行不同情况的删除节点的逻辑（数组、链表、红黑树）
+
+```java
+public V remove(Object key) {
+    Node<K,V> e;
+    return (e = removeNode(hash(key), key, null, false, true)) == null ? null : e.value;
+}
+
+final Node<K,V> removeNode(int hash, Object key, Object value,
+                           boolean matchValue, boolean movable) {
+    // value = null，matchValue = false，movable = true
+    Node<K,V>[] tab; Node<K,V> p; int n, index;
+    // 与获取元素逻辑相似，根据key从HashMap获取需要找到的那个元素
+    if ((tab = table) != null && (n = tab.length) > 0 &&
+        (p = tab[index = (n - 1) & hash]) != null) {
+        Node<K,V> node = null, e; K k; V v;
+        if (p.hash == hash &&
+            ((k = p.key) == key || (key != null && key.equals(k))))
+            node = p;
+        else if ((e = p.next) != null) {
+            if (p instanceof TreeNode)
+                node = ((TreeNode<K,V>)p).getTreeNode(hash, key);
+            else {
+                do {
+                    if (e.hash == hash &&
+                        ((k = e.key) == key ||
+                         (key != null && key.equals(k)))) {
+                        node = e;
+                        break;
+                    }
+                    p = e;
+                } while ((e = e.next) != null);
+            }
+        }
+        if (node != null && (!matchValue || (v = node.value) == value ||
+                             (value != null && value.equals(v)))) {
+            if (node instanceof TreeNode) {
+                // 如果是红黑树，那么走红黑树的移除节点的逻辑
+                ((TreeNode<K,V>)node).removeTreeNode(this, tab, movable);
+            }
+            else if (node == p) {
+                // 如果这个节点是链表上的第一个节点，说明这个节点是数组上的节点
+                // 那么把这个节点的下一个节点放到数组上
+                tab[index] = node.next;
+            }
+            else {
+                // 如果这个节点是链表中的一个节点，那就修改相关引用达到断开链表的目的
+                p.next = node.next;
+            }
+            ++modCount;
+            --size;
+            afterNodeRemoval(node);
+            return node;
+        }
+    }
+    return null;
+}
+```
+
 
 
 ## 遍历 HashMap
+
+遍历 HashMap 总体上会有两个方式，遍历 keySet 和 遍历 entrySet
+
+但是**推荐使用 entrySet 来遍历**，原因是
+
+- 根据 entrySet 进行遍历，遍历的是内部类 Node，其中记录了节点的所有信息，获取节点值非常方便，性能也高
+- 根据 keySet 进行遍历的话，遍历的是所有键，没有额外的信息，获取节点值则需要**额外调用 get 方法**，这其中也要根据节点类型进行获取，并不是一蹴而就的
+
+```java
+// entrySet模式
+for (Map.Entry<Integer, String> entry : map.entrySet()) {
+  System.out.println(entry.getKey());
+  System.out.println(entry.getValue());
+}
+
+// keySet模式
+for (Integer key : map.keySet()) {
+  System.out.println(key);
+  System.out.println(map.get(key));
+}
+```
+
+
+
+## HashSet
+
+HashSet 是对 HashMap 的简单包装，HashSet 的方法都会转换成合适的 HashMap 方法，因此学习过 HashMap 的原理后，HashSet 的实现其实不难理解
+
+```java
+public class HashSet<E> {
+	......
+    // HashSet里面维护了一个HashMap
+	private transient HashMap<E,Object> map;
+    // Dummy value to associate with an Object in the backing Map
+    private static final Object PRESENT = new Object();
+    public HashSet() {
+        map = new HashMap<>();
+    }
+    ......
+    public boolean add(E e) {
+        // 简单的方法转换
+        return map.put(e, PRESENT)==null;
+    }
+    ......
+}
+```
+
