@@ -21,6 +21,7 @@
   - [Java集合-TreeMap和TreeSet](docs/Java集合/TreeMap&TreeSet.md)
   - [Java集合-HashMap](docs/HashMap.md)
   - [Java集合-HashMap和HashSet](docs/Java集合/HashMap&HashSet.md)
+  - [Java集合-LinkedHashMap和LinkedHashSet](docs/Java集合/LinkedHashMap&LinkedHashSet.md)
 - JVM
 - 并发
 - MySQL
