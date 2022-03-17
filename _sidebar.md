@@ -19,10 +19,11 @@
   - [Java集合-ArrayDeque](docs/Java集合/ArrayDeque.md)
   - [Java集合-PriorityQueue](docs/Java集合/PriorityQueue.md)
   - [Java集合-TreeMap和TreeSet](docs/Java集合/TreeMap&TreeSet.md)
-  - [Java集合-HashMap](docs/HashMap.md)
   - [Java集合-HashMap和HashSet](docs/Java集合/HashMap&HashSet.md)
   - [Java集合-LinkedHashMap和LinkedHashSet](docs/Java集合/LinkedHashMap&LinkedHashSet.md)
 - JVM
+  - [JVM-字节码文件详解](docs/JVM/字节码文件.md)
+  - [JVM-类加载机制](docs/JVM/类加载机制.md)
 - 并发
 - MySQL
   - [MySQL基础知识](docs/MySQL/MySQL.md)
