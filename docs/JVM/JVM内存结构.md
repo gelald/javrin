@@ -223,3 +223,70 @@ Eden区实现回收的策略
 
 当老年代空间被填满后，会触发 Major GC，**Major GC 通常会花费更多的时间**
 
+
+
+### 创建一个新对象的内存分配流程
+
+![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrktwl9jj30y50u0x6q.jpg)
+
+
+
+### 堆内存与 OOM
+
+Java 堆内存的大小可以通过 `-Xmx` 和 `-Xms` 来设定
+
+- `-Xms` = `-XX:InitialHeapSize`，表示堆的起始内存，默认是电脑内存大小/64
+- `-Xmx` = `-XX:MaxHeapSize`，表示堆的最大内存，默认是电脑内存大小/4
+
+如果堆内存大小超过 `-Xmx` 设定值，就会抛出 `OutOfMemoryError` 异常
+
+我们通常会把 `-Xms` 和 `-Xmx` 两个参数配置为相同的值，目的就是为了能够在垃圾回收后，堆内存不需要重新分隔计算堆的大小，从而提升性能。
+
+
+
+#### 查看堆内存分配情况
+
+```shell
+java -XX:+PrintFlagsFinal -version | grep HeapSize
+    uintx ErgoHeapSizeLimit             = 0               {product}
+    uintx HeapSizePerGCThread           = 87241520        {product}
+    uintx InitialHeapSize              := 134217728       {product}
+    uintx LargePageHeapSizeThreshold    = 134217728       {product}
+    uintx MaxHeapSize                  := 2147483648      {product}
+java version "1.8.0_211"
+Java(TM) SE Runtime Environment (build 1.8.0_211-b12)
+Java HotSpot(TM) 64-Bit Server VM (build 25.211-b12, mixed mode)
+```
+
+默认情况下年轻代和老年代的比例是 `1:2`，可以通过 `-XX:NewRatio` 来配置
+
+默认情况下年轻代中的 `Eden:From Survivor:To Survivor` 的比例是 `8:1:1`，可以通过 `-XX:SurvivorRatio` 来配置
+
+
+
+### 垃圾回收简介
+
+针对 HotSpot VM 的实现，垃圾回收按区域可以分成两大类：部分回收(Partial GC)、整堆回收(Full GC)
+
+- 部分回收：简单理解成不是针对整个 Java 堆内存的垃圾回收，其中又可以分为
+  - 年轻代回收(Minor GC)：只针对年轻代的垃圾回收
+  - 老年代回收(Major GC)：只针对老年代的垃圾回收
+    - 目前只有 CMS GC 会有单独针对老年代进行垃圾回收的行为
+    - 很多时候 Major GC 会和 Full GC 混合使用，需要具体分辨事老年代回收还是整堆回收
+  - 混合回收(Mixed GC)：针对整个年轻代和部分老年代的垃圾回收
+    - 目前只有 G1 GC 会有这种行为
+- 整堆回收：简单理解为针对整个 Java 堆内存和方法区进行垃圾回收
+
+
+
+### TLAB
+
+TLAB(Thread Local Allocation Buffer) 是 JVM 在 Eden 区为每一个线程分配的一个私有缓存区域。这个区域只是内存模型的角度来看，与垃圾回收无关。
+
+因为堆内存是所有线程共享的，任何线程都可以读写堆内存中的共享数据。但是在并发环境下从堆内存中划分内存空间可能有线程安全的问题，为了避免多个线程操作同一个地址而需要加索导致影响分配速度的问题，JVM 在 Eden 区中为每一个线程都划分了一个小空间，为了提升内存分配的吞吐量，这种内存分配方式我们成为**快速分配策略**
+
+我们可以通过 `-XX:UseTLAB` 来设置是否开启 TLAB 空间。默认情况下 TLAB 空间是非常小的，仅占 Eden 区空间的 1%，我们可以通过 `-XX:TLABWasteTargetPercent` 来设置 TLAB 空间占 Eden 区空间的比例
+
+
+
+## 方法区
