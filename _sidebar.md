@@ -1,7 +1,3 @@
-- Java
-  - [Java基础](docs/JavaSE.md)
-  - Java集合
-  - JavaIO
 - Java基础
   - [Java基础-面向对象](docs/Java基础/面向对象.md)
   - [Java基础-Object](docs/Java基础/Object.md)
@@ -25,7 +21,8 @@
   - [JVM-字节码文件详解](docs/JVM/字节码文件.md)
   - [JVM-类加载机制](docs/JVM/类加载机制.md)
   - [JVM-JVM](docs/JVM.md)
-  - [JVM-内存结构与垃圾回收](docs/JVM/JVM内存结构)
+  - [JVM-内存结构](docs/JVM/JVM内存结构)
+  - [GC-垃圾回收基础](docs/JVM/垃圾回收基础.md)
 - 并发
 - MySQL
   - [MySQL基础知识](docs/MySQL/MySQL.md)
