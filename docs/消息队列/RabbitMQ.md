@@ -587,7 +587,7 @@ MQ主动将消息推给消费者
 
 
 
-- 使用 `@Payload` 和 `@Headers` 注解可以消息中的 `body` 与 `headers` 信息
+- 使用 `@Payload` 和 `@Headers` 注解可以接收消息中的 `body` 与 `headers` 信息
 
   ```java
   @RabbitListener(queues = "debug")
