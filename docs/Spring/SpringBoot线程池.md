@@ -64,7 +64,9 @@ ThreadPoolExecutor类有几个内部实现类实现了任务拒绝处理器
 
 
 
-### 构造方法
+### 创建线程池
+
+创建线程池我们推荐使用构造方法来自行创建
 
 结合以上参数来进一步学习 ThreadPoolExecutor 的构造方法
 
@@ -93,6 +95,73 @@ public ThreadPoolExecutor(int corePoolSize,
 - LinkedBlockingQueue：一个基于链表结构的阻塞队列，此队列按 FIFO （先进先出） 排序元素，**吞吐量通常要高于 ArrayBlockingQueue**。静态工厂方法 `Executors.newFixedThreadPool()` 使用了这个队列。
 - SynchronousQueue：一个**不存储元素的阻塞队列**。每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于LinkedBlockingQueue。静态工厂方法 `Executors.newCachedThreadPool()` 使用了这个队列。
 - PriorityBlockingQueue：一个具有优先级的无限阻塞队列。
+
+
+
+#### Executors
+
+除了使用构造方法，也可以通过 `Executors` 其中的静态方法来创建线程池
+
+可以创建4类预定义好参数的线程池，但是不推荐使用这些静态方法来创建线程池，因为**容易导致 OOM 问题**
+
+- CachedThreadPool (可缓存线程池)
+
+```java
+public static ExecutorService newCachedThreadPool() {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue<Runnable>());
+}
+```
+
+当一个任务提交时，corePoolSize为0不创建核心线程，SynchronousQueue 是一个不存储元素的阻塞队列，可以理解为队里永远是满的，因此**最终会创建非核心线程来执行任务**。因为Integer.MAX_VALUE非常大，可以认为是**可以无限创建线程**的，在资源有限的情况下容易引起OOM异常
+
+应用场景：执行大量、耗时少的任务。
+
+---
+
+- SingleThreadPool (单线程线程池)
+
+```java
+public static ExecutorService newSingleThreadExecutor() {
+    return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.MILLISECONDS,
+                                new LinkedBlockingQueue<Runnable>()));
+}
+```
+
+当一个任务提交时，**只有一个核心线程来处理任务**，缓存队列是长度为 Integer.MAX_VALUE 的 LinkedBlockingQueue，可以认为是无界队列，因此往**队列中可以插入无限多的任务**，在资源有限的时候容易引起 OOM 异常
+
+应用场景：不适合并发但可能引起 IO 阻塞及影响 UI 线程响应的操作，如数据库操作、文件操作等。
+
+---
+
+- FixedThreadPool (定长线程池)
+
+```java
+public static ExecutorService newFixedThreadPool(int nThreads) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue<Runnable>());
+}
+```
+
+定长线程池其实和单个核心线程池类似，唯一区别是可以由用户定义一个固定的核心线程数量
+
+---
+
+- ScheduleThreadPool (定时线程池)
+
+```java
+public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
+    return new ScheduledThreadPoolExecutor(corePoolSize);
+}
+```
+
+核心线程数量固定，非核心线程数量无限，执行完闲置10ms后回收，任务队列为 DelayedWorkQueue 延时阻塞队列。当任务堆积时，缓存队列满了之后，会**创建大量非核心线程来处理任务**，在资源有限的情况下容易引起 OOM 异常。
+
+使用场景：执行定时或者周期性任务
 
 
 
@@ -154,6 +223,28 @@ pool-2-thread-1-->>>>9
 
 
 
+### 为什么阿里巴巴规范明确说不允许使用 Executors 创建线程池
+
+`Executors.newSingleThreadPool()` 和 `Executors.newFixedSingleThreadPool()` 定义的线程池缓存队列选型为 `LinkedBlockingQueue` 长度为 `Integer.MAX_VALUE` ，当堆积任务时容易占用大量内存进而导致 OOM 的发生
+
+`Executors.newCachedThreadPool()` 和 `Executors.newScheduleThreadPool()` 定义的最大线程数为 `Integer.MAX_VALUE` ，当任务堆积时可能会创建数量非常多的线程进行处理任务，容易占用大量内存进而导致 OOM 的发生
+
+所以推荐使用构造方法来创建线程池，尽可能通过多次调整线程池参数，来得到一个最适合系统的线程池
+
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue,
+                          ThreadFactory threadFactory,
+                          RejectedExecutionHandler handler)
+```
+
+
+
+
+
 ## ThreadPoolTaskExecutor
 
 ThreadPoolTaskExecutor 是 Spring 的线程池技术，其实它的实现方式完全是使用 ThreadPoolExecutor 进行实现（有点类似于装饰者模式。当然 Spring 提供的功能更加强大些，因为还有定时调度功能）。
@@ -192,16 +283,18 @@ corePoolSize 的计算思路
 queueCapacity 的计算思路
 
 > 核心线程数 / 最大响应时间
->
-> 默认情况下，所有核心线程都处于工作状态，新加入的线程会进入缓存队列
->
-> 如果一个周期内可以保证核心线程能完成所有任务，那么队列只需要设置
+
+- 80 / 1 = 80，队列里面的任务可以等待 1 秒，超过了就需要新开线程来处理任务
+
+- 尽量不要把队列容量设置为 Integer.MAX_VALUE，这样队列很大，而线程数最多只有 corePoolSize 的数量，当任务激增的时候，无法新开线程来处理任务，导致系统响应时间增加
 
 ---
 
 maxPoolSize 的计算思路
 
-> (最大任务数-队列容量) / 「1秒内线程完成的最大任务数」
+> (最大任务数-队列容量) / 「1秒内每个线程完成的最大任务数」
+
+- (1000 - 80) / 10 = 92
 
 ---
 
