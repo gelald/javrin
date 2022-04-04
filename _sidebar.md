@@ -20,9 +20,10 @@
 - JVM
   - [JVM-字节码文件详解](docs/JVM/字节码文件.md)
   - [JVM-类加载机制](docs/JVM/类加载机制.md)
-  - [JVM-JVM](docs/JVM.md)
   - [JVM-内存结构](docs/JVM/JVM内存结构)
   - [GC-垃圾回收基础](docs/JVM/垃圾回收基础.md)
+  - [排查-内存分析](docs/JVM/内存分析.md)
+  - [排查-线程分析](docs/JVM/线程堆栈分析.md)
 - 并发
   - [并发-线程池](docs/并发/线程池.md)
 - MySQL
