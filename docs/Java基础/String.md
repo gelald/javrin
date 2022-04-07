@@ -100,14 +100,14 @@ System.out.println(s3 == s2);  	// true
 
 ## StringBuilder 和 StringBuffer
 
-> 介绍完 String ，接下来介绍一下它的两个「兄弟」类型
+> 介绍完 String，接下来介绍一下它的两个「兄弟」类型
 
 可以把它们看成是长度可以变化的字符串，也就是没有 String 的不可变的特性。
 
-现在从各个角度对比一下 String 、StringBuilder 、StringBuffer
+现在从各个角度对比一下 String、StringBuilder、StringBuffer
 
-- 可变性：String 是不可变的；StringBuilder 和 StringBuffer 是可变的。原因：String 底层的字符数组是被 final 修饰的，一旦赋值不可以修改；而 StringBuilder 和 StringBuffer 的都没有。
+- 可变性：String 是不可变的；StringBuilder 和 StringBuffer 是可变的。原因：String 底层的字符数组是被 final 修饰的，一旦赋值不可以修改;而 StringBuilder 和 StringBuffer 的都没有。
 
-- 线程安全性：String 是不可变的，多个线程可以共享同一个 String ，所以是线程安全的；StringBuffer 的方法中加了同步锁，所以是线程安全的；StringBuilder 没有加锁，是线程不安全的。
-- 性能方面：StringBuffer 加了锁，导致性能变差；StringBuilder 没有加锁，性能相对来说比较好；String每次都会生成新的对象，性能更差一点。StringBuffer 和 StringBuilder 都不会生成新的对象，所以比 String 来说效率更高。
-- 从使用场景来说：操作少量数据使用 String ；单线程操作大量数据使用 StringBuilder ；多线程操作大量数据使用 StringBuffer 。
+- 线程安全性：String 是不可变的，多个线程可以共享同一个 String，所以是线程安全的；StringBuffer 的方法中加了同步锁，所以是线程安全的；StringBuilder 没有加锁，是线程不安全的。
+- 性能方面：StringBuffer 加了锁，导致性能变差；StringBuilder 没有加锁，性能相对来说比较好；String 每次都会生成新的对象，性能更差一点。StringBuffer 和 StringBuilder 都不会生成新的对象，所以比 String 来说效率更高。
+- 从使用场景来说：操作少量数据使用 String；单线程操作大量数据使用 StringBuilder；多线程操作大量数据使用 StringBuffer。
