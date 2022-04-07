@@ -17,7 +17,7 @@
 
 ### 单块阶段
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210801175433.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801175433.png)
 
 由于Http请求具有无状态性，两个Http请求是互不关联的，服务器怎么识别当前用户已经登录？如何记住用户登录状态？
 
@@ -27,7 +27,7 @@
 
 ### 粘性会话阶段(Sticky Session)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210801175500.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801175500.png)
 
 由于服务端做了集群，Nginx对服务端进行负载均衡
 
@@ -49,25 +49,25 @@ Nginx需要截获并记录sessionId与服务器的IP地址做关联，请求转�
 
 ### 集中会话阶段(Centralized Session)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210801175521.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801175521.png)
 
 **把Session集中存储在某个地方，服务端和Nginx均无需自己存储会话状态**，可以存在数据库或缓存。服务端、Nginx、Redis都可以方便水平扩展
 
 ### 微服务阶段-Auth Service+Token
 
-![image-20210801175542818](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20210801175542818.png)
+![image-20210801175542818](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20210801175542818.png)
 
 由一个特定的服务统一承担登录认证、会话管理、令牌颁发、校验职责
 
 ### 微服务阶段-Auth Service+网关+Token
 
-![image-20210801175557528](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20210801175557528.png)
+![image-20210801175557528](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20210801175557528.png)
 
 认证服务职责不变，网关做统一发送令牌到认证服务校验的工作
 
 ### 微服务阶段-Auth Service+网关+JWT
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210801185818.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801185818.png)
 
 当访问流量大的时候，会对Auth Service的访问压力比较大，可能成为性能的瓶颈
 
@@ -157,15 +157,15 @@ Nginx需要截获并记录sessionId与服务器的IP地址做关联，请求转�
 
 匹配规则用`UrlMapping`来表示
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210810170136.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210810170136.png)
 
 1. SpringSecurity会将所有`.antMatchers("/api/**").xxx()`的规则在代码中从上到下（按注册优先级顺序）放入一个`ArrayList<UrlMapping>`，**先注册的规则放在前面，后注册的规则放在后面**
 
-   ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210810165838.png)
+   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210810165838.png)
 
 2. 然后对这个`urlMappings`进行处理，按顺序遍历，以`requestMatcher`为key，以`configAttrs`为value放到一个`LinkedHashMap`中，**同一个URL，不同的执行规则，后存储的会覆盖先存储的**，这个`LinkedHashMap`就是最终的规则集合
 
-   ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210810170702.png)
+   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210810170702.png)
 
 #### 规则匹配顺序
 
@@ -173,7 +173,7 @@ Nginx需要截获并记录sessionId与服务器的IP地址做关联，请求转�
 
 当SpringSecurity从请求中取出访问的URL时，会通过之前得到的这个`LinkedHashMap`来遍历匹配URL，第一个能匹配上这个URL的规则，那么就是最终执行的规则
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210810171917.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210810171917.png)
 
 #### 匹配问题
 

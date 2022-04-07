@@ -29,9 +29,9 @@ static class Node<K,V> implements Map.Entry<K,V> {
 }
 ```
 
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220315105253.png)
 
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220315105253.png" style="zoom:80%;" />
 
 从这个结构可以看出，如果找到合适的哈希方法，那么插入元素和获取元素的操作都可以在常数时间内完成；但是如果需要对 HashMap 进行遍历，就需要遍历整个 table 及其后面的冲突链
 

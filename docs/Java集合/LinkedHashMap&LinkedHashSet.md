@@ -56,7 +56,7 @@ void afterNodeRemoval(Node<K,V> p) { }
 
 LinkedHashMap 结构图
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220316100057.png" style="zoom:80%;" />
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220316100057.png)
 
 
 

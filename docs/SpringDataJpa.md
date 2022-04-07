@@ -26,7 +26,7 @@
 
   
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrory7h9j30k80cogn9-20210312220056561.jpg)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrory7h9j30k80cogn9-20210312220056561.jpg)
 
 
 
@@ -56,7 +56,7 @@
 
 **类结构关系图**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrosdgs1j316a0q20ve.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrosdgs1j316a0q20ve.jpg)
 
 
 
@@ -243,7 +243,7 @@ public class SpringPhysicalNamingStrategy implements PhysicalNamingStrategy {
 
 以Redis为例，`RedisRepositoriesAutoConfiguration`里面的注解`@ConditionalOnProperty`会判断 `spring.data.redis.repositories.enable `这个配置项的属性，如果不存在(默认为true)或若存在且属性值为true会自动扫描**继承**`org.springframework.data.repository.Repository`的实体Repository接口
 
-![RedisRepositoriesAutoConfiguration中判断属性逻辑](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210830163455.png)
+![RedisRepositoriesAutoConfiguration中判断属性逻辑](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210830163455.png)
 
 #### 解决方法
 

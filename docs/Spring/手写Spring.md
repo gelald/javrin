@@ -86,15 +86,21 @@ Java Web 项目的入口在 web.xml，并且 Servlet 的 init 方法、doPost �
 
 1. 自己依赖自己的直接依赖
 
-   <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220155738.png" style="zoom:50%;" />
+   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220220155738.png)
+
+   
 
 2. 两个对象之间互相依赖
 
-   <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220155836.png" style="zoom:50%;" />
+   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220220155836.png)
+
+   
 
 3. 多个对象之间的间接依赖
 
-   <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220220155859.png" style="zoom:50%;" />
+   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220220155859.png)
+   
+   
 
 ### 循环依赖的情况
 

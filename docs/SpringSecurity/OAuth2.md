@@ -276,7 +276,7 @@ public Authentication attemptAuthentication(HttpServletRequest request, HttpServ
    >4. `DaoAuthenticationProvider`内部又聚合了一个`UserDetailsService`接口
    > 5. `UserDetailsService`才是获取用户详细信息的最终接口
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/spring-security-oauth2-xjf-2-1.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/spring-security-oauth2-xjf-2-1.png)
 
 > 虽然说client模式是不存在“用户”的概念的，但是这里的身份认证`UserDetailsService`的实现被适配成了`ClientDetailsUserDetailsService`
 >
@@ -320,7 +320,7 @@ public class TokenEndpoint extends AbstractEndpoint {
 
 方法内部依赖了一个`TokenGranter`来颁发token
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/spring-security-oauth2-xjf-2-2.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/spring-security-oauth2-xjf-2-2.png)
 
 #### CompositeTokenGranter
 
@@ -804,7 +804,7 @@ public interface ResourceServerTokenServices {
 
 存储token的方式有很多：JWT、Redis、JDBC、InMemory
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/Token%E7%BB%A7%E6%89%BF%E4%BD%93%E7%B3%BB.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/Token%E7%BB%A7%E6%89%BF%E4%BD%93%E7%B3%BB.png)
 
 ### RedisTokenStore
 
@@ -833,7 +833,7 @@ private static final String UNAME_TO_ACCESS = "uname_to_access:";
 
 从``RedisTokenStore`中可以发现，用的是Spring Security OAuth2提供的`JdkSerializationStrategy`这个序列化工具，然后我们通过redis-cli查看具体key对应的值时，发现存储的是序列化后的对象，不是简单易读的json形式，估计是为了提高存储和读取的性能考虑
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210903232126.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210903232126.png)
 
 可以替换成自定义实现的序列化工具
 

@@ -24,7 +24,7 @@ ArrayDeque 和 LinkedList 都实现了一个 Deque 接口，Deque（double ended
 
 从名字可以猜测出 ArrayDeque 底层通过数组实现，为了满足可以同时在数组两端插入或删除元素的需求，该数组还必须是循环的，即**循环数组**，也就是说数组的任何一点都可能被看作起点或者终点。另外，该容器不允许放入`null`元素。
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314152101.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314152101.png)
 
 ArrayDeque 包含了两个指针，head 指向循环数组中第一个有效元素，tail 指向循环数组尾端第一个可以插入元素的空位。可以看到 head 不一定总是等于 0，且head 不一定总是比 tail 大。
 
@@ -89,7 +89,9 @@ private static int calculateSize(int numElements) {
 
 扩容流程图
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314153332.png" style="zoom:70%;" />
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314153332.png)
+
+
 
 扩容的过程中会把数组分为两部分拷贝
 
@@ -131,7 +133,7 @@ public void addFirst(E e) {
 
 addFirst 的工作原理图
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314165914.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314165914.png)
 
 
 
@@ -147,7 +149,7 @@ public void addLast(E e) {
 
 addLast 的工作原理图
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314170008.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314170008.png)
 
 
 

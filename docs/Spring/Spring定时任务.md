@@ -101,7 +101,7 @@ Spring 为我们提供了执行任务调度的方式，提供TaskExecutor，Task
 
 SpringBoot 的自动配置类 `org.springframework.boot.autoconfigure.task.TaskSchedulingAutoConfiguration` 为我们默认注入了他们的实现：`ThreadPoolTaskScheduler`，本质上是 `ScheduledExecutorService`  的封装，增强在调度时间上的功能
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220401163756.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220401163756.png)
 
 ```java
 @ConditionalOnClass({ThreadPoolTaskScheduler.class})

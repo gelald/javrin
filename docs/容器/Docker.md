@@ -10,7 +10,7 @@
 
 每一个APP就是一个根据Image创建出来的Container，都是运行在Docker Engine之上
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggcrlngnsij30xa0ql3z4.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggcrlngnsij30xa0ql3z4.jpg)
 
 **虚拟机部署方式**
 
@@ -18,11 +18,11 @@
 
 在VMware中安装各自的操作系统，然后运行应用
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggcrm3v2mdj30xa0qldiv.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggcrm3v2mdj30xa0qldiv.jpg)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210519143418.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210519143418.png)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210519143736.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210519143736.png)
 
 **容器虚拟化的是操作系统，和宿主机共享内核；虚拟机虚拟化的是硬件（网卡等），安装时需要把完整的操作系统安装上**
 
@@ -140,7 +140,7 @@
 - 多个容器挂载同一个数据卷
 - 数据卷容器
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210518162256.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210518162256.png)
 
 c3容器挂载一个数据卷，c1、c2分别挂载到c3容器上
 
@@ -177,7 +177,7 @@ rootfs：root文件系统，包含的是典型的Linux系统中的/dev、/bin、
 
 **不同的Linux发行版如CentOS、Ubuntu等，它们的bootfs大致相同，不同的地方主要在于rootfs**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210518211856.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210518211856.png)
 
 ## Docker镜像组成
 
@@ -189,14 +189,14 @@ Docker镜像由**特殊的**文件系统**叠加**而成，本质是一个分层
 
 **Tomcat镜像为例**：
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210518212742.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210518212742.png)
 
 **其中jdk镜像、rootfs基础镜像是可以复用的，当其他镜像同样需要这些镜像时无需重复下载，可以复用**
 
 - 统一文件系统技术能够将不同的层整合成一个文件系统，为这些层提供了一个统一的视角，这样就隐藏了多层的存在，在用户看来，只存在一个文件系统
 - 镜像都是**只读**的，因为要**达到复用镜像的目的**。当从一个镜像启动时，Docker会在最顶层加载一个**可读写的文件系统**作为容器，用户可以在容器里面进行需要的修改
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210518213610.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210518213610.png)
 
 ## 镜像制作
 

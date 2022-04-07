@@ -559,6 +559,6 @@ public class MapStructAssembler implements IAssembler<UserVO, UserDTO> {
 
 推荐使用 MapStruct 具有无可比拟的易用性和兼容性
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220114105422.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220114105422.png)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220114105208.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220114105208.png)

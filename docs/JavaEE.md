@@ -722,7 +722,7 @@ Servlet的init方法只执行一次，说明Servlet在内存中只存在一个�
 
 Servlet(接口)--GenericServlet(抽象类)--HttpServlet(抽象类)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrty5io6j313u0iwgsa.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrty5io6j313u0iwgsa.jpg)
 
 ### GerericServlet
 
@@ -819,7 +819,7 @@ ServletRequest(接口)--HttpServletRequest(接口)--RequestFacade(类 tomcat的)
    String getRemoteAddr();
    ```
 
-   ![image-20200619172425047](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfxq3s8oi3j30y60n6adq.jpg)
+   ![image-20200619172425047](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfxq3s8oi3j30y60n6adq.jpg)
 
 2. 获取请求头数据
 
@@ -898,7 +898,7 @@ ServletRequest(接口)--HttpServletRequest(接口)--RequestFacade(类 tomcat的)
    */
    ```
 
-   ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrtymg8lj31ru0tkwi9.jpg)
+   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrtymg8lj31ru0tkwi9.jpg)
 
 3. 共享数据
 
@@ -1254,7 +1254,7 @@ response.setHeader("location", "/day15/responseDemo02");
 response.sendRedirect("/day15/responseDemo02");
 ```
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsru0l92kj31xo0ny7c4.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsru0l92kj31xo0ny7c4.jpg)
 
 **特点：**
 
@@ -1525,7 +1525,7 @@ fileInputStream.close();
 
 请求到服务器资源后，服务器给响应增加一个响应头`set-cookie:msg=hello`cookie呈键值对形式。浏览器收到响应后发现响应头中有`set-cookie`，知道这是一个cookie，缓存到浏览器中（HTTP请求协议的约束，HTTP中响应头规定：如果浏览器收到set-cookie后，会自动地将`set-cookie`中的数据缓存到客户端）。并且下一次发送请求的时候自动带上`set-cookie`中的数据（数据会自动放到`cookie`请求头中，`cookie:mes=hello`）。在服务器中可以获取请求头中的`cookie`中的数据
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsru140ibj31si0n4dp7.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsru140ibj31si0n4dp7.jpg)
 
 ### 细节处理
 
@@ -1858,7 +1858,7 @@ JSP定义Java代码的方式
     - 获取用户的输入
     - 调用模型
     - 将模型返回的数据交给视图进行展示
-  - ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsru237bwj31j40u07wh.jpg)
+  - ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsru237bwj31j40u07wh.jpg)
     - 浏览器访问控制器，
     - 控制器调用模型来进行业务操作（比如查询数据库），
     - 操作完把数据返回给控制器，
@@ -1875,7 +1875,7 @@ JSP定义Java代码的方式
 - 界面层(表示层/web层)：用户看到的界面。用户可以通过页面上的组件和服务器进行交互
 - 业务逻辑层(service层)：处理业务逻辑。
 - 数据访问层(dao层；**d**ata **a**ccess **o**bject)：数据存储文件。
-- ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsru3dhk9j31sq0u0hdu.jpg)
+- ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsru3dhk9j31sq0u0hdu.jpg)
   - 浏览器访问界面层
   - 界面层调用对应的业务逻辑层
   - 由业务逻辑层访问数据访问层
@@ -2663,7 +2663,7 @@ public void testJedisPoolUtils() {
 2. 当页面加载完成后发送ajax请求，加载所有省份
 3. **使用redis缓存一些不经常发生变化的数据，如果数据经常变化，那么使用redis就没有意义**。**因为数据库的数据一旦发生改变，则需要更新缓存**。数据库执行增删改的操作后，需要将redis的缓存清空，再次存入
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsru43slmj31ts0u0npd.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsru43slmj31ts0u0npd.jpg)
 
 后台：
 

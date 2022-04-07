@@ -26,9 +26,9 @@
 
 概括地说来，JVM初始运行的时候都会分配好 **Method Area（方法区）** 和**Heap（堆）** ，而JVM 每遇到一个线程，就为其分配一个 **Program Counter Register（程序计数器）** ,  **VM Stack（虚拟机栈）和Native Method Stack （本地方法栈），** 当线程终止时，三者（虚拟机栈，本地方法栈和程序计数器）所占用的内存空间也会被释放掉。这也是为什么我把内存区域分为线程共享和非线程共享的原因，非线程共享的那三个区域的生命周期与所属线程相同，而线程共享的区域与JAVA程序运行的生命周期相同，所以这也是系统垃圾回收的场所只发生在线程共享的区域（实际上对大部分虚拟机来说知发生在Heap上）的原因。
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrkraosbj30x10k874x.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrkraosbj30x10k874x.jpg)
 
-![JVM内存图2](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrks46l1j30hu0gbt92.jpg)
+![JVM内存图2](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrks46l1j30hu0gbt92.jpg)
 
 
 
@@ -47,7 +47,7 @@
 一个年轻代由1个Eden区加2个Survivor区组成
 
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png)
 
 
 # 堆
@@ -57,7 +57,7 @@
 - 从内存回收的角度来看：堆区可以细分为**新生代**和**老年代**；对新生代再细致一点的有**Eden**空间、**From Surviror**空间、**To Survivor**空间等。
 - 从内存分配的角度来看：堆可以划分出多个线程私有的分配缓冲区(TLAB)
 - 堆内存逻辑上连续、物理上不连续；既可以实现成固定大小，也可以在运行时动态调整：`Xms 256M` `Xmx 1024M`，其中`-X`代表它是JVM运行参数，`ms`是memory start，内存初始值，`mx`是memory max，内存最大值
-- 堆内存的空间分配![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrksxin4j313c0m2e81.jpg)
+- 堆内存的空间分配![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrksxin4j313c0m2e81.jpg)
   - 老年代占 2/3
   - 新生代占 1/3
     - Eden占 8/10
@@ -70,7 +70,7 @@
 
 ## JVM创建一个新对象的内存分配流程
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrktwl9jj30y50u0x6q.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrktwl9jj30y50u0x6q.jpg)
 
 1. **绝大部分对象在Eden区生成**
 2. 当Eden区填满时，会触发`Young Garbage Collection`即`YGC`
@@ -231,16 +231,16 @@
 - 标记-清除算法（Mark-Sweep）
   - 优点：快速
   - 缺点：1.标记和清除这两个过程的**效率都不高**；2.**空间问题**，标记清除之后会产生大量不连续的内存碎片。**导致后面在分配大对象的时候无法找到足够大且连续的内存而不得不提前触发另一次垃圾回收**
-  - ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrkux7i8j30m807y74o.jpg)
+  - ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrkux7i8j30m807y74o.jpg)
 - 复制算法（Copying）
   - 将可用内存按容量划分为**大小相等的两块**，每次只使用其中一块。当这一块的内存用完了，就将还**存活的对象复制到另一块上面**，并对前一块空间进行清理
-  - ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrkvvgwfj30m809x3z0.jpg)
+  - ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrkvvgwfj30m809x3z0.jpg)
   - 优点：每次都是对半区内存进行回收，分配大对象的时候也就不用考虑内存碎片的问题
   - 缺点：**可用内存缩小了一半**
   - 这种算法一般用在**新生代**
 - 标记-整理算法（Mark-Compact）
   - **标记过程和标记-清除算法一样**，但是后续是让所有存活对象都向一端移动，然后**清理掉端边界以外的可回收对象**
-  - ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrkwtbdpj30m80bpjs2.jpg)
+  - ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrkwtbdpj30m80bpjs2.jpg)
   - 主要用于老年代
 - 分代收集算法
   - 新生代：复制算法

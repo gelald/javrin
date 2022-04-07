@@ -8,7 +8,7 @@
 
 ### 堆栈的内容
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220406100824.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220406100824.png)
 
 Heap （堆）包含了程序中创建的所有对象。无论是创建对象并将其分配给局部变量，还是创建为另一个对象的成员变量，该对象仍然存储在堆上。静态类变量也与类定义一起存储在堆上。
 

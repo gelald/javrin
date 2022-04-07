@@ -4,7 +4,7 @@
 
 UML使用面向对象设计的建模工具，但独立于任何具体程序设计语言
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210519173435.png" style="zoom:80%;" />
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210519173435.png" style="zoom:80%;" />
 
 ## 关系描述
 
@@ -12,38 +12,38 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
   - **普通箭头实线**的表示**单向关系**，**箭头**指向**被拥有者**
   - **没有箭头实线**的表示**双向关系**
   
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220303110200.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110200.png)
   
 - 聚合：整体与部分的关系。**不同的生命周期**
   - 用**带空心菱形的实线**表示，**菱形**指向**整体**，**箭头**指向**个体**
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220303110127.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110127.png)
   
 - 组合：整体与部分的关系，组合比聚合更加**严格**。**相同的生命周期**
   - 用**带实心菱形的实线**表示，**菱形**指向**整体**，**箭头**指向**个体**
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220303110142.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110142.png)
   
 - 泛化：表示一个**更泛化**的元素和一个**更具体**的元素之间的关系。父类与子类的关系
   - 用**带三角箭头的实线**表示，**箭头**指向**父类**
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220303105832.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303105832.png)
   
 - 实现：实现类与接口的关系
   - 用**带三角箭头的虚线**表示，**箭头**指向**接口**
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220303110059.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110059.png)
   
 - 依赖：如果一个类的改动会影响到另一个类，则两个类之间存在依赖关系，**一般而言，依赖是单向的**
   - 用**带普通箭头的虚线**表示，**箭头**指向**被依赖者**
   
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220303110218.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110218.png)
 
 
 
 ## 类图
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913152524.png" style="zoom:67%;" />
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210913152524.png" style="zoom:67%;" />
 
 - `+`：`public`
 - `-`：`private`
@@ -60,13 +60,13 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 
 #### 案例一
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913155546.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210913155546.png)
 
 
 
 #### 案例二《大话设计模式》
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210913160834.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210913160834.png)
 
 
 
@@ -106,4 +106,4 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 
 下面通过一个小案例加深时序图的理解
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220303110340.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110340.png)

@@ -6,7 +6,9 @@ Java 有一种特殊的队列叫做优先队列。**Java 中优先队列的作�
 
 Java 中实现优先队列的集合是 PriorityQueue，通过堆实现优先队列，具体是通过完全二叉树实现的堆（任意一个非叶子结点的权值都不大于其左右结点的权值），而二叉树则是由数组实现的。
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314172348.png" style="zoom:70%;" />
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314172348.png)
+
+
 
 父子节点的编号之间有这样的关系
 
@@ -135,5 +137,7 @@ public E peek() {
 
   调整堆的流程图
 
-  <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314193835.png" style="zoom:80%;" />
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314193835.png)
+  
+  
 

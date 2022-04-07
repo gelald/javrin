@@ -3,14 +3,31 @@
 ## 为什么使用消息队列
 
 - 解耦
-  - 传统：系统间直接耦合，每接入一个系统，都需要修改代码![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggzlaeqd1qj30fl0a7wf7.jpg)
-  - 中间件：将消息写入消息队列，需要消息的系统自己从消息队列中订阅，从而系统A不需要做任何修改![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggzlang3m1j30dl0a7t9a.jpg)
+  - 传统：系统间直接耦合，每接入一个系统，都需要修改代码
+  
+    ![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggzlaeqd1qj30fl0a7wf7.jpg)
+  
+  - 中间件：将消息写入消息队列，需要消息的系统自己从消息队列中订阅，从而系统A不需要做任何修改
+  
+    ![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggzlang3m1j30dl0a7t9a.jpg)
+  
 - 异步
-  - 传统：一些非必要的业务逻辑以同步的方式运行，比较耗费时间![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggzlcld8bfj30i408bwev.jpg)
-  - 中间件：将消息写入消息队列，非必要的业务逻辑以异步的方式运行，加快响应速度![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggzlcs8ebdj30hp09fwf3.jpg)
+  - 传统：一些非必要的业务逻辑以同步的方式运行，比较耗费时间
+  
+    ![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggzlcld8bfj30i408bwev.jpg)
+  
+  - 中间件：将消息写入消息队列，非必要的业务逻辑以异步的方式运行，加快响应速度
+  
+    ![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggzlcs8ebdj30hp09fwf3.jpg)
+  
 - 削峰
-  - 传统：并发量大的时候，所有的请求直接怼到数据库，造成数据库连接异常![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggzldnsbj9j30e90dwaao.jpg)
-  - 中间件：系统A慢慢的按照数据库能处理的并发量，从消息队列中慢慢拉取消息。在生产中，这个短暂的高峰期积压是允许的![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggzldxkusnj30if0dwgme.jpg)
+  - 传统：并发量大的时候，所有的请求直接怼到数据库，造成数据库连接异常
+  
+    ![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggzldnsbj9j30e90dwaao.jpg)
+  
+  - 中间件：系统A慢慢的按照数据库能处理的并发量，从消息队列中慢慢拉取消息。在生产中，这个短暂的高峰期积压是允许的
+  
+    ![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggzldxkusnj30if0dwgme.jpg)
 
 ## 使用了消息队列会有什么缺点
 

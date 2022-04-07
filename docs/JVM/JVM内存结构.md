@@ -14,7 +14,7 @@ JVM运行时数据区大致包括以下五个部分
 
 ## JVM 整体架构
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220318171130.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220318171130.png)
 
 Java 虚拟机定义了若干种程序运行期间会使用到的运行时数据区，其中有一些会随着虚拟机启动而创建，随着虚拟机退出而销毁。另外一些则是与线程一一对应的，这些与线程一一对应的数据区域会随着线程开始和结束而创建和销毁。
 
@@ -37,7 +37,9 @@ Java 虚拟机定义了若干种程序运行期间会使用到的运行时数据
 
 PC 寄存器用来存储指向下一条指令的地址，即将要执行的指令代码。字节码解释器工作时就是通过改变这个计数器的值来选取下一条需要执行的字节码指令
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220321145051.png" style="zoom:50%;" />
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220321145051.png)
+
+
 
 关于字节码文件解析可以看：[Java字节码文件](docs/JVM/字节码文件.md)
 
@@ -92,7 +94,9 @@ PC 寄存器用来存储指向下一条指令的地址，即将要执行的指�
 
 在 IDEA 中 debug 的时候，可以在 Frame 选项卡看到当前线程的虚拟机栈的情况
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220321152233.png" style="zoom:65%;" />
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220321152233.png)
+
+
 
 
 
@@ -100,7 +104,9 @@ PC 寄存器用来存储指向下一条指令的地址，即将要执行的指�
 
 栈、栈帧内部存储结构图
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220321152545.png" style="zoom:65%;" />
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220321152545.png)
+
+
 
 每个栈帧中存放着
 
@@ -196,9 +202,9 @@ JVM 规范规定，Java 堆只需要逻辑上是连续的即可。实现时，�
 
 Java 堆内存结构
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220321163452.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220321163452.png)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220321171230.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220321171230.png)
 
 
 
@@ -227,7 +233,7 @@ Eden区实现回收的策略
 
 ### 创建一个新对象的内存分配流程
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrktwl9jj30y50u0x6q.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrktwl9jj30y50u0x6q.jpg)
 
 
 
@@ -342,7 +348,7 @@ jdk1.8使用元空间来实现方法区，基于永久代的弊端，元空间�
 
 **栈、堆、方法区的交互关系**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220323112201.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220323112201.png)
 
 
 
@@ -371,6 +377,5 @@ jdk1.8使用元空间来实现方法区，基于永久代的弊端，元空间�
 直接使用双引号声明：`String str1=“abc”;` JVM 会直接返回该字符串的引用
 使用 `String str2 = new String(“abc”);` 方式，会在堆中创建一个 `String(“abc”)` 对象实例，将字符串常量池中这个"abc"字符串的引用地址返回赋给`String(“abc”)`
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220323143146.png)
-
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220323143146.png)
 

@@ -6,7 +6,7 @@ LinkedList 同时实现了 List 接口和 Deque 接口，也就是说它既可�
 
 LinkedList 的结构是双向链表，所以一切与下标相关的操作都是线性时间，而在首尾增加或删除元素的操作都是常数时间。为了追求性能它没有实现同步，如果需要多个行程访问则需要使用 `Collections.synchronizedList()` 进行包装
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314101111.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314101111.png)
 
 
 
@@ -82,7 +82,7 @@ public LinkedList(Collection<? extends E> c) {
 
   add 方法工作原理
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314111938.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314111938.png)
 
 
 
@@ -273,6 +273,6 @@ public E get(int index) {
 
   按元素删除和按索引删除方法的工作原理
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314150140.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314150140.png)
 
   

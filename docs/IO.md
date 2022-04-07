@@ -69,7 +69,7 @@ while(1) {
 
 整体流程如下：
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210817095814.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210817095814.png)
 
 阻塞IO的执行过程是进程进行系统调用，**等待内核**将数据准备好并复制到用户态缓冲区后，进程**放弃使用CPU**并**一直阻塞**在此，直到数据准备好
 
@@ -85,7 +85,7 @@ while(1) {
 
 整体流程图如下：
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210817154602.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210817154602.png)
 
 非阻塞IO的执行过程经历两个阶段
 
@@ -138,7 +138,7 @@ while(1) {
 
 整体流程如下：
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210817160011.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210817160011.png)
 
 - 对于用户层来说，一般**感受不到阻塞**，因为请求来了，可以用放到线程池里执行
 
@@ -151,7 +151,7 @@ while(1) {
 
 > 跑KFC嫌麻烦，刚好有个会员，直接点份wai mai，美滋滋。当wai mai送达时，会收到取餐电话（信号）。在收到取餐电话之前，我可以愉快地吃或者学习。
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8IO%E6%A8%A1%E5%9E%8B.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8IO%E6%A8%A1%E5%9E%8B.png)
 
 信号驱动IO模型执行分为两个阶段：
 
@@ -164,7 +164,7 @@ while(1) {
 
 > 此时科技的发展已经超乎想象了，wai mai机器人将quan jia tong自动送达并**转换成营养**快速注入我的体内，同时还能得到口感的满足。注入结束后，机器人会提醒我注入完毕。在这个期间我可以放心大胆的玩，甚至注射的时候也**不需要停下来**！
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/%E5%BC%82%E6%AD%A5IO%E6%A8%A1%E5%9E%8B.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/%E5%BC%82%E6%AD%A5IO%E6%A8%A1%E5%9E%8B.png)
 
 用户进程发起系统调用后，立刻就可以开始去做其他的事情，然后直到I/O**数据准备好并复制完成后**，内核会给用户进程**发送通知**，告诉用户进程操作**已经完成**了。
 

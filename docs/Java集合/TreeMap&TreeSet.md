@@ -16,7 +16,7 @@ TreeMap 底层是通过红黑树实现的，在此之前我们需要先简单了
 
 红黑树结构：
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220314223432.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220314223432.png)
 
 红黑树是一种近似平衡的二叉查找树，它能够确保任何一个节点的左右子树的高度差不会超过二者中较低那个的一倍
 
@@ -30,7 +30,7 @@ TreeMap 底层是通过红黑树实现的，在此之前我们需要先简单了
 
 红黑树本质上还是一颗二叉查找树，只不过在其基础上添加了一些约束，防止二叉查找树退化成链表
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220315093348.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220315093348.png)
 
 如图：右边路径有4个节点，左边路径两个；节点9后面不能再有节点了，添加红违反特性（4），添加黑违法特性（5）
 
@@ -66,7 +66,7 @@ final Entry<K,V> getEntry(Object key) {
 
 获取元素的流程
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220315094428.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220315094428.png)
 
 
 
@@ -100,7 +100,7 @@ public V put(K key, V value) {
 
 添加元素流程图
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220315095932.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220315095932.png)
 
 
 

@@ -43,7 +43,7 @@
   - 获取时携带分数：`zrange key 0 -1 withscores`
   - 删除：`zrem key value`
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrojipmnj312q0tq4ha.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrojipmnj312q0tq4ha.jpg)
 
 ## 通用命令
 
@@ -110,7 +110,7 @@ redis持久化机制：
 
 - 读：**先读缓存，缓存没有的话，再去读数据库，然后取出来放入缓存中，同时返回响应**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210317231719.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210317231719.png)
 
 - 写：**先更新数据库，后删除缓存**
 
@@ -130,9 +130,9 @@ redis持久化机制：
 
 #### 隐患：数据库更新成功，但缓存删除失败
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210317232454.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210317232454.png)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210317232442.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210317232442.png)
 
 ![](https://gitee.com/ngwingbun/pic/raw/master/20210317232506.png)
 
@@ -148,9 +148,9 @@ redis持久化机制：
 
 #### 假如更新数据库失败
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210317232949.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210317232949.png)
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210317232957.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210317232957.png)
 
 ![](https://gitee.com/ngwingbun/pic/raw/master/20210317233006.png)
 
@@ -166,7 +166,7 @@ redis持久化机制：
 
 **这样的话，读请求拿到未修改的旧数据写入缓存。过了一会儿，写请求将数据库更新成功了，那么此时缓存与库中的数据就不一致了。**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210318234534.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210318234534.png)
 
 - 缓存延时双删策略
 
@@ -176,7 +176,7 @@ redis持久化机制：
 
 这种方案读取速度快，但是会出现短时间的脏数据。
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210318234740.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210318234740.png)
 
 ## 缓存穿透
 
@@ -186,7 +186,7 @@ redis持久化机制：
 >
 > 女孩子买口红不仅需要门店帮忙查询，还需要总部也进行盘货。类似这种情况，在缓存领域有一个类似的概念叫做**缓存穿透**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210412215026.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210412215026.png)
 
 **缓存穿透**是指缓存服务器中没有缓存数据，数据库中也没有符合条件的数据，导致业务系统每次都绕过缓存服务器查询下游的数据库，缓存服务器完全失去了其应有的作用
 
@@ -216,7 +216,7 @@ redis持久化机制：
 >
 > 或者如果有多家门店同时卖完了，那么总部接收到的咨询量就会剧增。类似这种情况，在缓存领域有一个类似的概念叫做**缓存击穿**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210412220154.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210412220154.png)
 
 **缓存击穿**是指当某一key的缓存过期时大并发量的请求同时访问此key，瞬间击穿缓存服务器直接访问数据库，让数据库处于负载的情况
 
@@ -242,7 +242,7 @@ redis持久化机制：
 >
 > 或者是门店突然出现问题了，不能提供服务了，很多顾客就可能自己打电话到总部咨询库存情况。类似这种情况，在缓存领域有一个类似的概念叫做**缓存雪崩**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210412220622.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210412220622.png)
 
 **缓存雪崩**是指当大量缓存同时过期或缓存服务宕机，**所有请求的都直接访问数据库**，造成数据库高负载，影响性能，甚至数据库宕机。
 

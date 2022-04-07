@@ -8,7 +8,7 @@
 
 当调用其他服务时，Eureka Client组件会找Eureka Server咨询：需要使用的服务的信息（IP地址、端口号），然后就可以把这些相关信息从Eureka Server的注册表中拉取到自己**本地缓存起来**。
 
-![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggaenolne2j30kp07kju0.jpg)
+![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggaenolne2j30kp07kju0.jpg)
 
 - Eureka Client：当服务启动时，负责将这个服务的信息注册到Eureka Server中；反过来，可以从Eureka Server拉取注册表，从而知道其他服务所在位置
 - Eureka Server：注册中心，里面有一个注册表，保存了各个服务所在的IP地址和端口号
@@ -17,7 +17,7 @@
 
 **关键：动态代理**
 
-![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggaenyintlj30in070q4d.jpg)
+![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggaenyintlj30in070q4d.jpg)
 
 - 如果对某个接口定义了`@FeignClient`注解，Feign就会针对这个接口创建一个动态代理
 - 接着调用那个接口，本质就是会调用 Feign创建的**动态代理**，这是核心中的核心
@@ -44,7 +44,7 @@
 2. 然后Ribbon就可以使用默认的Round Robin算法，从中选择一台机器
 3. Feign就会针对这台机器，构造并发起请求
 
-![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggaezdxtn0j30kr08640v.jpg)
+![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggaezdxtn0j30kr08640v.jpg)
 
 ### Zuul
 
@@ -60,7 +60,7 @@
 
 场景：如果系统处于高并发的场景下，且B服务的响应速度较慢，大量请求涌过来的时候，A服务的100个线程都会卡在B积分服务这块。导致A服务没有一个线程可以处理请求。然后就会导致用户请求A服务的时候，发现A服务也挂了，不响应任何请求了。这就是微服务架构中恐怖的服务雪崩问题。
 
-![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggaf40ad3bj30js0d1t9z.jpg)
+![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggaf40ad3bj30js0d1t9z.jpg)
 
 **Hystrix是隔离、熔断以及降级的一个框架**。说白了，**Hystrix会为不同服务构建一个独立的线程池仅供它使用**，比如订单服务请求库存服务是一个线程池，请求仓储服务是一个线程池，请求积分服务是一个线程池。**每个线程池里的线程就仅仅用于请求那个服务。**
 
@@ -76,7 +76,7 @@
 
 Hystrix隔离、熔断、降级的全流程：
 
-![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggaf97a437j30kf0eaadz.jpg)
+![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggaf97a437j30kf0eaadz.jpg)
 
 ### Hystrix Dashboard
 
@@ -88,7 +88,7 @@ Hystrix Dashboard智能监控自己服务，这个可以将多个服务的信息
 
 ### 总结
 
-![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggafj3fxpkj30ks0ajgo9.jpg)
+![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggafj3fxpkj30ks0ajgo9.jpg)
 
 ## Spring Cloud Alibaba核心组件
 
@@ -194,7 +194,7 @@ Dubbo
 
 ### Apache ZooKeeper
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20211117184241.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20211117184241.png)
 
 `ZooKeeper` 遵循CP原则，任何时候对 `ZooKeeper` 的访问请求能得到一致的数据结果，同时系统对网络分割具备容错性，但是 `ZooKeeper` 不能保证每次服务请求都是可达的
 
@@ -222,7 +222,7 @@ Dubbo
 
 ### Spring Cloud Netflix Eureka
 
-![img](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1ggp754cvvtj30m80azwg8.jpg)
+![img](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1ggp754cvvtj30m80azwg8.jpg)
 
 `Eureka` 遵循AP原则，`Eureka Server` 解决单点的问题是建立多个对等的实例，去中心化，使用彼此相互注册的方式提高可用性，虽然节点的数据不一定完全一致，但是能保证每一个节点都能正常提供服务
 

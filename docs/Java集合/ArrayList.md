@@ -29,7 +29,9 @@ private int size;
 
 - 一般称数组长度为 capacity，capacity 和 size的含义有一定的区别
 
-  <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220312210703.png" style="zoom:80%;" />
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220312210703.png)
+  
+  
 
 
 
@@ -185,7 +187,7 @@ private static int hugeCapacity(int minCapacity) {
 
 自动扩容中迁移数组元素的过程
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220312213658.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220312213658.png)
 
 
 
@@ -217,7 +219,9 @@ public void add(int index, E element) {
 
 两种方式的工作原理图
 
-<img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/20220313173010.png" style="zoom:80%;" />
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220313173010.png)
+
+
 
 可以看到 `add(int index, E e)` 需要先移动元素，再完成插入操作，这意味着这个方法有着线性的时间复杂度
 

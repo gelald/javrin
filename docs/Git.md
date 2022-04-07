@@ -1,6 +1,6 @@
 # Git
 
-![image-20201124094223951](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20201124094223951.png)
+![image-20201124094223951](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20201124094223951.png)
 
 **工作区**
 

@@ -61,7 +61,7 @@ ifconfig: 查看网络配置
 centos7 查看ip地址推荐使用ip addr
 ```
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsqzd3mu6j311f0u04qp.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsqzd3mu6j311f0u04qp.jpg)
 
 ### 浏览文件
 
@@ -456,7 +456,7 @@ DNS1:			DNS服务器
 - 修改`server.xml`配置文件
   - 在localhost的server中加入`<Context docBase="项目路径" path="项目访问路径" />`，风险：有可能把tomcat原有的东西弄坏
   - 加入新的server
-- 在conf\Catalina\localhost创建项目
+- 在 `conf/Catalina/localhost` 创建项目
 
 ## 项目目录结构
 
@@ -522,7 +522,7 @@ DNS1:			DNS服务器
 
 ### 几款服务器对比
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsr3uk2s6j30mm0k411e.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsr3uk2s6j30mm0k411e.jpg)
 
 # Vagrant
 
@@ -666,7 +666,7 @@ dpkg是Debian（linux衍生系统）软件包管理器的基础，**基于deb文
 - 在使用 apt 命令时，用户不必再由 apt-get 转到 apt-cache 或 apt-config，而且 apt 更加结构化，并为用户提供了管理软件包所需的必要选项。
 - 简单来说就是：apt = apt-get、apt-cache 和 apt-config 中最常用命令选项的集合
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210404113432.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210404113432.png)
 
 ## snap
 

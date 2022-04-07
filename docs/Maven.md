@@ -45,7 +45,7 @@ maven使用一个命令完成对项目的编译、测试、打包、安装、发
 
 ### **Maven概念模型**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrj94k24j30ya0l2b29.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrj94k24j30ya0l2b29.jpg)
 
 
 

@@ -19,7 +19,7 @@ SQL语句分类
 
 **架构图**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrmbg5m2j30c40ha0yn.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrmbg5m2j30c40ha0yn.jpg)
 
 ## 数据类型
 
@@ -936,7 +936,7 @@ update tablename set id=(@r:=@r+1)
   );
   ```
 
-  ![image-20200930181447617](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20200930181447617.png)
+  ![image-20200930181447617](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20200930181447617.png)
 
 - 相同的id，table列从上到下查询。(数据量会影响sql语句执行顺序--小表驱动大表)
 
@@ -954,7 +954,7 @@ update tablename set id=(@r:=@r+1)
   
   查询表的顺序是 tc--t--c
   
-  ![image-20201003152102982](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20201003152102982.png)
+  ![image-20201003152102982](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20201003152102982.png)
   
   ```mysql
   -- 删掉三行
@@ -963,7 +963,7 @@ update tablename set id=(@r:=@r+1)
   
   查询表的顺序是 t--c--tc
   
-  ![image-20201003152450710](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20201003152450710.png)
+  ![image-20201003152450710](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20201003152450710.png)
   
   关联查询本质是笛卡尔积，最终数量等于a * b * c，**查询优化器会选择中间结果比较少的执行方式**
 
@@ -990,7 +990,7 @@ update tablename set id=(@r:=@r+1)
   ) cr;
   ```
 
-  ![image-20201003153741682](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20201003153741682.png)
+  ![image-20201003153741682](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20201003153741682.png)
 
 - UNION。用到了union关键字的查询
 
@@ -1291,7 +1291,7 @@ InnoDB支持行锁和表锁；MyISAM支持表锁
 - 临键：间隙+下一个记录，**左开右闭**
 - N个记录，N+1间隙
 
-![image-20200928225821932](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20200928225821932.png)
+![image-20200928225821932](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20200928225821932.png)
 
 ### 记录锁
 
@@ -1299,7 +1299,7 @@ InnoDB支持行锁和表锁；MyISAM支持表锁
 
 锁定内容：索引
 
-![image-20200928231714612](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20200928231714612.png)
+![image-20200928231714612](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20200928231714612.png)
 
 ### 间隙锁
 
@@ -1311,7 +1311,7 @@ InnoDB支持行锁和表锁；MyISAM支持表锁
 
 **可以防止幻读**
 
-![image-20200928232138971](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20200928232138971.png)
+![image-20200928232138971](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20200928232138971.png)
 
 ### 临键锁
 
@@ -1321,7 +1321,7 @@ InnoDB支持行锁和表锁；MyISAM支持表锁
 
 **是InnoDB默认的行锁算法**
 
-![image-20200928234952461](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20200928234952461.png)
+![image-20200928234952461](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20200928234952461.png)
 
 ## 乐观锁和悲观锁的区别
 
@@ -1485,7 +1485,7 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
 
 - `statement`，记录为SQL语句形式，如：`update T set update_time=now() where id=1`，记录的内容如下：
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210907111312.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210907111312.png)
 
   同步数据时，就执行记录里面的SQL语句
 
@@ -1493,7 +1493,7 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
 
 - `row`，记录为SQL语句及其操作的具体数据，保证了动态值确定性，记录的内容如下：
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210907111928.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210907111928.png)
 
   `row`格式记录的内容看不到详细信息，要通过`mysqlbinlog`工具解析出来。
 
@@ -1516,7 +1516,7 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
 
 - 0：每次事务提交时都只把 `binlog buffer` 内容写入 `page cache`，等待后台线程每秒的刷盘，把`page cache`的内容写入`binlog`文件**（默认）**
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210908143542.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210908143542.png)
 
   由于`binlog cache`写入到`page cache`都是内存中的操作，不涉及到磁盘的操作，所以性能很高
 
@@ -1524,7 +1524,7 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
 
 - 1：每次事务提交时都会把`page cache`的内容进行刷盘
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210908141410.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210908141410.png)
 
   每次事务提交都执行一次完整的记录流程，从`binlog cache`到`page cache`再到磁盘，数据安全不易丢失
 
@@ -1532,7 +1532,7 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
 
 - N(N>1)，折中方案，每次提交事务都把`binlog cache`的内容写入到`page cache`，但是累积N个事务后，才把`page cache`中的内容进行刷盘
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210908144438.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210908144438.png)
 
   在出现`IO`瓶颈的场景里，将`sync_binlog`设置成一个比较大的值，可以提升性能
 
@@ -1583,7 +1583,7 @@ log_queries_not_using_indexes={on|off} # 查询没有使用索引的时候是否
 
 **redo log**（重做日志）是**InnoDB存储引擎独有**的，它让MySQL拥有了**崩溃恢复**的能力，恢复数据时`InnoDB`会使用`redo log`来保证数据的完整性和持久性
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210902170055.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210902170055.png)
 
 #### redo log引入
 
@@ -1606,7 +1606,7 @@ redo log中的记录是由**表空间号+数据页号+偏移量+修改数据长�
 1. 数据页大小是`16KB=16384Byte`，可能也就修改了数据页中几`Byte`的数据，没有必要把完整的数据页进行刷盘，**IO代价太大**
 2. 数据页刷盘是**随机写**，因为一个数据页对应的位置可能在硬盘文件的随机位置，所以性能是很差的；而`redo log`是**顺序写**，刷盘速度很快
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210902172253.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210902172253.png)
 
 #### redo log刷盘时机
 
@@ -1614,15 +1614,15 @@ redo log中的记录是由**表空间号+数据页号+偏移量+修改数据长�
 
 - 0：每次事务提交时不进行刷盘操作，只是等待后台线程进行每秒的刷盘
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906165553.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210906165553.png)
 
 - 1：每次事务提交时都进行刷盘操作**（默认）**，除了后台线程进行的每秒的刷盘外，一旦事务提交就进行主动刷盘
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906170211.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210906170211.png)
 
 - 2：每次事务提交时都只把 `redo log buffer` 内容写入 `page cache`，等待后台线程每秒的刷盘，把`page cache`的内容写入`redo log`文件
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906170444.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210906170444.png)
 
 #### redo log文件组
 
@@ -1632,7 +1632,7 @@ redo log中的记录是由**表空间号+数据页号+偏移量+修改数据长�
 
 它采用的是**环形数组**形式，从头开始写，写到末尾又回到头循环写
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210906171107.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210906171107.png)
 
 在日志文件组中有两个重要的属性
 
@@ -1679,23 +1679,23 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
 
 由于`binlog`没写完就异常，这时候`binlog`里面没有对应的修改记录。因此，之后用`binlog`日志恢复从库的数据时，就会少这一次更新，恢复出来的这一行`c`值是`0`，而原库因为`redo log`日志恢复，这一行`c`值是`1`，最终数据不一致
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909112032.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210909112032.png)
 
 ### 两阶段提交原理
 
 为了防止出现数据不一致的问题，MySQL将`redo log`的写入拆成了两个步骤`prepare`和`commit`，这就是**两阶段提交**
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909112205.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210909112205.png)
 
 
 
 - 当写入`binlog`时发生异常，MySQL会检查`redo log`处于什么阶段，如果是`prepare`阶段，并且也没有对应的`binlog`日志时，就会回滚事务
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909113524.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210909113524.png)
 
 - 当`redo log`设置`commit`阶段发生异常，此时虽然`redo log`还是处于`prepare`阶段，但是能通过事务Id在`binlog`中找到对应的`binlog`日志，所以可以认为这是完整的记录，就会把事务提交
 
-  ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20210909113538.png)
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210909113538.png)
 
 # 数据库设计
 
@@ -1736,10 +1736,17 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
 
 - 第一范式：**每一项都是不可分割的原子数据项**
   - 不允许出现**复合列**
-  - <img src="https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrnje6vzj311y0r6arv.jpg" style="zoom:50%;" />
+  
+    ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrnje6vzj311y0r6arv.jpg)
+  
+    
+  
   - 存在数据冗余
+  
   - 数据添加存在问题
+  
   - 数据删除存在问题
+  
 - 第二范式：在第一范式基础上，非码属性必须**完全依赖于码**。在第一范式的基础上**消除非主属性对主码的部分函数依赖**
   - 几个概念
     - 函数依赖：如果通过A的属性(属性组)的值可以确定唯一B的属性的值，那么就称B依赖于A。如学号->姓名，(学号，课程名称)->分数
@@ -1749,12 +1756,18 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
     - **码**：如果在一张表中，一个属性或者一个属性组，被其他所有属性所完全依赖，则称这个属性(属性组)为该表的码。如：码：(学号，课程名称)
     - 主属性：码属性组中所有属性
     - 非主属性：除码属性组外的属性
+    
   - 做法：拆分表
-  - ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrmck4zvj31ja0u07wh.jpg)
+  
+    ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrmck4zvj31ja0u07wh.jpg)
+  
   - 解决了**数据冗余**的问题，但存在同样的数据插入、删除的问题
+  
 - 第三范式：在第二范式基础上，任何非主属性不依赖于其他非主属性。在第二范式基础上消除传递依赖
   - 做法：再拆分表
-  - ![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrmdbjrij31320pun9x.jpg)
+  
+    ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrmdbjrij31320pun9x.jpg)
+  
   - 解决了数据**插入**不合法和**删除**风险的问题
 
 ## 动态字段
@@ -1777,7 +1790,7 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
 
 根据业务耦合性，将**关联度低**的不同表存储在**不同的数据库**。做法与大系统拆分为多个小系统类似，按业务分类进行独立划分。每个微服务使用单独的一个数据库
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrme94x1j30zs0msthi.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrme94x1j30zs0msthi.jpg)
 
 ### 垂直分表
 
@@ -1785,7 +1798,7 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
 
 字段过多的情况下，通过"大表拆小表"，更便于开发与维护，也能**避免跨页**问题。因为MySQL 底层是通过数据页存储的，一条记录占用空间过大会导致跨页，造成额外的性能开销。
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrmf724uj310k0gwn14.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrmf724uj310k0gwn14.jpg)
 
 ### 优缺点
 
@@ -1804,7 +1817,7 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
 
 表内数据内在的**逻辑关系**，将同一个表**按不同的条件分散**到多个数据库或多个表中，每个表中只包含一部分数据，从而使得**单个表的数据量变小，达到分布式的效果**。
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/007S8ZIlgy1gfsrmfqf5pj30u00xuwxs.jpg)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrmfqf5pj30u00xuwxs.jpg)
 
 库内分表只解决了单一表数据量过大的问题，但没有将表分布到不同机器的库上
 
@@ -2011,7 +2024,7 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
 
 ## 一条查询语句执行的流程
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20200913145650.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20200913145650.png)
 
 ### 客户端(Client)
 
@@ -2063,7 +2076,7 @@ MySQL `InnoDB` 引擎使用 **redo log(重做日志)** 保证事务的**持久�
 
 - 词法解析：把语句中关键词、表名、字段名等内容拆分成一个一个单词
 - 语法解析：检查sql的语法。括号、引号有没有闭合、分号等。
-- 最终得到的是一颗**解析树**![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20200913133105.png)
+- 最终得到的是一颗**解析树**![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20200913133105.png)
 - 称为**硬解析**
 
 ### 预处理器(Preprocessor)
@@ -2134,7 +2147,7 @@ mysql5.5版本后默认的存储引擎是InnoDB
 
 理解版
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20200913141853.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20200913141853.png)
 
 服务层中有一个日志：binlog，**默认不开启**
 - 记录DDL、DML语句，属于逻辑日志
@@ -2149,11 +2162,11 @@ mysql5.5版本后默认的存储引擎是InnoDB
 - 1页的大小是16KB
 - 页是InnoDB做磁盘管理最小的单位
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20200913144046.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20200913144046.png)
 
 ## 一条更新语句的执行过程
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20200913152005.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20200913152005.png)
 
 - 客户端的操作不会直接操作磁盘，而是先去到InnoDB中的缓冲池Buffer Pool，因为IO代价太大
 - Buffer Pool可以加速数据的操作和访问(**为了避免每次在读写数据时访问磁盘增加 IO 开销，Innodb 存储引擎通过把相应的数据页和索引页加载到Buffer Pool中来提高读写速度。然后按照最近最少使用原则来保留缓冲池中的缓存数据。**)
@@ -2170,7 +2183,7 @@ mysql5.5版本后默认的存储引擎是InnoDB
 
 ---
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20200913154617.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20200913154617.png)
 
 **MySQL InnoDB两阶段(XA)的提交**
 
@@ -2204,7 +2217,7 @@ mysql5.5版本后默认的存储引擎是InnoDB
 
 以主键索引为例，一个主键对应一行记录的地址值，通过这个主键找到地址，再通过地址值找到数据
 
-![](https://gitee.com/ngwingbun/picgo-image/raw/master/images/20200916225708.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20200916225708.png)
 
 
 
@@ -2253,20 +2266,20 @@ B树(多路平衡查找树)：节点拥有的子树(度)永远比关键字的数
 
 **InnoDB进一步改良了B+树，加入了顺序访问的指针**
 
-![image-20200917001024745](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20200917001024745.png)
+![image-20200917001024745](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20200917001024745.png)
 
 - MyISAM
   - MyISAM存储引擎中有两个文件：.MYI 存储索引， .MYD存储数据
   - 搜索数据时，先从MYI文件中索引的B+树的结构中找到键值对应数据的磁盘地址
   - 再从MYD文件中找到完整数据
-  - ![image-20210221222230495](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20210221222230495.png)![image-20210221222253588](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20210221222253588.png)
+  - ![image-20210221222230495](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20210221222230495.png)![image-20210221222253588](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20210221222253588.png)
   - MyISAM索引分为两类：主键索引、辅助(其他)索引，两者检索方式一样
 - InnoDB
   - InnoDB存储引擎中只有一个文件：.ibd，所以索引和数据放在一起
   - 因为数据是跟随主键存储的，数据在磁盘中的物理顺序和主键的逻辑顺序一摸一样，所以：**以主键为索引来组织数据存储**
   - InnoDB中只有主键索引是聚集索引：clustered index，数据在磁盘中的物理顺序和主键的逻辑顺序一致。其他索引都是非聚集索引
   - 如果建表时没有指定主键，也就没有了主键索引，那么InnoDB会**默认先寻找第一个没有NULL值的唯一索引作为聚集索引**。如果也没有这个条件，那么InnoDB有一个RowId隐藏字段(递增)作为聚集索引来组织数据的存储
-  - InnoDB的主键索引和辅助索引检索数据的方式是有主次之分的，辅助索引必须要到主键索引中检索数据，因为数据都是存放在主键索引B+树上的叶子结点上![image-20200917232914575](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20200917232914575.png)
+  - InnoDB的主键索引和辅助索引检索数据的方式是有主次之分的，辅助索引必须要到主键索引中检索数据，因为数据都是存放在主键索引B+树上的叶子结点上![image-20200917232914575](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20200917232914575.png)
 
 
 
@@ -2278,7 +2291,7 @@ B树(多路平衡查找树)：节点拥有的子树(度)永远比关键字的数
    - 在离散度很低的字段上建立索引，作用不大。(explain sql语句 rows字段的值比较大) B+树上重复值过多，不利于检索
    - 当一个字段的离散度太低时，存储引擎直接放弃使用索引，进行全表扫描，也不利于数据检索
 2. 联合索引最左匹配原则
-   - 假设建的联合索引是(name、phone) B+树中联合索引的存储方式(依据索引建立顺序从左到右)![image-20200920172226252](https://gitee.com/ngwingbun/picgo-image/raw/master/images/image-20200920172226252.png)
+   - 假设建的联合索引是(name、phone) B+树中联合索引的存储方式(依据索引建立顺序从左到右)![image-20200920172226252](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20200920172226252.png)
    - 假如定义联合索引`index(a,b,c)`，那么最终得到的索引是
      - `index(a)`
      - `index(a,b)`
