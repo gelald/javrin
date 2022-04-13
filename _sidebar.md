@@ -17,13 +17,14 @@
   - [Java集合-TreeMap和TreeSet](docs/Java集合/TreeMap&TreeSet.md)
   - [Java集合-HashMap和HashSet](docs/Java集合/HashMap&HashSet.md)
   - [Java集合-LinkedHashMap和LinkedHashSet](docs/Java集合/LinkedHashMap&LinkedHashSet.md)
-- JVM
-  - [JVM-字节码文件详解](docs/JVM/字节码文件.md)
-  - [JVM-类加载机制](docs/JVM/类加载机制.md)
-  - [JVM-内存结构](docs/JVM/JVM内存结构)
-  - [GC-垃圾回收基础](docs/JVM/垃圾回收基础.md)
-  - [排查-内存分析](docs/JVM/内存分析.md)
-  - [排查-线程分析](docs/JVM/线程堆栈分析.md)
+- Java虚拟机
+  - [JVM-字节码文件详解](docs/Java虚拟机/字节码文件.md)
+  - [JVM-类加载机制](docs/Java虚拟机/类加载机制.md)
+  - [JVM-运行时内存模型](docs/Java虚拟机/运行时内存结构)
+  - [JMM-物理内存模型](docs/Java虚拟机/物理内存模型)
+  - [GC-垃圾回收基础](docs/Java虚拟机/垃圾回收基础.md)
+  - [排查-内存分析](docs/Java虚拟机/内存分析.md)
+  - [排查-线程分析](docs/Java虚拟机/线程堆栈分析.md)
 - 并发
   - [并发-线程池](docs/并发/线程池.md)
 - MySQL
