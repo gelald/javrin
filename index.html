@@ -7,24 +7,25 @@
     <meta name="description" content="Description" />
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <link rel="icon" href="resources/favicon.ico" type="image/x-icon" />
-    <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/vue.css"/> -->
-    <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.12.1/lib/themes/buble.css"> -->
+    <!-- <link rel="stylesheet" href="resources/css/docsify@4.12.1/lib/themes/vue.css"/> -->
+    <!-- <link rel="stylesheet" href="resources/css/docsify@4.12.1/lib/themes/buble.css"> -->
     <!-- darklight-theme 主题 -->
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css"/>
-    <!-- 为了切换主题的图标不要盖住字数统计 -->
+    <link rel="stylesheet" href="resources/css/docsify-darklight-theme@3.2.0/dist/style.min.css"/>
+    <!-- Gitalk 样式 -->
+    <link rel="stylesheet" href="resources/css/gitalk@1.7.2/dist/gitalk.css"/>
+    <!-- 标题自动折叠-箭头样式 -->
+    <!-- <link rel="stylesheet" href="resources/css/docsify-sidebar-collapse@1.3.5/dist/sidebar.min.css"/> -->
+    <!-- 标题自动折叠-文件夹样式 -->
+    <link rel="stylesheet" href="resources/css/docsify-sidebar-collapse@1.3.5/dist/sidebar-folder.min.css" />
+    <!-- 数学公式支持 -->
+    <link rel="stylesheet" href="resources/css/katex@0.15.3/dist/katex.min.css"/>
+    <!-- 自定义样式 -->
     <style type="text/css">
+      /* 为了切换主题的图标不要盖住字数统计 */
       #docsify-darklight-theme {
         top: 5px;
       }
     </style>
-    <!-- Gitalk 样式 -->
-    <link rel="stylesheet" href="//unpkg.com/gitalk/dist/gitalk.css" />
-    <!-- 标题自动折叠-箭头样式 -->
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css" />
-    <!-- 标题自动折叠-文件夹样式 -->
-    <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar-folder.min.css" /> -->
-    <!-- 数学公式支持 -->
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"/>
   </head>
   <body>
     <div id="app">正在加载中,请稍等~</div>
@@ -85,8 +86,8 @@
     <!-- 数学公式支持 -->
     <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
     <!-- git talk支持 -->
-    <script src="//unpkg.com/docsify/lib/plugins/gitalk.min.js"></script>
-    <script src="//unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script src="resources/js/docsify@4.12.1/lib/plugins/gitalk.min.js"></script>
+    <script src="resources/js/gitalk@1.7.2/dist/gitalk.min.js"></script>
     <!-- 暂时先全站用同一个Gitalk -->
     <script>
       const gitalk = new Gitalk({
