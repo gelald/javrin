@@ -10,7 +10,7 @@
 
 栈是一种具有元素先进后出特点的数据结构
 
-虽然 Java 里有一个叫做 Stack 的类，但是当需要使用栈时，Java 已不推荐使用 Stack，而是推荐使用更高效的 ArrayDeque，次选是 LinkedList。
+虽然 Java 里有一个叫做 Stack 的类，但是当需要使用栈时，Java 已不推荐使用 Stack，而是**推荐使用更高效的 ArrayDeque**，次选是 LinkedList。
 
 
 
@@ -180,3 +180,41 @@ public E peekFirst() {
 
 
 
+## 相关 API 归纳
+
+### 栈
+
+和传统的 Stack 容器的 API 对应如下
+
+| Stack   | Deque         | 说明                             |
+| ------- | ------------- | -------------------------------- |
+| push(e) | addFirst(e)   | 往栈中插入元素，失败抛异常       |
+| peek()  | getFirst()    | 获取但不删除栈顶元素，失败抛异常 |
+| pop()   | removeFirst() | 获取并删除栈顶元素，失败抛异常   |
+
+> 其实 Deque 关于栈的操作还有另一套 API，只不过和上面列的相比，只是遇到失败会返回特殊值( `false` 或 `null` )，一般情况下使用上面列出的即可
+
+
+
+### 队列
+
+和传统的 Queue 容器的 API 对应如下
+
+| Queue     | Deque         | 说明                               |
+| --------- | ------------- | ---------------------------------- |
+| add(e)    | addLast(e)    | 向队列尾部插入元素，失败抛异常     |
+| element() | getFirst()    | 获取但不删除队列首元素，失败抛异常 |
+| remove()  | removeFitst() | 获取并删除队列首元素，失败抛异常   |
+
+> 其实 Deque 关于队列的操作还有另一套 API，只不过和上面列的相比，只是遇到失败会返回特殊值( `false` 或 `null` )，一般情况下使用上面列出的即可
+
+
+
+### Deque 的 API 一般规律
+
+- 如果操作失败抛异常，那么使用：`addXXX` 、`getXXX` 、`removeXXX`
+  - 如果操作首元素，那么就是：`addFirst` 、`getFirst` 、`removeFirst`
+  - 如果操作尾元素，那么就是：`addLast` 、`getLast` 、`removeLast`
+- 如果操作失败返回特殊值，那么使用：`offerXXX` 、`peekXXX` 、`pollXXX`
+  - 如果操作首元素，那么就是：`offerFirst` 、`peekFirst` 、`pollFirst`
+  - 如果操作尾元素，那么就是：`offerLast` 、`peekLast` 、`pollLast`
