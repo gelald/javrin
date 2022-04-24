@@ -20,8 +20,9 @@
 - Java虚拟机
   - [JVM-字节码文件详解](docs/Java虚拟机/字节码文件.md)
   - [JVM-类加载机制](docs/Java虚拟机/类加载机制.md)
-  - [JVM-运行时内存模型](docs/Java虚拟机/运行时内存结构)
-  - [JMM-物理内存模型](docs/Java虚拟机/物理内存模型)
+  - [JVM-运行时内存结构](docs/Java虚拟机/运行时内存结构)
+  - [JMM-Java内存模型](docs/Java虚拟机/物理内存模型)
+  - [JMM-Java内存模型与并发](docs/Java虚拟机/Java内存模型与并发)
   - [GC-垃圾回收基础](docs/Java虚拟机/垃圾回收基础.md)
   - [排查-内存分析](docs/Java虚拟机/内存分析.md)
   - [排查-线程分析](docs/Java虚拟机/线程堆栈分析.md)
