@@ -43,7 +43,8 @@
   - [SpringMVC](docs/Spring/SpringMVC.md)
   - 深入Spring源码
   - Spring面试题
-  - [Spring 定时任务](docs/Spring/Spring定时任务.md)
+  - [Spring定时任务](docs/Spring/Spring定时任务.md)
+  - [SpringBoot核心组件](docs/Spring/SpringBoot核心组件.md)
 - MyBatis
   - MyBatis基础知识
   - 深入MyBatis源码
