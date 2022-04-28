@@ -6,8 +6,9 @@
   - [Java基础-泛型机制](docs/Java基础/泛型机制.md)
   - [Java基础-异常机制](docs/Java基础/异常机制.md)
   - [Java基础-反射机制](docs/Java基础/反射机制.md)
-  - [Java基础-函数式接口](docs/Java基础/函数式接口.md)
+  - [Java基础-Lambda 表达式与函数式编程](docs/Java基础/Lambda表达式与函数式编程.md)
   - [Java基础-Stream](docs/Java基础/Stream.md)
+  - [Java基础-SPI机制](docs/Java基础/SPI机制.md)
 - Java集合
   - [Java集合-总览](docs/Java集合/总览.md)
   - [Java集合-ArrayList](docs/Java集合/ArrayList.md)
