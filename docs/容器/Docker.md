@@ -1,6 +1,6 @@
-# Docker容器与虚拟机对比
+## Docker容器与虚拟机对比
 
-## 容器化技术
+### 容器化技术
 
 运行的应用及其包含的所有资源，都可以称之为一个**Container**
 
@@ -26,7 +26,7 @@
 
 **容器虚拟化的是操作系统，和宿主机共享内核；虚拟机虚拟化的是硬件（网卡等），安装时需要把完整的操作系统安装上**
 
-## Docker关键概念
+### Docker关键概念
 
 **镜像**：镜像相当于**一个root文件系统**
 
@@ -39,11 +39,13 @@
 | Java   | JVM                     | Class       | Object          |
 | Docker | Docker Engine           | Image(镜像) | Container(容器) |
 
-# Docker命令
 
-**centos8为例子**
 
-## 服务相关命令（daemon）
+## Docker命令
+
+
+
+### 服务相关命令（daemon）
 
 **查看docker服务状态**：`systemctl status docker`
 
@@ -55,7 +57,7 @@
 
 **开机启动docker**：`systemctl enable docker`
 
-## 镜像相关命令（image）
+### 镜像相关命令（image）
 
 **查看镜像**：`docker images`
 
@@ -65,7 +67,7 @@
 
 **删除镜像**：`docker rmi <镜像id>`
 
-## 容器相关命令（container）
+### 容器相关命令（container）
 
 **创建容器**：`docker run`
 
@@ -109,7 +111,7 @@
 
 **查看容器信息**：`docker inspect <容器名称>`
 
-# Docker数据卷
+## Docker数据卷
 
 **数据卷**是**宿主机**中的一个目录或文件
 
@@ -119,13 +121,13 @@
 
 一个容器可以**挂载多个数据卷**
 
-## 数据卷作用
+### 数据卷作用
 
 - 容器数据**持久化**
 - 外部机器和容器**间接通信**
 - 容器之间**数据交换**
 
-## 配置数据卷
+### 配置数据卷
 
 `docker run ... -v 宿主机目录:容器内目录`
 
@@ -133,7 +135,7 @@
 - 如果目录不存在，都**会自动创建**
 - 可以挂载多个数据卷，写多个-v即可
 
-## 数据卷容器
+### 数据卷容器
 
 多容器进行数据交换的手段
 
@@ -163,11 +165,11 @@ c3容器挂载一个数据卷，c1、c2分别挂载到c3容器上
 
    通过`docker inspect`命令可以看到**c1、c2宿主机的数据卷和c3默认分配的目录是同一个目录**，所以**即使c3容器挂了，也不会影响c1、c2容器的正常使用**的，因为最终是指向了同一个宿主机的目录
 
-# Dockerfile
+## Dockerfile
 
 **用于打包docker镜像**
 
-## Linux文件系统组成
+### Linux文件系统组成
 
 由**bootfs**和**rootfs**组成
 
@@ -179,7 +181,7 @@ rootfs：root文件系统，包含的是典型的Linux系统中的/dev、/bin、
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210518211856.png)
 
-## Docker镜像组成
+### Docker镜像组成
 
 Docker镜像由**特殊的**文件系统**叠加**而成，本质是一个分层的文件系统
 
@@ -198,7 +200,7 @@ Docker镜像由**特殊的**文件系统**叠加**而成，本质是一个分层
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210518213610.png)
 
-## 镜像制作
+### 镜像制作
 
 - 容器转为镜像
 
@@ -220,6 +222,8 @@ Docker镜像由**特殊的**文件系统**叠加**而成，本质是一个分层
 
   **可以为团队提供一个完全一致的开发环境**
 
+
+
 ### Dockerfile关键字
 
 | 关键字     | 作用                     | 备注                                                         |
@@ -237,7 +241,7 @@ Docker镜像由**特殊的**文件系统**叠加**而成，本质是一个分层
 | EXPOSE     | 暴露端口                 | 格式 EXPOSE 端口号                                           |
 | WORKDIR    | 工作目录                 | 进入容器内部时，当前所在的位置                               |
 
-### 自定义CentOS
+#### 自定义CentOS
 
 1. 登陆后的目录为`/usr`
 2. 能使用`vim`
@@ -257,13 +261,15 @@ WORKDIR /usr
 CMD /bin/bash
 ```
 
-# Docker服务编排
 
-## 服务编排
+
+## Docker服务编排
+
+### 服务编排
 
 按照一定的业务规则批量管理容器
 
-## Docker Compose
+### Docker Compose
 
 Docker Compose是一个编排多容器分布式部署的工具，提供命令集管理容器化应用的完整开发周期，包括服务构建，启动和停止
 
@@ -271,3 +277,76 @@ Docker Compose是一个编排多容器分布式部署的工具，提供命令集
 2. 使用docker-compose.yml定义组成应用的各个服务
 3. 运行docker-compose up启动应用 
 
+
+
+## 修改 Docker 默认存储路径
+
+### 问题引入
+
+今天在创建新容器的时候看到容器创建失败，并提示磁盘空间不足，敲打命令后发现，`/` 目录只分配了50G空间，而 `/home` 目录却分配了198G空间，而 Docker 默认的存储路径是 `/var/lib/docker` ，是在 `/` 目录下的，在不修改操作系统磁盘挂载的前提下，想要 Docker 能正常使用、创建容器，我们需要把 Docker 默认存储路径修改到 `/home` 目录下
+
+
+
+### 修改存储路径
+
+- 暂时停止 Docker 服务
+
+  ```bash
+  systemctl stop docker
+  ```
+
+- 保险起见，再次确认 Docker 的存储路径
+
+  ```bash
+  docker info | grep Dir
+  
+  WARNING: bridge-nf-call-ip6tables is disabled
+  Docker Root Dir: /var/lib/docker              # docker默认的存储路径
+  ```
+
+- 在 `/home` 目录下新建存储目录
+
+  ```bash
+  mkdir -p /home/docker
+  ```
+
+- 迁移原有数据到新目录
+
+  ```bash
+  mv /var/lib/docker/* /home/docker
+  ```
+
+- 修改 docker.service 配置文件
+
+  ```bash
+  vi /usr/lib/systemd/system/docker.service
+  ```
+
+  找到这一行 `ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock`
+
+  修改如下：`ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --graph /home/docker`
+
+- 使这份配置文件生效
+
+  ```bash
+  systemctl daemon-reload
+  ```
+
+- 启动 Docker 服务
+
+  ```bash
+  systemctl start docker
+  ```
+
+- 查看是否修改成功
+
+  ```bash
+  docker info | grep Dir
+  
+  WARNING: bridge-nf-call-ip6tables is disabled
+  Docker Root Dir: /home/docker
+  ```
+
+
+
+接下来 Docker 服务运行过程中的镜像、容器全都存储到空间更大的 `/home` 目录下了
