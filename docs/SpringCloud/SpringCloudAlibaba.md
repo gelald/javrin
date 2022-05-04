@@ -14,11 +14,9 @@
 
 ## 开发时遇见的问题
 
-### Ignore The Empty Nacos Configuration And Get It Based On DataId警告
+### Ignore The Empty Nacos Configuration And Get It Based On DataId 警告
 
-
-
-以order-server应用为例，当前`spring.profiles.active`属性为`dev`，nacos配置文件后缀为`yaml`，在nacos上新建了DataId为`order-server.yaml`的配置文件，在启动时控制台会输出以下警告日志
+以 order-server 应用为例，当前 `spring.profiles.active` 属性为 `dev`，nacos 配置文件后缀为 `yaml`，在 nacos 上新建了 DataId 为 `order-server.yaml` 的配置文件，在启动时控制台会输出以下警告日志
 
 > Ignore the empty nacos configuration and get it based on dataId[order-server] & group[business-app]
 >
@@ -26,11 +24,11 @@
 
 
 
-当应用使用nacos作为配置中心时，应用启动时nacos配置文件客户端会轮询三个DataId
+当应用使用 nacos 作为配置中心时，应用启动时 nacos 配置文件客户端会轮询三个 DataId
 
 - ${spring.application.name}：order-server
-- ${spring.application.name}.${spring.cloud.nacos.config.file-extension}：order-server.yaml
-- ${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}：order-server-dev.yaml
+- \${spring.application.name}.${spring.cloud.nacos.config.file-extension}：order-server.yaml
+- \${spring.application.name}-\${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}：order-server-dev.yaml
 
 
 
