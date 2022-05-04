@@ -95,7 +95,7 @@ public class Singleton {
 
 > 当把对象指向内存空间后，线程在检查1时就不进入条件了
 
-而解决这种问题有两种解决方案：**内存屏障**（禁止指令重排序）、**happen-before**（指令重排序必须按照一定的规则）
+而解决这种问题有两种解决方案：**happen-before**（指令重排序必须按照一定的规则）、**内存屏障**（禁止指令重排序）
 
 
 
@@ -104,6 +104,17 @@ public class Singleton {
 #### 概念
 
 「happens-before」这个概念用于阐述操作之间的内存可见性。如果一个操作执行的**结果**要对另一个操作**可见**，那么这两个操作之间存在 `happens-before` 关系，那么**不允许进行重排序**
+
+> 注意，happens-before 强调的是结果的可见性，而不是执行的前后顺序
+
+#### 规则
+
+其中 happens-before 有几个重要的规则
+
+- 程序顺序规则：在一个线程内代码的执行结果是有序的
+- 监视器锁规则：对一个监视器锁的解锁，happens-before 于随后对这个监视器锁的加锁
+- volatile 变量规则：对一个 volatile 变量的写，happens-before 于后续对这个变量的读
+- 传递性规则：如果 A happens-before B，B happens-before C，那么 A happens-before C
 
 
 
@@ -117,5 +128,4 @@ public class Singleton {
 | **StoreLoad屏障** | Store1;<br />StoreLoad;<br />Load2   | 在Load2要读取的数据被访问前，<br />保证Store1写入完毕        |
 
 其中重点提一下 「StoreLoad屏障」，它同时**具备其他三个屏障的功能**，同时也是**开销最大的屏障**，因为要求在当前处理器要把缓冲区的所有数据刷到主内存中
-
 
