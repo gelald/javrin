@@ -61,6 +61,8 @@
   - 操作系统
 - 容器技术
   - [Docker](docs/容器/Docker.md)
+  - [Docker修改默认存储路径](docs/容器/Docker修改默认存储路径.md)
+  - [Docker容器之间通信](docs/容器/Docker容器之间通信.md)
   - [Kubernetes](docs/容器/Kubernetes.md)
 - UML
   - [UML图](docs/UML.md)
