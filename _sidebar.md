@@ -34,6 +34,8 @@
   - [MySQL索引失效场景](docs/MySQL/MySQL索引失效场景.md)
   - [MySQL优化手段](docs/MySQL/MySQL优化.md)
 - Redis
+- ZooKeeper
+  - [ZooKeeper-用作分布式锁](docs/ZooKeeper分布式锁.md)
 - 消息队列
   - [消息队列基础内容](docs/消息队列/MessageQueue.md)
   - [RabbitMQ](docs/消息队列/RabbitMQ.md)
