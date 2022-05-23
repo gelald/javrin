@@ -58,6 +58,9 @@
   - [JWT](docs/SpringSecurity/JWT.md)
 - SpringBoot
 - SpringCloud
+- 分布式
+  - [CAP理论](docs/分布式/CAP理论.md)
+  - [分布式锁](docs/分布式/分布式锁.md)
 - 计算机基础
   - [计算机网络](docs/网络/Network.md)
   - 操作系统
