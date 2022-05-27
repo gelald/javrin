@@ -29,7 +29,7 @@
   - [排查-线程分析](docs/Java虚拟机/线程堆栈分析.md)
 - 并发编程
   - [线程池](docs/并发/线程池.md)
-  - [由串行到并行](doc/并发/由串行到并行.md)
+  - [由串行到并行](docs/并发/由串行到并行.md)
 - MySQL
   - [MySQL基础知识](docs/MySQL/MySQL.md)
   - [MySQL索引失效场景](docs/MySQL/MySQL索引失效场景.md)
