@@ -27,8 +27,9 @@
   - [GC-垃圾回收基础](docs/Java虚拟机/垃圾回收基础.md)
   - [排查-内存分析](docs/Java虚拟机/内存分析.md)
   - [排查-线程分析](docs/Java虚拟机/线程堆栈分析.md)
-- 并发
-  - [并发-线程池](docs/并发/线程池.md)
+- 并发编程
+  - [线程池](docs/并发/线程池.md)
+  - [由串行到并行](doc/并发/由串行到并行.md)
 - MySQL
   - [MySQL基础知识](docs/MySQL/MySQL.md)
   - [MySQL索引失效场景](docs/MySQL/MySQL索引失效场景.md)
