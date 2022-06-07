@@ -8,6 +8,8 @@ RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡�
 
 ## 核心组件
 
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220607203843.png)
+
 - `nameserver` ：可以理解为是一个注册中心，支持 `broker` 的动态注册与发现，提供给 `producer` / `consumer` 查找 `broker` 信息，从而进行消息的发送/消费
 - `broker` ：主要负责消息的存储、投递以及服务高可用的保证，有以下子模块
   - Remoting Module：这是 `broker` 的入口模块，负责处理所有来自客户端的请求
