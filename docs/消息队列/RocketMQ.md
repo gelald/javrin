@@ -58,7 +58,7 @@ RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡�
 
 ## 消息发送
 
-### 发送同步消息
+### 同步消息
 
 - 这种可靠性同步地发送方式使用的比较广泛，比如：重要的消息通知，短信通知
 
@@ -83,7 +83,7 @@ producer.shutdown();
 
 
 
-### 发送异步消息
+### 异步消息
 
 - 用在对响应时间敏感的业务场景，即发送端不能容忍长时间地等待Broker的响应
 - 消息可靠，有是否成功的应答
@@ -141,6 +141,24 @@ producer.shutdown();
 
 
 
+### 顺序消息
+
+### 延时消息
+
+### 批量消息
+
+### 过滤消息
+
+
+
+
+
+
+
+
+
+
+
 ## 消费方式
 
 ### push方式
@@ -184,17 +202,94 @@ consumer.start();
 
 **缺点**：如果每次Pull的时间间隔比较久，会增加消息的延迟，即消息到达消费者的时间加长，MQ中消息的堆积量变大；若每次Pull的时间间隔较短，但是在一段时间内MQ中并没有任何消息可以消费，那么会产生很多无效的Pull请求的RPC开销，影响MQ整体的网络性能
 
-## 顺序消息
 
-## 延时消息
 
-## 批量消息
+## 事务消息
 
-## 过滤消息
+### 场景
 
-## 消息事务
+当一个事务跨越两个系统，并且事务的传递由 RocketMQ 来完成，那么这时候就需要使用事务消息了
 
-事务消息不支持延时消息和批量消息
+### 原理
 
-事务性消息可能不止一次被检查或消费。
+以支付订单后奖励积分为例，此时生产者是订单系统，消费者是积分系统，当积分系统收到订单系统传来订单支付成功，那么就给用户提供积分的奖励
 
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220614204844.png)
+
+1. 订单系统会发送一条 half 消息到 RocketMQ 中，这个 half 消息其实是一个代表订单成功支付的消息，只不过目前这个状态积分系统是无法感知这个消息的存在的
+2. 如果发送 half 消息后没有收到 MQ 的响应，那么可以认定 MQ 此时有问题，那么就在订单系统中「回滚」这笔订单，例如订单关闭或者发起退款
+3. 如果收到 MQ 的响应，那么订单系统就可以进行自己的业务，比如更新订单状态
+4. 如果在处理自己系统的业务时，本地事务发生异常了，那么就发送一个 `rollback` 请求到 MQ 中，让 MQ 删除之前发送的 half 消息；如果业务逻辑成功执行、本地事务成功提交，那么就发送一个 `commit` 请求到 MQ 中，MQ 收到 `commit` 请求后，之前的 half 消息也就对积分系统可见了
+
+假设由于网络引起发送 `commit` 或 `rollbak` 请求时失败了，MQ 也有补偿措施，它会去扫描自己处于 half 状态的消息，如果这个 MQ 一直没有接收到对这个 half 消息执行 `rollback`  或 `commit` 的命令，会回调一个接口，询问这个订单是什么状态 ，此时订单系统就可以查询这个订单的状态，如果是成功了，那么就发送一个 `commit` 请求；否者发送 `rollback` 请求
+
+### 实现
+
+rocketmq-client 方式
+
+- 生产者
+
+  ```java
+  public class Producer {
+   
+      public static void main(String[] args) throws MQClientException, UnsupportedEncodingException {
+  		// 设置生产者组、NameServer地址等基本信息
+          TransactionMQProducer producer = new TransactionMQProducer("transaction-producer");
+          producer.setNamesrvAddr("localhost:9876");
+   		// 设置MQ事务监听器
+          producer.setTransactionListener(new TransactionListener() {
+              @Override
+              public LocalTransactionState executeLocalTransaction(Message message, Object o) {
+                  System.out.println("接收到 MQ 的 half 消息响应，执行本地事务");
+                  return LocalTransactionState.UNKNOW;
+              }
+   
+              @Override
+              public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
+                  System.out.println("MQ 长时间无法收到消息的状态，执行补偿事务");
+                  return LocalTransactionState.ROLLBACK_MESSAGE;
+              }
+          });
+   		// 生产者启动
+          producer.start();
+   		// 消息发送
+          Message msg = new Message("transaction-topic", "tag1",
+                          ("Hello RocketMQ transaction").getBytes(RemotingHelper.DEFAULT_CHARSET));
+          SendResult sendResult = producer.sendMessageInTransaction(msg, null);
+          System.out.println("发送成功" + sendResult);
+      }
+  }
+  ```
+
+  
+
+- 消费者
+
+  ```java
+  public class Consumer {
+   
+      public static void main(String[] args) throws MQClientException {
+  		// 设置消费者组、NameServer地址等基本信息
+          DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("transaction-consumer");
+          consumer.setNamesrvAddr("localhost:9876");
+   		// 设置消费者订阅的 Topic、Tag 信息
+          consumer.subscribe("transaction-topic", "*");
+   		// 设置消息监听器（并发监听）
+          consumer.setMessageListener(new MessageListenerConcurrently() {
+              @Override
+              public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
+                  for (MessageExt messageExt : list) {
+                      System.out.println(messageExt);
+                  }
+                  return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+              }
+          });
+   		// 消费者启动
+          consumer.start();
+      }
+  }
+  ```
+
+  
+
+rocketmq-spring-boot-starter 方式
