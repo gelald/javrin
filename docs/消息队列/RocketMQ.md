@@ -8,7 +8,7 @@ RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡�
 
 ## 核心组件
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220607203843.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220617221818.png)
 
 - `nameserver` ：可以理解为是一个注册中心，支持 `broker` 的动态注册与发现，提供给 `producer` / `consumer` 查找 `broker` 信息，从而进行消息的发送/消费
 - `broker` ：主要负责消息的存储、投递以及服务高可用的保证，有以下子模块
@@ -46,7 +46,9 @@ RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡�
 
   - 具有相同角色的生产者组合或消费者组合，称为生产者组或消费者组。作用是在集群的情况下，一个生产者宕机之后，本地事务回滚后，可以继续联系该组下的另外一个生产者实例，不至于导致业务走不下去。在消费者组中，可以实现消息消费的负载均衡和消息容错目标。
   - 有了GroupName，在集群下，动态扩展容量很方便。只需要在新加的机器中，配置相同的GroupName，启动后，就立即能加入到所在的群组中，参与消息生产或消费。
-
+  - **一个生产者组内的生产者可以发送不同 Topic 的消息，但是一般会发送相同 Topic 类型的消息**。
+  - **一个消费者组中的消费者必须订阅完全相同的 Topic，但是一个 Topic 类型的消息可以被多个消费者组同时消费**。
+  
   ```java
   // 使用GroupName来初始化Producer
   DefaultMQProducer producer = new DefaultMQProducer("group_name_1");
@@ -54,6 +56,12 @@ RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡�
   // 使用GroupName来初始化Consumer
   DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("group_name_1");
   ```
+
+- Queue：存储消息的物理实体，一个 Topic 的 Queue 也被称为一个 Topic 中消息的分区（Partition）
+
+  **一个 Queue 中的消息不允许同一个消费者组中的多个消费者同时消费**
+
+
 
 ## 消息发送
 
@@ -292,3 +300,4 @@ rocketmq-client 方式
   
 
 rocketmq-spring-boot-starter 方式
+
