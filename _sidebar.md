@@ -35,6 +35,7 @@
   - [MySQL基础知识](docs/MySQL/MySQL.md)
   - [MySQL索引失效场景](docs/MySQL/MySQL索引失效场景.md)
   - [MySQL优化手段](docs/MySQL/MySQL优化.md)
+  - [优化-MySQL分页查询原理与优化](docs/MySQL/分页查询优化与思考.md)
 - Redis
 - ZooKeeper
   - [ZooKeeper-用作分布式锁](docs/ZooKeeper分布式锁.md)
