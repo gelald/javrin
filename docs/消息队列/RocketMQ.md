@@ -301,3 +301,102 @@ rocketmq-client 方式
 
 rocketmq-spring-boot-starter 方式
 
+- 生产者
+
+  ```java
+  // 设置生产者
+  @Component
+  public class TransactionProduce {
+      private Logger logger = LoggerFactory.getLogger(getClass());
+      
+      @Autowired
+      private RocketMQTemplate rocketMQTemplate;
+      
+      public void sendTransactionMessage(String msg) {
+          logger.info("start sendTransMessage hashKey:{}",msg);
+         
+           Message message =new Message();
+           message.setBody("this is tx message".getBytes());
+           TransactionSendResult result=rocketMQTemplate.sendMessageInTransaction("test-tx-rocketmq", 
+                   MessageBuilder.withPayload(message).build(), msg);
+           
+           //发送状态
+           String sendStatus = result.getSendStatus().name();
+           // 本地事务执行状态
+           String localTxState = result.getLocalTransactionState().name();
+           logger.info("send tx message sendStatus:{},localTXState:{}", sendStatus,localTxState);
+      } 
+  }
+  ```
+
+  
+
+  ```java
+  // 设置事务消息监听器
+  @Slf4j
+  @RocketMQTransactionListener
+  public class CustomTransactionListener implements RocketMQLocalTransactionListener {
+  
+      @Override
+      public RocketMQLocalTransactionState executeLocalTransaction(Message message, Object o) {
+          /*Object id = message.getHeaders().get("id");
+          String destination = o.toString();
+          assert id != null;
+          localTrans.put(id, destination);
+          org.apache.rocketmq.common.message.Message msg = RocketMQUtil.convertToRocketMessage(new StringMessageConverter(), "UTF-8", destination, message);
+          String tags = msg.getTags();
+          if (StringUtils.contains(tags, "TagA")) {
+              return RocketMQLocalTransactionState.COMMIT;
+          } else if (StringUtils.contains(tags, "TagB")) {
+              return RocketMQLocalTransactionState.ROLLBACK;
+          } else {
+              return RocketMQLocalTransactionState.UNKNOWN;
+          }*/
+          log.info("开始执行本地事务");
+          try {
+              TimeUnit.SECONDS.sleep(1);
+              int i = 1 / 0;
+              log.info("执行本地事务成功");
+              return RocketMQLocalTransactionState.COMMIT;
+          } catch (Exception e) {
+              log.error("执行本地事务发生异常");
+              return RocketMQLocalTransactionState.UNKNOWN;
+          }
+      }
+  
+      @Override
+      public RocketMQLocalTransactionState checkLocalTransaction(Message message) {
+          // return RocketMQLocalTransactionState.COMMIT;
+          log.info("开始回查本地事务");
+          try {
+              log.info("回查本地事务，本地事务成功");
+              TimeUnit.SECONDS.sleep(1);
+              return RocketMQLocalTransactionState.COMMIT;
+          } catch (Exception e) {
+              log.error("回查本地事务，本地事务不成功");
+              return RocketMQLocalTransactionState.ROLLBACK;
+          }
+      }
+  }
+  ```
+
+  
+
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220618174639.png)
+
+- 消费者
+
+  ```java
+  @Slf4j
+  @Component
+  @RocketMQMessageListener(consumerGroup = "rocketmq-boot-consumer", topic = "${rocketmq.consumer.topic}")
+  public class RocketMQConsumer implements RocketMQListener<String> {
+  
+      @Override
+      public void onMessage(String string) {
+          log.info("接受到消息: {}", string);
+      }
+  }
+  ```
+
+  
