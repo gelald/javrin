@@ -63,13 +63,14 @@ RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡�
 
 
 
-## 消息发送
+## 同步消息
 
-### 同步消息
+### 场景
 
 - 这种可靠性同步地发送方式使用的比较广泛，比如：重要的消息通知，短信通知
-
 - 消息可靠，有是否成功的应答
+
+### 实现
 
 ```java
 // 传入组名实例化消息生产者Producer
@@ -90,10 +91,14 @@ producer.shutdown();
 
 
 
-### 异步消息
+## 异步消息
 
-- 用在对响应时间敏感的业务场景，即发送端不能容忍长时间地等待Broker的响应
+### 场景
+
+- 用在对响应时间敏感的业务场景，即发送端不能容忍长时间地等待 Broker 的响应
 - 消息可靠，有是否成功的应答
+
+### 实现
 
 ```java
 // 传入组名实例化消息生产者Producer
@@ -124,10 +129,14 @@ producer.shutdown();
 
 
 
-### 单向发送消息
+## 单向发送消息
+
+### 场景
 
 - 用在不特别关心发送结果的场景，例如日志发送
 - 消息不可靠，发送的方法没有结果
+
+### 实现
 
 ```java
 // 传入组名实例化消息生产者Producer
@@ -148,87 +157,26 @@ producer.shutdown();
 
 
 
-### 顺序消息
-
-### 延时消息
-
-### 批量消息
-
-### 过滤消息
-
-
-
-
-
-
-
-
-
-
-
-## 消费方式
-
-### push方式
-
-- 由消息中间件（MQ消息服务器代理）主动地将消息推送给消费者；采用Push方式，可以尽可能实时地将消息发送给消费者进行消费。
-
-- **缺点**：在消费者的处理消息的能力较弱的时候(比如，消费者端的业务系统处理一条消息的流程比较复杂，其中的调用链路比较多导致消费时间比较久。概括起来地说就是**“慢消费问题”**)，而MQ不断地向消费者Push消息，消费者端的缓冲区可能会溢出，导致异常
-
-```java
-// 传入组名实例化消费者
-DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name");
-// 设置NameServer的地址
-consumer.setNamesrvAddr("namesrvAddr");
-/**
- * 设置Consumer第一次启动是从队列头部开始消费还是队列尾部开始消费<br>
- * 如果非第一次启动，那么按照上次消费的位置继续消费
- */
-consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
-// 订阅一个或者多个Topic，以及Tag来过滤需要消费的消息
-// *代表所有Tag，订阅多个Tag使用||来分割
-consumer.subscribe("TopicTest", "*"/*"TagA || TagC || TagD"*/);
-// 注册回调实现类来处理从broker拉取回来的消息
-consumer.registerMessageListener(new MessageListenerConcurrently() {
-  @Override
-  public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
-    // 消费消息的逻辑
-    // ConsumeConcurrentlyStatus.CONSUME_SUCCESS：标记该消息已经被成功消费
-    // ConsumeConcurrentlyStatus.RECONSUME_LATER：标记该消息暂时无法消费成功，等待再消费
-    return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
-  }
-});
-// 启动消费者实例
-consumer.start();
-```
-
-
-
-### pull方式(4.8.0版本已过时)
-
-由消费者主动向消息中间件（MQ消息服务器代理）拉取消息；采用Pull方式，**如何设置Pull消息的频率需要重点去考虑**，举个例子来说，可能1分钟内连续来了1000条消息，然后2小时内没有新消息产生（概括起来说就是**“消息延迟与忙等待”**）。
-
-**缺点**：如果每次Pull的时间间隔比较久，会增加消息的延迟，即消息到达消费者的时间加长，MQ中消息的堆积量变大；若每次Pull的时间间隔较短，但是在一段时间内MQ中并没有任何消息可以消费，那么会产生很多无效的Pull请求的RPC开销，影响MQ整体的网络性能
-
-
-
 ## 事务消息
 
 ### 场景
 
-当一个事务跨越两个系统，并且事务的传递由 RocketMQ 来完成，那么这时候就需要使用事务消息了
+RocketMQ 的事务消息适用于所有对数据最终一致性有强需求的场景
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220620112829.png)
 
 ### 原理
 
 以支付订单后奖励积分为例，此时生产者是订单系统，消费者是积分系统，当积分系统收到订单系统传来订单支付成功，那么就给用户提供积分的奖励
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220614204844.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220620110500.png)
 
 1. 订单系统会发送一条 half 消息到 RocketMQ 中，这个 half 消息其实是一个代表订单成功支付的消息，只不过目前这个状态积分系统是无法感知这个消息的存在的
 2. 如果发送 half 消息后没有收到 MQ 的响应，那么可以认定 MQ 此时有问题，那么就在订单系统中「回滚」这笔订单，例如订单关闭或者发起退款
 3. 如果收到 MQ 的响应，那么订单系统就可以进行自己的业务，比如更新订单状态
-4. 如果在处理自己系统的业务时，本地事务发生异常了，那么就发送一个 `rollback` 请求到 MQ 中，让 MQ 删除之前发送的 half 消息；如果业务逻辑成功执行、本地事务成功提交，那么就发送一个 `commit` 请求到 MQ 中，MQ 收到 `commit` 请求后，之前的 half 消息也就对积分系统可见了
+4. 如果在处理自己系统的业务时，本地事务发生异常了，那么就发送一个 `rollback` 请求到 MQ 中，让 MQ 删除之前发送的 half 消息；如果业务逻辑成功执行、本地事务成功提交，那么就发送一个 `commit` 请求到 MQ 中，MQ 收到 `commit` 请求后，之前的 half 消息也就对积分系统可见了；如果业务逻辑的事务状态为 `unknown` ，那么 MQ 就会发起回查，回查生产者本地事务的状态
 
-假设由于网络引起发送 `commit` 或 `rollbak` 请求时失败了，MQ 也有补偿措施，它会去扫描自己处于 half 状态的消息，如果这个 MQ 一直没有接收到对这个 half 消息执行 `rollback`  或 `commit` 的命令，会回调一个接口，询问这个订单是什么状态 ，此时订单系统就可以查询这个订单的状态，如果是成功了，那么就发送一个 `commit` 请求；否者发送 `rollback` 请求
+5. 假设由于网络波动、生产者重启导致事务消息的二次确认丢失，MQ 也有补偿措施，它会去扫描自己处于 half 状态的消息，如果这个 MQ 一直没有接收到对这个 half 消息执行 `rollback`  或 `commit` 的命令，会回调一个接口，询问这个订单是什么状态 ，此时订单系统就可以查询这个订单的状态，如果是成功了，那么就发送一个 `commit` 请求；否者发送 `rollback` 请求
 
 ### 实现
 
@@ -305,30 +253,28 @@ rocketmq-spring-boot-starter 方式
 
   ```java
   // 设置生产者
+  @Slf4j
   @Component
   public class TransactionProduce {
-      private Logger logger = LoggerFactory.getLogger(getClass());
-      
-      @Autowired
       private RocketMQTemplate rocketMQTemplate;
       
-      public void sendTransactionMessage(String msg) {
-          logger.info("start sendTransMessage hashKey:{}",msg);
-         
-           Message message =new Message();
-           message.setBody("this is tx message".getBytes());
-           TransactionSendResult result=rocketMQTemplate.sendMessageInTransaction("test-tx-rocketmq", 
-                   MessageBuilder.withPayload(message).build(), msg);
-           
-           //发送状态
-           String sendStatus = result.getSendStatus().name();
-           // 本地事务执行状态
-           String localTxState = result.getLocalTransactionState().name();
-           logger.info("send tx message sendStatus:{},localTXState:{}", sendStatus,localTxState);
-      } 
+      public void sendTransactionalMessage(String destination, String messageBody) {
+          Message<String> message = MessageBuilder.withPayload(messageBody).build();
+          TransactionSendResult transactionSendResult = this.rocketMQTemplate.sendMessageInTransaction(destination, message, null);
+          // 发送状态
+          String sendStatus = transactionSendResult.getSendStatus().name();
+          // 本地事务执行状态
+          String localTxState = transactionSendResult.getLocalTransactionState().name();
+          log.info("send tx message payload:{}, sendStatus:{}, localTXState:{}", messageBody, sendStatus, localTxState);
+      }
+  
+          @Autowired
+      public void setRocketMQTemplate(RocketMQTemplate rocketMQTemplate) {
+          this.rocketMQTemplate = rocketMQTemplate;
+      }
   }
   ```
-
+  
   
 
   ```java
@@ -339,19 +285,6 @@ rocketmq-spring-boot-starter 方式
   
       @Override
       public RocketMQLocalTransactionState executeLocalTransaction(Message message, Object o) {
-          /*Object id = message.getHeaders().get("id");
-          String destination = o.toString();
-          assert id != null;
-          localTrans.put(id, destination);
-          org.apache.rocketmq.common.message.Message msg = RocketMQUtil.convertToRocketMessage(new StringMessageConverter(), "UTF-8", destination, message);
-          String tags = msg.getTags();
-          if (StringUtils.contains(tags, "TagA")) {
-              return RocketMQLocalTransactionState.COMMIT;
-          } else if (StringUtils.contains(tags, "TagB")) {
-              return RocketMQLocalTransactionState.ROLLBACK;
-          } else {
-              return RocketMQLocalTransactionState.UNKNOWN;
-          }*/
           log.info("开始执行本地事务");
           try {
               TimeUnit.SECONDS.sleep(1);
@@ -366,7 +299,6 @@ rocketmq-spring-boot-starter 方式
   
       @Override
       public RocketMQLocalTransactionState checkLocalTransaction(Message message) {
-          // return RocketMQLocalTransactionState.COMMIT;
           log.info("开始回查本地事务");
           try {
               log.info("回查本地事务，本地事务成功");
@@ -379,22 +311,211 @@ rocketmq-spring-boot-starter 方式
       }
   }
   ```
+  
+  
+  
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220618174639.png)
+  
+- 消费者
+
+  ```java
+  @Slf4j
+  @Component
+  @RocketMQMessageListener(
+          consumerGroup = "rocketmq-boot-transactional-consumer",
+          topic = "test-tx-rocketmq")
+  public class RocketMQTransactionalConsumer implements RocketMQListener<MessageExt> {
+      @Override
+      public void onMessage(MessageExt messageExt) {
+          byte[] body = messageExt.getBody();
+          String content = new String(body, StandardCharsets.UTF_8);
+          log.info("接受到消息: {}", content);
+      }
+  }
+  ```
+  
+  
+
+## 顺序消息
+
+### 场景
+
+如果业务对消息的发送和消费的顺序有比较高的需求，那么在发送消息时就需要进行一些特定的处理，达到顺序发送-顺序消费的目的
+
+### 原理
+
+因为消息发送时，一个 topic 会经由多个队列发送给消费者，消费时会存在以下两个问题
+
+- 如何保证一个队列只被一个消费者客户端消费（因为一个消费者组可能会有多个消费者）
+- 如何保证一个消费者客户端只有一个线程能进行消费（因为如果有多个线程消费，顺序的保证就比较难保障）
+
+解决这两个问题的方案
+
+- 发送时锁定一个队列来发送（生产者默认用 4 个队列来传输消息），那么消费者订阅这个 Topic 的消息时，这些消息只能从某一个特定的队列被拉取
+- 设置消费线程为 1；或者实现 `MessageListenerOrderly` 接口来实现消费的逻辑
+
+
+
+RocketMQ 保证消息有序分为两种
+
+- 全局有序消息：一个 Topic 下的消息都要保证顺序。需要保证只使用一个队列存放消息，一个消费者从这一个队列拉取消息并使用一个线程进行消费，这样就能保证全局有序
+- 局部有序消息：保证一个队列中的消息有序消费，比如：保证同一个订单的生成、付款、发货。需要保证把同一个订单的消息放入同一个队列中，一个消费者从这一个队列拉取消息并使用一个线程进行消费
+
+
+
+如果使用实现 `MessageListenerOrderly` 接口来实现消费的逻辑，需要注意 `consumeMessage` 方法的返回值 `ConsumeOrderlyStatus` 的值只能是 `SUCCESS` 和 `SUSPEND_CURRENT_QUEUE_A_MOMENT` ，其中 `SUSPEND_CURRENT_QUEUE_A_MOMENT` 表示消费失败，等待一下再继续消费，不会跳过这条消息，否则就破坏了消息的顺序了
+
+
+
+### 实现
+
+rocketmq-client 方式
+
+- 生产者
+
+  这是全局有序的实现方式
+
+  ```java
+  public class OrderProducer {
+      public static void main(String[] args) throws MQClientException, MQBrokerException, RemotingException, InterruptedException {
+          DefaultMQProducer producer = new DefaultMQProducer();
+          producer.setNamesrvAddr("192.168.1.112:9876");
+          producer.setProducerGroup("order-producer");
+          producer.setVipChannelEnabled(false);
+          producer.setDefaultTopicQueueNums(1);
+          producer.start();
+          for (int i = 0; i < 4; i++) {
+              String body = "订单创建" + i;
+              Message message = new Message("order-topic", body.getBytes(StandardCharsets.UTF_8));
+              message.setKeys("key-" + i);
+              SendResult sendResult = producer.send(message);
+              System.out.println(sendResult);
+  
+              body = "订单支付" + i;
+              message = new Message("order-topic", body.getBytes(StandardCharsets.UTF_8));
+              message.setKeys("key-" + i);
+              sendResult = producer.send(message);
+              System.out.println(sendResult);
+  
+              body = "订单发货" + i;
+              message = new Message("order-topic", body.getBytes(StandardCharsets.UTF_8));
+              message.setKeys("key-" + i);
+              sendResult = producer.send(message);
+              System.out.println(sendResult);
+          }
+          producer.shutdown();
+      }
+  }
+  ```
+
+  如果想实现分区有序，则发送消息时需要做以下修改，使用一定的算法确定使用的队列
+
+  ```java
+  sendResult = producer.send(message, new MessageQueueSelector() {
+      @Override
+      public MessageQueue select(List<MessageQueue> messageQueueList, Message msg, Object arg) {
+          Long id = (Long) arg;
+          //使用取模算法确定id存放到哪个队列
+          int index = (int) (id % messageQueueList.size());
+          //index就是要存放的队列的索引
+          return messageQueueList.get(index);
+      }
+  }, i);
+  ```
 
   
 
-  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220618174639.png)
+- 消费者
+
+  ```java
+  public class OrderConsumer {
+      public static void main(String[] args) {
+          DefaultMQPushConsumer consumer = new DefaultMQPushConsumer();
+          try {
+              consumer.setNamesrvAddr("192.168.1.112:9876");
+              consumer.setConsumerGroup("order-consumer");
+              // 设置消费者第一次启动是从队列头部开始还是队列尾部开始消费
+              // 如果不是第一次启动，那么按照上次消费的位置继续消费
+              consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+              // 设置消费者订阅的Topic和Tag
+              consumer.subscribe("order-topic", "*");
+              consumer.setMessageListener((MessageListenerOrderly) (messageExtList, context) -> {
+                  if (CollectionUtils.isEmpty(messageExtList)) {
+                      System.out.println("MQ 接收的消息为空");
+                      return ConsumeOrderlyStatus.SUCCESS;
+                  }
+                  for (MessageExt messageExt : messageExtList) {
+                      String topic = messageExt.getTopic();
+                      String keys = messageExt.getKeys();
+                      String body = new String(messageExt.getBody(), StandardCharsets.UTF_8);
+                      System.out.println("MQ消息topic=" + topic + ", keys=" + keys + ", 消息内容=" + body);
+                  }
+                  return ConsumeOrderlyStatus.SUCCESS;
+              });
+              consumer.start();
+          } catch (MQClientException e) {
+              throw new RuntimeException(e);
+          }
+      }
+  }
+  ```
+
+
+
+rocketmq-spring-boot-starter 方式
+
+- 生产者
+
+  ```java
+  @Slf4j
+  @Component
+  public class RocketMQProducer {
+      private RocketMQTemplate rocketMQTemplate;
+      
+      public void sendOrderMessage() {
+          for (int i = 0; i < 5; i++) {
+              Message<String> message = MessageBuilder.withPayload("订单创建" + i).build();
+              // 同步顺序消息
+              SendResult sendResult = this.rocketMQTemplate.syncSendOrderly("test-orderly-rocketmq", message, String.valueOf(i));
+              log.info("发送顺序消息成功:{}", sendResult);
+  
+              message = MessageBuilder.withPayload("订单支付" + i).build();
+              // 同步顺序消息
+              sendResult = this.rocketMQTemplate.syncSendOrderly("test-orderly-rocketmq", message, String.valueOf(i));
+              log.info("发送顺序消息成功:{}", sendResult);
+  
+              message = MessageBuilder.withPayload("订单发货" + i).build();
+              // 同步顺序消息
+              sendResult = this.rocketMQTemplate.syncSendOrderly("test-orderly-rocketmq", message, String.valueOf(i));
+              log.info("发送顺序消息成功:{}", sendResult);
+          }
+      }
+  
+      @Autowired
+      public void setRocketMQTemplate(RocketMQTemplate rocketMQTemplate) {
+          this.rocketMQTemplate = rocketMQTemplate;
+      }
+  }
+  ```
+
+
 
 - 消费者
 
   ```java
   @Slf4j
   @Component
-  @RocketMQMessageListener(consumerGroup = "rocketmq-boot-consumer", topic = "${rocketmq.consumer.topic}")
-  public class RocketMQConsumer implements RocketMQListener<String> {
-  
+  @RocketMQMessageListener(
+          consumerGroup = "rocketmq-boot-order-consumer",
+          topic = "test-orderly-rocketmq",
+      	// 标识为顺序消费
+          consumeMode = ConsumeMode.ORDERLY)
+  public class RocketMQOrderConsumer implements RocketMQListener<MessageExt> {
       @Override
-      public void onMessage(String string) {
-          log.info("接受到消息: {}", string);
+      public void onMessage(MessageExt messageExt) {
+          byte[] body = messageExt.getBody();
+          String content = new String(body, StandardCharsets.UTF_8);
+          log.info("接受到消息: {}", content);
       }
   }
   ```

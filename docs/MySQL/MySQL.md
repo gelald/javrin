@@ -2157,10 +2157,10 @@ mysql5.5版本后默认的存储引擎是InnoDB
 
 ### InnoDB存储结构
 
-- InnoDB中 块的概念其实就是页
-- InnoDB中 簇的概念其实就是区
+- InnoDB 中块的概念其实就是页
+- InnoDB 中簇的概念其实就是区
 - 1页的大小是16KB
-- 页是InnoDB做磁盘管理最小的单位
+- 页是 InnoDB 做磁盘管理最小的单位
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20200913144046.png)
 
