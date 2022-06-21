@@ -138,22 +138,110 @@ producer.shutdown();
 
 ### 实现
 
-```java
-// 传入组名实例化消息生产者Producer
-DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
-// 设置NameServer的地址
-producer.setNamesrvAddr("namesrvAddr");
-// 启动Producer实例
-producer.start();
-// 创建消息，并指定Topic，Tag和消息体
-Message msg = new Message("TopicTest" /* Topic */,
-                          "TagA" /* Tag */,
-                   ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */);
-// 发送单向消息，没有任何返回结果
-producer.sendOneway(msg);
-// 如果不再发送消息，关闭Producer实例。
-producer.shutdown();
-```
+rocketmq-client 方式
+
+- 生产者
+
+  ```java
+  public class OnewayProducer {
+      public static void main(String[] args) throws MQClientException, RemotingException, InterruptedException {
+          DefaultMQProducer producer = new DefaultMQProducer();
+          producer.setNamesrvAddr("localhost:9876");
+          producer.setProducerGroup("oneway-producer");
+          producer.start();
+          Message message = new Message("oneway-topic", "单向发送的消息".getBytes(StandardCharsets.UTF_8));
+          producer.sendOneway(message);
+          System.out.println("消息发送成功");
+          producer.shutdown();
+      }
+  }
+  ```
+
+
+
+- 消费者
+
+  ```java
+  public class OnewayConsumer {
+      public static void main(String[] args) throws MQClientException {
+          DefaultMQPushConsumer consumer = new DefaultMQPushConsumer();
+          consumer.setNamesrvAddr("localhost:9876");
+          consumer.setConsumerGroup("oneway-consumer");
+          // 设置消费者第一次启动是从队列头部开始还是队列尾部开始消费
+          // 如果不是第一次启动，那么按照上次消费的位置继续消费
+          consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+          // 设置消费者订阅的Topic和Tag
+          consumer.subscribe("oneway-topic", "*");
+          consumer.setMessageListener((MessageListenerConcurrently) (messageExtList, context) -> {
+              if (CollectionUtils.isEmpty(messageExtList)) {
+                  System.out.println("MQ 接收的消息为空");
+                  return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+              }
+              for (MessageExt messageExt : messageExtList) {
+                  String topic = messageExt.getTopic();
+                  String tags = messageExt.getTags();
+                  String body = new String(messageExt.getBody(), StandardCharsets.UTF_8);
+                  System.out.println("MQ消息topic=" + topic + ", tags=" + tags + ", 消息内容=" + body);
+                  try {
+                      TimeUnit.MILLISECONDS.sleep(1500);
+                  } catch (InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              }
+              return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+          });
+          consumer.start();
+      }
+  }
+  ```
+
+
+
+rocketmq-spring-boot-starter 方式
+
+- 生产者
+
+  ```java
+  @Slf4j
+  @Component
+  public class RocketMQProducer {
+      private RocketMQTemplate rocketMQTemplate;
+  
+      public void sendOnewayMessage(String destination, String messageBody) {
+          Message<String> message = MessageBuilder.withPayload(messageBody).build();
+          this.rocketMQTemplate.sendOneWay(destination, message);
+          log.info("单向消息发送成功: {}", messageBody);
+      }
+      
+      @Autowired
+      public void setRocketMQTemplate(RocketMQTemplate rocketMQTemplate) {
+          this.rocketMQTemplate = rocketMQTemplate;
+      }
+  }
+  ```
+
+
+
+- 消费者
+
+  ```java
+  @Slf4j
+  @Component
+  @RocketMQMessageListener(
+          consumerGroup = "rocketmq-boot-oneway-consumer",
+          topic = "test-oneway-rocketmq"
+  )
+  public class RocketMQOnewayConsumer implements RocketMQListener<MessageExt> {
+      @Override
+      public void onMessage(MessageExt messageExt) {
+          byte[] body = messageExt.getBody();
+          String content = new String(body, StandardCharsets.UTF_8);
+          log.info("接受到消息:{}", content);
+      }
+  }
+  ```
+
+  
 
 
 
@@ -388,7 +476,7 @@ rocketmq-client 方式
   public class OrderProducer {
       public static void main(String[] args) throws MQClientException, MQBrokerException, RemotingException, InterruptedException {
           DefaultMQProducer producer = new DefaultMQProducer();
-          producer.setNamesrvAddr("192.168.1.112:9876");
+          producer.setNamesrvAddr("localhost:9876");
           producer.setProducerGroup("order-producer");
           producer.setVipChannelEnabled(false);
           producer.setDefaultTopicQueueNums(1);
@@ -441,7 +529,7 @@ rocketmq-client 方式
       public static void main(String[] args) {
           DefaultMQPushConsumer consumer = new DefaultMQPushConsumer();
           try {
-              consumer.setNamesrvAddr("192.168.1.112:9876");
+              consumer.setNamesrvAddr("localhost:9876");
               consumer.setConsumerGroup("order-consumer");
               // 设置消费者第一次启动是从队列头部开始还是队列尾部开始消费
               // 如果不是第一次启动，那么按照上次消费的位置继续消费
