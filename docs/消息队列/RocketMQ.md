@@ -18,7 +18,7 @@ RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡�
   - HA Service：高可用服务，提供 master 节点和 slave 节点之间的关系
 
 - `producer` ：消息生产者，通过 `nameserver` 获取 `broker` 的地址并发送消息
-- `customer` ：消息消费者，支持 push、pull 两种模式对消息进行消费，同时也支持集群方式和广播形式的消费，
+- `customer` ：消息消费者，支持 push、pull 两种模式对消息进行消费，同时也支持集群方式和广播形式的消费
 
 ## 相关概念
 
