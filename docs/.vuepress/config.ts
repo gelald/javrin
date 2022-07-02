@@ -5,6 +5,6 @@ export default defineUserConfig({
   lang: "zh-CN",
   title: "Javrin",
   description: "Javrin 知识库",
-  base: "/",
+  base: "/javrin/",
   theme: theme,
 });
