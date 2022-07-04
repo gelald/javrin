@@ -58,7 +58,7 @@ export default hopeTheme({
         },
 
         mdEnhance: {
-            enableAll: true,
+            // enableAll: true,
             // 启用下角标功能
             sub: true,
             // 启用上角标
@@ -70,5 +70,9 @@ export default hopeTheme({
                 plugins: ["highlight", "math", "search", "notes", "zoom"],
             },*/
         },
+
+        pwa: {
+            favicon: "/favicon.ico"
+        }
     }
 });
