@@ -71,8 +71,8 @@ export default hopeTheme({
             },*/
         },
 
-        pwa: {
-            favicon: "/favicon.ico"
-        }
+        /*pwa: {
+            favicon: "/avataaars.ico"
+        }*/
     }
 });
