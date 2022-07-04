@@ -58,21 +58,12 @@ export default hopeTheme({
         },
 
         mdEnhance: {
-            // enableAll: true,
             // 启用下角标功能
             sub: true,
             // 启用上角标
             sup: true,
             // 启用txt语法
-            tex: true,
-            // 启用幻灯片功能
-            /*presentation: {
-                plugins: ["highlight", "math", "search", "notes", "zoom"],
-            },*/
-        },
-
-        /*pwa: {
-            favicon: "/avataaars.ico"
-        }*/
+            tex: true
+        }
     }
 });
