@@ -10,7 +10,7 @@ export default defineUserConfig({
   // shouldPrefetch: false
   head: [
       [
-          'link', {rel: 'icon', href: '/avataaars.ico'}
+          'link', {rel: 'icon', href: '/javrin/avataaars.ico'}
       ]
   ]
 });
