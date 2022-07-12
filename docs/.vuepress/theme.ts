@@ -6,7 +6,8 @@ export default hopeTheme({
     // hostname: "https://vuepress-theme-hope-v2-demo.mrhope.site",
 
     author: {
-        name: "gelald"
+        name: "gelald",
+        url: "https://github.com/gelald"
     },
 
     iconAssets: "iconfont",
