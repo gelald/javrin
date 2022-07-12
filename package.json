@@ -2,7 +2,9 @@
   "name": "javrin",
   "version": "2.0.0",
   "description": "javrin 知识库",
+  "repository": "https://github.com/gelald/javrin",
   "license": "MIT",
+  "packageManager": "pnpm@7.4.1",
   "scripts": {
     "docs:build": "vuepress build docs",
     "docs:clean-dev": "vuepress dev docs --clean-cache",
