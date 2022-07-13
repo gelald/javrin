@@ -424,7 +424,7 @@ DNS1:			DNS服务器
    BOOTPROTO=static		#static:静态IP;dhcp:自动获取IP
    DEFROUTE=yes
    IPADDR=192.168.1.180	#IP地址
-   NETMAST=255.255.255.0	#子网掩码,C类网络一般写法
+   NETMASK=255.255.255.0	#子网掩码,C类网络一般写法
    GATEWAY=192.168.1.1		#网关地址
    DNS1=114.114.114.114	#DNS地址
    DNS2=223.5.5.5			#DNS地址

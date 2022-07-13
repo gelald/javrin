@@ -46,6 +46,7 @@
 - Spring
   - Spring基础知识
   - [SpringMVC](docs/Spring/SpringMVC.md)
+  - [SpringMVC-如何优化Controller代码](docs/Spring/PrettyController.md)
   - 深入Spring源码
   - Spring面试题
   - [Spring定时任务](docs/Spring/Spring定时任务.md)
