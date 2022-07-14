@@ -333,8 +333,6 @@ CIDR 可以把多个分类地址汇聚到一起，生成一个更大的网段，
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20211229093457.png)
 
-![image-20211229093934131](C:\Users\Lenovo\AppData\Roaming\Typora\typora-user-images\image-20211229093934131.png)
-
 
 
 > 举个例子

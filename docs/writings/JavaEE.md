@@ -604,22 +604,27 @@ servlet就是一个**接口**，定义了Java类被tomcat识别到的**规则**
 
 ```xml
 <!--配置Servlet 全类名和servlet名字的映射-->
-<servlet>
-  <servlet-name>demo01</servlet-name>
-  <servlet-class>cn.itcast.servlet.ServletDemo01</servlet-class>
-</servlet>
-<!--url对servlet的映射 url和servlet名字的映射-->
-<servlet-mapping>
-  <servlet-name>demo01</servlet-name>
-  <url-pattern>/demo01</url-pattern>
-</servlet-mapping>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee"
+         version="4.0">
+    <servlet>
+      <servlet-name>demo01</servlet-name>
+      <servlet-class>cn.itcast.servlet.ServletDemo01</servlet-class>
+    </servlet>
+    <!--url对servlet的映射 url和servlet名字的映射-->
+    <servlet-mapping>
+      <servlet-name>demo01</servlet-name>
+      <url-pattern>/demo01</url-pattern>
+    </servlet-mapping>
+</web-app>
 ```
 
 ## 执行原理
 
 1. 当服务器接收到浏览器的请求后，解析请求的url，获取资源路径
-2. 查找web.xml去寻找有没有对应的<url-pattern>
-3. 找到url-pattern对应的<servlet-class>全类名
+2. 查找web.xml去寻找有没有对应的 `<url-pattern>`
+3. 找到url-pattern对应的 `<servlet-class>` 全类名
 4. 根据全类名将字节码文件加载进内存Class.forName()
 5. 创建对象cls.newInstance()
 6. 调用service方法
@@ -1905,14 +1910,19 @@ JSP定义Java代码的方式
     - web.xml
 
       ```xml
-      <filter>
-        <filter-name>filter2</filter-name>
-        <filter-class>cn.itcast.web.filter.FilterDemo02</filter-class>
-      </filter>
-      <filter-mapping>
-        <filter-name>filter2</filter-name>
-        <url-pattern>/*</url-pattern><!--访问所有资源都会被拦截-->
-      </filter-mapping>
+      <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee"
+         version="4.0">
+        <filter>
+          <filter-name>filter2</filter-name>
+          <filter-class>cn.itcast.web.filter.FilterDemo02</filter-class>
+        </filter>
+        <filter-mapping>
+          <filter-name>filter2</filter-name>
+          <url-pattern>/*</url-pattern><!--访问所有资源都会被拦截-->
+        </filter-mapping>
+      </web-app>
       ```
 
       
@@ -1989,16 +1999,21 @@ JSP定义Java代码的方式
     - web.xml
 
       ```xml
-      <filter>
-        <filter-name>filter2</filter-name>
-        <filter-class>cn.itcast.web.filter.FilterDemo02</filter-class>
-      </filter>
-      <filter-mapping>
-        <filter-name>filter2</filter-name>
-        <!--拦截路径-->
-        <url-pattern>/*</url-pattern><!--访问所有资源都会被拦截-->
-        <dispatcher>REQUEST</dispatcher>
-      </filter-mapping>
+      <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee"
+         version="4.0">
+        <filter>
+          <filter-name>filter2</filter-name>
+          <filter-class>cn.itcast.web.filter.FilterDemo02</filter-class>
+        </filter>
+        <filter-mapping>
+          <filter-name>filter2</filter-name>
+          <!--拦截路径-->
+          <url-pattern>/*</url-pattern><!--访问所有资源都会被拦截-->
+          <dispatcher>REQUEST</dispatcher>
+        </filter-mapping>
+      </web-app>
       ```
 
 - 过滤器链（配置多个过滤器）
@@ -2016,7 +2031,7 @@ JSP定义Java代码的方式
 
   - 过滤器的先后顺序问题
     - 注解：**按照类名字符串比较规则，值小的先执行** AFilter比BFilter先执行
-    - web.xml：**<filter-mapping>谁定义在上边谁先执行**
+    - web.xml：** `<filter-mapping>` 谁定义在上边谁先执行**
 
 ## 案例
 

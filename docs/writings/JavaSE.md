@@ -1879,7 +1879,7 @@ public Set<Map.Entry<K,V>> entrySet();	//获取Map集合所有键值对，存在
 ### 遍历键找值方式
 
 1. keySet()
-   1. 使用Set<K> keySet()方法，把集合中的key取出来存到一个Set中
+   1. 使用Set\<K>\ keySet()方法，把集合中的key取出来存到一个Set中
    2. 遍历Set集合，获取Map中每一个key
    3. 使用V get(Object key)找到值
 2. entrySet()
