@@ -4,3 +4,4 @@ docs/.vuepress/.temp
 docs/.vuepress/dist
 .idea
 *.iml
+.DS_Store
