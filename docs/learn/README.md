@@ -1,5 +1,5 @@
 ---
-title: Demo 项目
+title: 学习项目
 index: false
 icon: article
 category:
