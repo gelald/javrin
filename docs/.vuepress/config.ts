@@ -8,8 +8,6 @@ export default defineUserConfig({
   base: "/javrin/",
   theme: theme,
   head: [
-      [
-          'link', {rel: 'icon', href: '/javrin/avataaars.ico'}
-      ]
+    ['link', {rel: 'icon', href: '/javrin/avataaars.ico'}]
   ]
 });

@@ -17,7 +17,16 @@ export default sidebar([
     prefix: "/writings/",
     link: "/writings/",
     collapsable: true,
-    children: "structure",
+    // children: "structure",
+    children: [
+      {
+        text: "项目工具",
+        icon: "note",
+        collapsable: true,
+        prefix: "ProjectTools/",
+        children: "structure",
+      },
+    ]
   },
   {
     text: "文章",

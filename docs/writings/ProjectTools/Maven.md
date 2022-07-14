@@ -1,4 +1,4 @@
-# 基础知识
+# Maven
 
 ### **依赖管理**
 
@@ -67,7 +67,7 @@ maven使用一个命令完成对项目的编译、测试、打包、安装、发
 
 #### relativePath
 
-- 在<parent>标签下指定<relativePath/>，说明这个依赖不从本地路径获取，始终从Maven仓库中获取
+- 在 `<parent>` 标签下指定 `<relativePath/>`，说明这个依赖不从本地路径获取，始终从Maven仓库中获取
 
 - 默认是../pom.xml，即父依赖所在目录下的pom文件
 - 查找顺序：relativePath元素中的地址–本地仓库–远程仓库
@@ -173,18 +173,19 @@ optional是maven依赖jar时的一个选项，表示该依赖是可选的，不�
 需要在B项目中把其他的日志依赖设置成可选依赖
 
 ```xml
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-api</artifactId>
-    <optional>true</optional>
-</dependency>
-
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-core</artifactId>
-    <optional>true</optional>
-</dependency>
-
+<dependencies>
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <optional>true</optional>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <optional>true</optional>
+    </dependency>
+</dependencies>
 ```
 
 #### 依赖排除的意义
