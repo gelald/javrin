@@ -1,9 +1,9 @@
 ---
 title: 学习项目
 index: false
-icon: article
+icon: computer
 category:
-  - coding
+  - 学习项目
 ---
 
 ## 为什么会有 Demo 项目
