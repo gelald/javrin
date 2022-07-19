@@ -8,7 +8,7 @@
   "scripts": {
     "docs:build": "vuepress build docs",
     "docs:clean-dev": "vuepress dev docs --clean-cache",
-    "docs:dev": "vuepress dev docs"
+    "docs:dev": "vuepress dev docs --port=9090"
   },
   "devDependencies": {
     "@vuepress/client": "^2.0.0-beta.48",
