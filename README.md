@@ -48,4 +48,4 @@ Jarvin是一个知识库，包括了博客文章与学习项目两部分。
 
 - 微信：加微信请备注 Jarvin
 
-<img alt="微信二维码" src="/qrcode.jpg" width="300" height="390"/>
+<img alt="微信二维码" src="docs/.vuepress/public/qrcode.jpg" width="300" height="390"/>
