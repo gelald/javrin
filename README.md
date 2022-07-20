@@ -1,9 +1,8 @@
-
 <div style="display: flex;align-content: center;justify-content: center;flex-direction: column;align-items: center">
   <a href="https://gelald.github.io/javrin">
     <img src="docs/.vuepress/public/logo.png" alt="Javrin Logo">
   </a>
-  <h1 style="margin: 10px"> Javrin </h1>
+  <div style="margin: 10px;font-size: 2em;font-weight: bold;"> Javrin </div>
 </div>
 
 <div style="display: flex;align-content: center;justify-content: center">
