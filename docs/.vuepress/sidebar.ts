@@ -20,6 +20,26 @@ export default sidebar([
     // children: "structure",
     children: [
       {
+        text: "算法",
+        icon: "note",
+        collapsable: true,
+        prefix: "Algorithm/",
+        children: [
+          /*{
+            text: "动态规划",
+            link: "DynamicProgramming"
+          },*/
+          {
+            text: "斐波拉契数列",
+            link: "Fibonacci"
+          },
+          {
+            text: "摩尔投票法",
+            link: "MooreVotingMethod"
+          }
+        ],
+      },
+      {
         text: "项目工具",
         icon: "note",
         collapsable: true,
@@ -29,6 +49,13 @@ export default sidebar([
     ]
   },
   {
+    text: "学习项目",
+    icon: "computer",
+    prefix: "/learning/",
+    link: "/learning/",
+    children: "structure",
+  },
+  /*{
     text: "文章",
     icon: "note",
     prefix: "/posts/",
@@ -59,5 +86,5 @@ export default sidebar([
         ],
       },
     ],
-  },
+  },*/
 ]);

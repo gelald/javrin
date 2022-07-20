@@ -1,12 +1,3 @@
----
-title: Git 基础知识
-index: false
-icon: article
-category:
-- Git
-- ProjectTool
----
-
 # Git
 
 ## 概念
