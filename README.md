@@ -1,7 +1,7 @@
 <div align="center">
     <p>
         <a href="https://gelald.github.io/javrin/">
-            <img src="docs/.vuepress/public/logo.png" alt="Javrin Logo">
+            <img src="https://jarvin-image.oss-cn-guangzhou.aliyuncs.com/logo.svg" alt="Javrin Logo">
         </a>
     </p>
     <p>
