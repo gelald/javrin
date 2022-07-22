@@ -52,8 +52,8 @@ export default hopeTheme({
             provider: "Giscus",
             repo: "gelald/javrin",
             repoId: "R_kgDOHlwzOg",
-            category: "General",
-            categoryId: "DIC_kwDOHlwzOs4CP-xX",
+            category: "Announcements",
+            categoryId: "DIC_kwDOHlwzOs4CP-xW",
             mapping: "url",
             reactionsEnabled: true
         },
