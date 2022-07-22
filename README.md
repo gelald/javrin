@@ -1,11 +1,11 @@
 <div align="center">
     <p>
-        <a href="https://gelald.github.io/javrin">
+        <a href="https://gelald.github.io/javrin/">
             <img src="docs/.vuepress/public/logo.png" alt="Javrin Logo">
         </a>
     </p>
     <p>
-        <a href="https://gelald.github.io/javrin" target="_blank"><img src="https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E9%98%85%E8%AF%BB-jarvin-yellowgreen" alt="Read Online"></a>
+        <a href="https://gelald.github.io/javrin/" target="_blank"><img src="https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E9%98%85%E8%AF%BB-jarvin-yellowgreen" alt="Read Online"></a>
         <a href="https://github.com/gelald/javrin/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/gelald/javrin" alt="GitHub License"></a>
         <img src="https://img.shields.io/github/last-commit/gelald/javrin" alt="GitHub Last Commit">
         <img src="https://img.shields.io/badge/package%20manager-pnpm-blueviolet" alt="Package Manager">
@@ -25,6 +25,8 @@ Jarvin是一个知识库，包括了博客文章与学习项目两部分。
 如果你想入门 Java 后端，Javrin 能给你一条学习成长路线；
 
 如果你已经进入工作阶段并希望自己的技术深度能更进一步，Javrin 的内容囊括了入门到进阶，也能给你提供帮助。
+
+阅读链接👉：[Jarvin](https://gelald.github.io/javrin/)
 
 ## 站在巨人的肩膀上
 
