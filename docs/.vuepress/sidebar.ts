@@ -20,6 +20,18 @@ export default sidebar([
     // children: "structure",
     children: [
       {
+        text: "Spring&SpringBoot框架",
+        icon: "note",
+        collapsable: true,
+        prefix: "Spring/",
+        children: [
+          {
+            text: "Controller就该这么写",
+            link: "PrettyController"
+          }
+        ]
+      },
+      {
         text: "算法",
         icon: "note",
         collapsable: true,
