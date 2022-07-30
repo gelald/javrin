@@ -24,7 +24,8 @@ export default sidebar([
 				children: [
 					{
 						text: "Controller就该这么写",
-						link: "PrettyController"
+						link: "PrettyController",
+						icon: "article"
 					}
 				]
 			},
@@ -50,14 +51,23 @@ export default sidebar([
 				children: [
 					{
 						text: "斐波拉契数列",
-						link: "Fibonacci"
+						link: "Fibonacci",
+						icon: "article"
 					},
 					{
 						text: "摩尔投票法",
-						link: "MooreVoting"
+						link: "MooreVoting",
+						icon: "article"
 					}
 				],
 			},
+			/*{
+				text: "暂时归档的文章",
+				icon: "note",
+				collapsable: true,
+				prefix: "archive/",
+				children: "structure"
+			}*/
 		]
 	},
 	{
