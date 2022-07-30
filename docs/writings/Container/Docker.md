@@ -1,3 +1,20 @@
+---
+title: Docker基础知识
+icon: article
+category:
+
+- 干货
+- 容器技术
+
+tag:
+
+- Docker
+- 基础
+
+---
+
+# Docker基础知识
+
 ## Docker容器与虚拟机对比
 
 ### 容器化技术
@@ -39,11 +56,7 @@
 | Java   | JVM                     | Class       | Object          |
 | Docker | Docker Engine           | Image(镜像) | Container(容器) |
 
-
-
 ## Docker命令
-
-
 
 ### 服务相关命令（daemon）
 
@@ -63,7 +76,7 @@
 
 **搜索镜像**：`docker search <镜像名称>`
 
-**拉取镜像**：`docker pull <镜像名称>:<版本号>`，版本号不填默认是latest 
+**拉取镜像**：`docker pull <镜像名称>:<版本号>`，版本号不填默认是latest
 
 **删除镜像**：`docker rmi <镜像id>`
 
@@ -222,8 +235,6 @@ Docker镜像由**特殊的**文件系统**叠加**而成，本质是一个分层
 
   **可以为团队提供一个完全一致的开发环境**
 
-
-
 ### Dockerfile关键字
 
 | 关键字     | 作用                     | 备注                                                         |
@@ -260,8 +271,6 @@ WORKDIR /usr
 #定义容器启动执行命令
 CMD /bin/bash
 ```
-
-
 
 ## Docker服务编排
 

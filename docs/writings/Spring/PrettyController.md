@@ -1,8 +1,25 @@
+---
+title: Controller就该这么写
+icon: article
+category:
+
+- 干货
+- 文章
+- Spring/SpringBoot
+
+tag:
+
+- SpringMVC
+- 参数校验
+- 异常处理
+- 优化
+
+---
+
 # 一个优秀的Controller层逻辑
 
-> 说到 Controller，相信大家都不陌生，它可以很方便地对外提供数据接口。它的定位，我认为是「不可或缺的配角」，说它不可或缺是因为无论是传统的三层架构还是现在的COLA架构，Controller 层依旧有一席之地，说明他的必要性；说它是配角是因为 Controller 层的代码一般是不负责具体的逻辑业务逻辑实现，但是它负责接收和响应请求
-
-
+> 说到 Controller，相信大家都不陌生，它可以很方便地对外提供数据接口。它的定位，我认为是「不可或缺的配角」，说它不可或缺是因为无论是传统的三层架构还是现在的COLA架构，Controller
+> 层依旧有一席之地，说明他的必要性；说它是配角是因为 Controller 层的代码一般是不负责具体的逻辑业务逻辑实现，但是它负责接收和响应请求
 
 ## 从现状看问题
 
@@ -12,8 +29,6 @@ Controller 主要的工作有以下几项
 - 调用 Service 执行具体的业务代码（可能包含参数校验）
 - 捕获业务逻辑异常做出反馈
 - 业务逻辑执行成功做出响应
-
-
 
 ```java
 //DTO
@@ -72,15 +87,11 @@ public class TestController {
 }
 ```
 
-
-
 如果真的按照上面所列的工作项来开发 Controller 代码会有几个问题
 
 1. 参数校验过多地耦合了业务代码，违背单一职责原则
 2. 可能在多个业务中都抛出同一个异常，导致代码重复
 3. 各种异常反馈和成功响应格式不统一，接口对接不友好
-
-
 
 ## 改造 Controller 层逻辑
 
@@ -147,17 +158,11 @@ public class Result<T> {
 }
 ```
 
-
-
 统一返回结构后，在 Controller 中就可以使用了，但是每一个 Controller 都写这么一段最终封装的逻辑，这些都是很重复的工作，所以还要继续想办法进一步处理统一返回结构
-
-
 
 ### 统一包装处理
 
 Spring 中提供了一个类 `ResponseBodyAdvice` ，能帮助我们实现上述需求
-
-
 
 `ResponseBodyAdvice` 是对 Controller 返回的内容在 `HttpMessageConverter` 进行类型转换之前拦截，进行相应的处理操作后，再将结果返回给客户端。那这样就可以把统一包装的工作放到这个类里面。
 
@@ -172,8 +177,6 @@ public interface ResponseBodyAdvice<T> {
 
 - supports：判断是否要交给 beforeBodyWrite 方法执行，ture：需要；false：不需要
 - beforeBodyWrite：对 response 进行具体的处理
-
-
 
 ```java
 // 如果引入了swagger或knife4j的文档生成组件，这里需要仅扫描自己项目的包，否则文档无法正常生成
@@ -197,12 +200,9 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
 }
 ```
 
-
-
 经过这样改造，既能实现对 Controller 返回的数据进行统一包装，又不需要对原有代码进行大量的改动
 
-
-#### 处理 cannot be cast to java.lang.String 问题
+### 处理 cannot be cast to java.lang.String 问题
 
 如果直接使用 `ResponseBodyAdvice`，对于一般的类型都没有问题，当处理字符串类型时，会抛出 `xxx.包装类 cannot be cast to java.lang.String` 的类型转换的异常
 
@@ -259,7 +259,7 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
 
 2. 修改 `HttpMessageConverter` 实例集合中 `MappingJackson2HttpMessageConverter` 的顺序。因为发生上述问题的根源所在是集合中 `StringHttpMessageConverter` 的顺序先于 `MappingJackson2HttpMessageConverter` 的，调整顺序后即可从根源上解决这个问题
 
-    - 网上有不少做法是直接在集合中第一位添加 `MappingJackson2HttpMessageConverter`
+	- 网上有不少做法是直接在集合中第一位添加 `MappingJackson2HttpMessageConverter`
 
     ```java
     @Configuration
@@ -271,8 +271,10 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
         }
     }
     ```
-   
-    - 诚然，这种方式可以解决问题，但其实问题的根源不是集合中缺少这一个转换器，而是转换器的顺序导致的，所以最合理的做法应该是调整 `MappingJackson2HttpMessageConverter` 在集合中的顺序
+
+	-
+	诚然，这种方式可以解决问题，但其实问题的根源不是集合中缺少这一个转换器，而是转换器的顺序导致的，所以最合理的做法应该是调整 `MappingJackson2HttpMessageConverter`
+	在集合中的顺序
 
     ```java
     @Configuration
@@ -302,23 +304,18 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
 
 Java API 的规范 `JSR303` 定义了校验的标准 `validation-api` ，其中一个比较出名的实现是 `hibernate validation` ，`spring validation` 是对其的二次封装，常用于 SpringMVC 的参数自动校验，参数校验的代码就不需要再与业务逻辑代码进行耦合了
 
-
-
 #### @PathVariable 和 @RequestParam 参数校验
 
 Get 请求的参数接收一般依赖这两个注解，但是处于 url 有长度限制和代码的可维护性，超过 5 个参数尽量用实体来传参
 
-
-
 对 @PathVariable 和 @RequestParam 参数进行校验需要在入参声明约束的注解
-
-
 
 如果校验失败，会抛出 `MethodArgumentNotValidException` 异常
 
 ```java
 @RestController(value = "prettyTestController")
 @RequestMapping("/pretty")
+@Validated
 public class TestController {
 
     private TestService testService;
@@ -341,8 +338,6 @@ public class TestController {
     }
 }
 ```
-
-
 
 #### 校验原理
 
@@ -418,19 +413,11 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 }
 ```
 
-
-
-
-
 #### @RequestBody 参数校验
 
 Post、Put 请求的参数推荐使用 @RequestBody 请求体参数
 
-
-
 对 @RequestBody 参数进行校验需要在 DTO 对象中加入校验条件后，再搭配 @Validated 即可完成自动校验
-
-
 
 如果校验失败，会抛出 `ConstraintViolationException` 异常
 
@@ -469,13 +456,9 @@ public class TestController {
 }
 ```
 
-
-
 #### 校验原理
 
 声明约束的方式，注解加到了参数上面，可以比较容易猜测到是使用了 AOP 对方法进行增强
-
-
 
 而实际上 Spring 也是通过 `MethodValidationPostProcessor` 动态注册 AOP 切面，然后使用 `MethodValidationInterceptor` 对切点方法进行织入增强
 
@@ -536,15 +519,9 @@ public class MethodValidationInterceptor implements MethodInterceptor {
 }
 ```
 
-
-
-
-
 #### 自定义校验规则
 
 有些时候 `JSR303` 标准中提供的校验规则不满足复杂的业务需求，也可以自定义校验规则
-
-
 
 自定义校验规则需要做两件事情
 
@@ -618,15 +595,9 @@ public class MobileValidator implements ConstraintValidator<Mobile, CharSequence
 }
 ```
 
-
-
 自动校验参数真的是一项非常必要、非常有意义的工作。 `JSR303` 提供了丰富的参数校验规则，再加上复杂业务的自定义校验规则，完全把参数校验和业务逻辑解耦开，代码更加简洁，符合单一职责原则。
 
-
-
 更多关于 Spring 参数校验请参考：[Spring Validation最佳实践及其实现原理，参数校验没那么简单！](https://juejin.cn/post/6856541106626363399)
-
-
 
 ### 自定义异常与统一拦截异常
 
@@ -636,15 +607,9 @@ public class MobileValidator implements ConstraintValidator<Mobile, CharSequence
 2. 抛出异常后，Controller 不能具体地根据异常做出反馈
 3. 虽然做了参数自动校验，但是异常返回结构和正常返回结构不一致
 
-
-
 自定义异常是为了后面统一拦截异常时，对业务中的异常有更加细颗粒度的区分，拦截时针对不同的异常作出不同的响应
 
-
-
 而统一拦截异常的目的一个是为了可以与前面定义下来的统一包装返回结构能对应上，另一个是我们希望无论系统发生什么异常，Http 的状态码都要是 200 ，尽可能由业务来区分系统的异常
-
-
 
 ```java
 //自定义异常
@@ -720,12 +685,9 @@ public class ExceptionAdvice {
 }
 ```
 
-
-
 ## 总结
 
-做好了这一切改动后，可以发现 Controller 的代码变得非常简洁，可以很清楚地知道每一个参数、每一个DTO的校验规则，可以很明确地看到每一个 Controller 方法返回的是什么数据，也可以方便每一个异常应该如何进行反馈
+做好了这一切改动后，可以发现 Controller 的代码变得非常简洁，可以很清楚地知道每一个参数、每一个DTO的校验规则，可以很明确地看到每一个
+Controller 方法返回的是什么数据，也可以方便每一个异常应该如何进行反馈
 
-
-
-这一套操作下来后，我们能更加专注于业务逻辑的开发，代码简介、功能完善，何乐而不为呢？
+这一套操作下来后，我们能更加专注于业务逻辑的开发，代码简洁、功能完善，何乐而不为呢？

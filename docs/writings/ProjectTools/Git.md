@@ -1,3 +1,18 @@
+---
+title: Git基础知识
+icon: article
+category:
+
+- 干货
+- 项目工具
+
+tag:
+
+- Git
+- 基础
+
+---
+
 # Git
 
 ## 概念
@@ -16,9 +31,9 @@
 
 - tracked：已跟踪（被纳入版本控制）
   - Unmodified：未修改状态
-  
+
   - Modified：已修改状态
-  
+
   - Staged：已暂存状态
 
 ### 修改状态
@@ -166,5 +181,5 @@
 - 删除标签 ：
 
   - 删除本地标签 ：`git tag -d <标签名>`
-  
+
   - 删除远程标签 ：`git push origin :refs/tags/<标签名>`

@@ -3,7 +3,8 @@ title: 学习项目
 index: false
 icon: computer
 category:
-  - 学习项目
+
+- 导航
 ---
 
 ## 为什么会有学习项目

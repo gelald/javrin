@@ -1,9 +1,10 @@
 ---
 title: 博客文章
 index: false
-icon: article
+icon: list
 category:
-  - 博客文章
+
+- 导航
 ---
 
 ## 目录

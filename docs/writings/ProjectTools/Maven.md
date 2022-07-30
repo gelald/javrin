@@ -1,3 +1,18 @@
+---
+title: Maven基础知识
+icon: article
+category:
+
+- 干货
+- 项目工具
+
+tag:
+
+- Maven
+- 基础
+
+---
+
 # Maven
 
 ### **依赖管理**
@@ -46,8 +61,6 @@ maven使用一个命令完成对项目的编译、测试、打包、安装、发
 ### **Maven概念模型**
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrj94k24j30ya0l2b29.jpg)
-
-
 
 #### 项目对象模型
 
@@ -119,8 +132,6 @@ maven使用一个命令完成对项目的编译、测试、打包、安装、发
 
 #### Scope依赖传递
 
-
-
 ### 依赖排除
 
 #### 排除依赖
@@ -152,8 +163,6 @@ maven使用一个命令完成对项目的编译、测试、打包、安装、发
   </dependencies>
 </project>
 ```
-
-
 
 #### 可选依赖
 

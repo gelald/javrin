@@ -1,3 +1,18 @@
+---
+title: UML基础知识
+icon: article
+category:
+
+- 干货
+- 项目工具
+
+tag:
+
+- UML
+- 基础
+
+---
+
 # UML
 
 统一建模语言（Unified Modeling Language），是一种为**面向对象**系统的产品进行说明、可视化和编制文档的**标准语言**。
@@ -11,35 +26,33 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 - 关联：这是一种静态关系，与运行过程的状态无关，在运行前就可以确定
   - **普通箭头实线**的表示**单向关系**，**箭头**指向**被拥有者**
   - **没有箭头实线**的表示**双向关系**
-  
+
   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110200.png)
-  
+
 - 聚合：整体与部分的关系。**不同的生命周期**
   - 用**带空心菱形的实线**表示，**菱形**指向**整体**，**箭头**指向**个体**
 
   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110127.png)
-  
+
 - 组合：整体与部分的关系，组合比聚合更加**严格**。**相同的生命周期**
   - 用**带实心菱形的实线**表示，**菱形**指向**整体**，**箭头**指向**个体**
 
   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110142.png)
-  
+
 - 泛化：表示一个**更泛化**的元素和一个**更具体**的元素之间的关系。父类与子类的关系
   - 用**带三角箭头的实线**表示，**箭头**指向**父类**
 
   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303105832.png)
-  
+
 - 实现：实现类与接口的关系
   - 用**带三角箭头的虚线**表示，**箭头**指向**接口**
 
   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110059.png)
-  
+
 - 依赖：如果一个类的改动会影响到另一个类，则两个类之间存在依赖关系，**一般而言，依赖是单向的**
   - 用**带普通箭头的虚线**表示，**箭头**指向**被依赖者**
-  
+
   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220303110218.png)
-
-
 
 ## 类图
 
@@ -54,21 +67,15 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 - **静态**类或静态方法加**下划线**
 - 如果是接口需要在类名上方加<\<Interface>\>
 
-
-
 ### 类图案例
 
 #### 案例一
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210913155546.png)
 
-
-
 #### 案例二《大话设计模式》
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210913160834.png)
-
-
 
 ## 时序图
 
@@ -104,7 +111,6 @@ UML使用面向对象设计的建模工具，但独立于任何具体程序设�
 - 同步消息，需要等待响应：实心箭头实线表示
 - 异步消息，不需要等待响应：带线型箭头实线表示
 - 返回消息，从过程调用返回：带线型箭头虚线表示
-
 
 ### 时序图案例
 
