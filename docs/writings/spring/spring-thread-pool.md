@@ -1,8 +1,8 @@
 # SpringBoot 线程池
 
-> 众所周知，Spring 能让一切变得简单，当然线程池也不例外
+> 众所周知，「Spring makes all simple」，当然也包括线程池
 >
-> 线程池回顾：[线程池](../并发/线程池.md)
+> 线程池回顾：[线程池](../concurrency/thread-pool.md)
 
 
 

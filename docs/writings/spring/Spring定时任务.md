@@ -256,7 +256,7 @@ public class TimedTasksDemoApplication {
 ```yaml
 spring:
   task:
-  	# Spring 定时任务配置
+  	# spring 定时任务配置
     scheduling:
       thread-name-prefix: summerday- # 线程池的线程名的前缀。默认为 scheduling- ，建议根据自己应用来设置
       pool:
@@ -264,7 +264,7 @@ spring:
       shutdown:
         await-termination: true # 应用关闭时，是否等待定时任务执行完成。默认为 false ，建议设置为 true
         
-    # Spring 执行器配置，对应 TaskExecutionProperties 配置类。对于 Spring 异步任务，会使用该执行器。
+    # spring 执行器配置，对应 TaskExecutionProperties 配置类。对于 spring 异步任务，会使用该执行器。
     execution:
       thread-name-prefix: async- # 线程池的线程名的前缀。默认为 task- ，建议根据自己应用来设置
       pool: # 线程池相关

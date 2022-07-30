@@ -17,14 +17,26 @@ export default sidebar([
 		collapsable: true,
 		children: [
 			{
+				text: "并发",
+				icon: "note",
+				collapsable: true,
+				prefix: "concurrency/",
+				children: "structure"
+			},
+			{
 				text: "Spring&SpringBoot框架",
 				icon: "note",
 				collapsable: true,
-				prefix: "Spring/",
+				prefix: "spring/",
 				children: [
 					{
 						text: "Controller就该这么写",
-						link: "PrettyController",
+						link: "pretty-controller",
+						icon: "article"
+					},
+					{
+						text: "Spring中的线程池",
+						link: "spring-thread-pool",
 						icon: "article"
 					}
 				]
@@ -33,30 +45,30 @@ export default sidebar([
 				text: "容器技术",
 				icon: "note",
 				collapsable: true,
-				prefix: "Container/",
+				prefix: "container/",
 				children: "structure",
 			},
 			{
 				text: "项目工具",
 				icon: "note",
 				collapsable: true,
-				prefix: "ProjectTools/",
+				prefix: "project-tools/",
 				children: "structure",
 			},
 			{
 				text: "算法",
 				icon: "note",
 				collapsable: true,
-				prefix: "Algorithm/",
+				prefix: "algorithm/",
 				children: [
 					{
 						text: "斐波拉契数列",
-						link: "Fibonacci",
+						link: "fibonacci",
 						icon: "article"
 					},
 					{
 						text: "摩尔投票法",
-						link: "MooreVoting",
+						link: "moore-voting",
 						icon: "article"
 					}
 				],
