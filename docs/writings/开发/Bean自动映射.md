@@ -17,7 +17,7 @@
 - `Dozer` ：属性映射
 - `ModelMapper` ：基于字节码框架 ASM 实现
 - `JMapper` ：映射
-- `MapStruct` ：直接在编译器生成对应的 `get`、`set`
+- `MapStruct` ：直接在编译期生成对应的 `get`、`set` 方法
 
 ## 实现
 
