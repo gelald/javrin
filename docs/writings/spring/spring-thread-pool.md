@@ -1,3 +1,19 @@
+---
+title: SpringBoot线程池的使用
+icon: article
+category:
+
+- 干货
+- 文章
+- Spring/SpringBoot
+- 并发
+
+tag:
+
+- 线程池
+
+---
+
 # SpringBoot 线程池
 
 > 众所周知，「Spring makes all simple」，当然也包括线程池
@@ -38,9 +54,8 @@ public interface TaskExecutor extends Executor {
 
 ```java
 public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implements AsyncListenableTaskExecutor, Serializable {
-    ...
     
-    @Override
+	@Override
 	public void execute(Runnable task) {
 		execute(task, TIMEOUT_INDEFINITE);
 	}
