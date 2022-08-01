@@ -1,10 +1,11 @@
 ---
 title: 判断线程池中的线程是否执行完毕
 icon: article
+order: 3
 category:
 
-- 干货
 - 文章
+- 问题解决
 - 并发
 
 tag:
@@ -51,7 +52,7 @@ private void executeBiz(int index) {
 
 ## isTerminated 方式
 
-在主线程中进行循环执行 `isTerminated` 方法来判断线程池中的任务是否全部完成
+在主线程中进行循环执行 `isTerminated` 方法来判断线程池中的任务是否全部完成。
 
 ```java
 public void test1() throws InterruptedException {
@@ -73,7 +74,9 @@ public void test1() throws InterruptedException {
 
 优点：简单
 
-缺点：需要关闭线程池才能通过 `isTerminated` 方法来判断，因为如果不执行 `shutdown` 或 `shutdownNow` 方法，`isTerminated` 方法永远都不会返回 `true` 。但是一般实际开发中极少数情况会在中途关闭线程池，因为线程池的创建与关闭也是有一定开销的，一般的做法是当系统关闭时才进行线程池的销毁。
+缺点：需要关闭线程池才能通过 `isTerminated` 方法来判断，因为如果不执行 `shutdown` 方法，`isTerminated` 方法永远都不会返回 `true` 。但是一般实际开发中极少数情况会在中途关闭线程池，因为线程池的创建与关闭也是有一定开销的，一般的做法是当系统关闭时才进行线程池的销毁。
+
+**所以这种方式不推荐**
 
 
 
@@ -103,27 +106,27 @@ public void test2() throws InterruptedException {
 }
 ```
 
-优点：不需要关闭线程池，避免创建和销毁线程池带来的开销
+优点：不需要关闭线程池，避免创建和销毁线程池带来的开销。
 
-缺点：必须确保执行 `getTaskCount` 方法时，所有线程任务已全部提交执行，否则这个数是不准确的
+缺点：必须确保执行 `getTaskCount` 方法时，所有线程任务**已全部提交执行**，否则这个数是不准确的。
 
 
 
 ## CountDownLatch 方式
 
-CountDownLatch 是 JDK 提供的一个同步工具，可以达到让一个或多个线程等待其他线程执行完成的效果
+CountDownLatch 是 JDK 提供的一个同步工具，可以达到让一个或多个线程等待其他线程执行完成的效果。
 
-在初始化时指定一个整数作为计数器
+在初始化时指定一个整数作为计数器，
 
-当调用 `countDown` 方法时，计数器会减 1
+当调用 `countDown` 方法时，计数器会减 1，
 
-当调用 `await` 方法时，如果当前计数器大于 0，那么当前线程会被阻塞，直到计数器减到 0 为止
+当调用 `await` 方法时，如果当前计数器大于 0，那么当前线程会被**阻塞，直到计数器减到 0 为止**。
 
 ---
 
-显然可以让主线程调用 `await` 方法来等待所有的任务线程执行完毕
+显然可以让主线程调用 `await` 方法来等待所有的任务线程执行完毕，
 
-调整一下任务调用逻辑，多传入一个 CountDownLatch 参数以供子线程调用 `countDown` 方法
+调整一下任务调用逻辑，多传入一个 CountDownLatch 参数以供子线程调用 `countDown` 方法。
 
 ```java
 private void executeBiz(int index, CountDownLatch latch) {
@@ -156,6 +159,6 @@ public void test3() throws InterruptedException {
 }
 ```
 
-优点：显然使用 CountDownLatch 是三种方式中最为灵活的一种
+优点：显然使用 CountDownLatch 是三种方式中最为灵活的一种。
 
-缺点：唯一的缺点是需要提前知道所有的线程数，否则计数器无法准确地工作
+缺点：唯一的缺点是需要提前知道所有的线程数，否则计数器无法准确地工作。
