@@ -4,7 +4,7 @@ icon: home
 title: 主页
 heroImage: https://jarvin-image.oss-cn-guangzhou.aliyuncs.com/logo.svg
 heroText: Jarvin
-tagline: 「Jarvin」是 Java 后端的知识库，希望能帮助你
+tagline: 「Jarvin」是一个 Java 后端的知识库，希望能帮助你😎
 copyright: false
 footer: MIT Licensed | Copyright © 2022-present gelald
 actions:

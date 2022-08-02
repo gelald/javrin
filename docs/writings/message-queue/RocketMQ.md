@@ -1,8 +1,37 @@
 # RocketMQ
 
-> 本篇文章基于 RocketMQ 4.9.0 版本
+> 本篇文章基于 RocketMQ 4.9.0 版本。
 
-## RocketMQ简介
+## 消息队列简介
+
+> 开始学习 RocketMQ 前，先简单了解一下消息队列。
+
+### 为什么使用消息队列
+- 解耦
+  - 传统架构：系统间直接耦合，每接入一个系统，都需要修改代码。
+  - 引入中间件：将消息写入消息队列，需要消息的系统自己从消息队列中订阅，从而系统 A 不需要做任何修改。
+
+- 异步
+  - 传统架构：一些非必要的业务逻辑以同步的方式运行，比较耗费时间。
+  - 引入中间件：将消息写入消息队列，非必要的业务逻辑以异步的方式运行，加快响应速度。
+
+- 削峰
+  - 传统架构：并发量大的时候，所有的请求直接怼到数据库，造成数据库连接异常。
+  - 引入中间件：系统 A 按照数据库能处理的并发量，从消息队列中拉取消息。在生产中，这个短暂的高峰期积压是允许的。
+
+### 使用了消息队列会有什么缺点
+
+- 从系统的可用性来看：加入了消息队列，就需要维护好消息队列服务，否则消息队列服务宕机，整个系统也就瘫痪。
+- 从系统的复杂度来看：需要考虑一致性问题、如何保证消息不被重复消费，如何保证保证消息可靠传输等一系列问题，因此，需要考虑的东西更多，系统复杂性增大。
+
+
+### 什么情况下的异步操作需要使用消息队列而不是多线程
+
+- 消息队列和多线程两者并不冲突，多线程可以作为队列的生产者和消费者。在使用外部的消息队列时，可以提高应用的稳定性，当程序宕机后，已经写入外部消息队列的数据依旧是保存的
+- 用线程的话，会占用主服务器资源；消息队列的话，可以放到其他机器上运行，让主服务器更纯粹地处理请求。如果用户不急着知道结果的操作，可以用消息队列，否则再考虑多线程
+- 消息队列是在架构层面解决问题；多线程是在编程语言层面解决问题。消息队列解耦更充分，架构更合理
+
+## RocketMQ 简介
 
 RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡献给了 Apache 基金会，其高性能、高实时、分布式是其最显著的特点
 
@@ -25,43 +54,41 @@ RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡�
 - Topic：是生产者在发送消息和消费者在拉取消息的类别，**可以理解为第一级消息类型，类比于书的标题**
 
   ```java
-  // 在Producer中发送消息时使用Topic
+  // 在 Producer 中发送消息时使用 Topic
   Message msg = new Message("TopicTest", ("Hello RocketMQ " + i).getBytes(StandardCharsets.UTF_8));
   
-  // 在Consumer中订阅Topic
+  // 在 Consumer 中订阅 Topic
   consumer.subscribe("TopicTest", "*");
   ```
   
-- Tag：子主题，用于同一业务模块的具有不同目的的消息，也方便RocketMQ提供的查询功能。**可以理解为第二级消息类型，类比于书的目录，方便检索使用消息**
+- Tag：子主题，用于同一业务模块的具有不同目的的消息，也方便 RocketMQ 提供的查询功能。**可以理解为第二级消息类型，类比于书的目录，方便检索使用消息**
 
   ```java
-  // 在Producer中使用Tag
+  // 在 Producer 中使用 Tag
   Message msg = new Message("TopicTest", "TagA", ("Hello RocketMQ " + i).getBytes(StandardCharsets.UTF_8));
   
-  // 在Consumer中订阅Tag，如果订阅的Tag是*，那就代表订阅Topic下的所有消息
+  // 在 Consumer 中订阅 Tag，如果订阅的 Tag 是*，那就代表订阅 Topic 下的所有消息
   consumer.subscribe("TopicTest", "TagA||TagB");
   ```
   
 - GroupName
 
   - 具有相同角色的生产者组合或消费者组合，称为生产者组或消费者组。作用是在集群的情况下，一个生产者宕机之后，本地事务回滚后，可以继续联系该组下的另外一个生产者实例，不至于导致业务走不下去。在消费者组中，可以实现消息消费的负载均衡和消息容错目标。
-  - 有了GroupName，在集群下，动态扩展容量很方便。只需要在新加的机器中，配置相同的GroupName，启动后，就立即能加入到所在的群组中，参与消息生产或消费。
+  - 有了 GroupName，在集群下，动态扩展容量很方便。只需要在新加的机器中，配置相同的 GroupName，启动后，就立即能加入到所在的群组中，参与消息生产或消费。
   - **一个生产者组内的生产者可以发送不同 Topic 的消息，但是一般会发送相同 Topic 类型的消息**。
   - **一个消费者组中的消费者必须订阅完全相同的 Topic，但是一个 Topic 类型的消息可以被多个消费者组同时消费**。
   
   ```java
-  // 使用GroupName来初始化Producer
+  // 使用 GroupName 来初始化 Producer
   DefaultMQProducer producer = new DefaultMQProducer("group_name_1");
   
-  // 使用GroupName来初始化Consumer
+  // 使用 GroupName 来初始化 Consumer
   DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("group_name_1");
   ```
 
 - Queue：存储消息的物理实体，一个 Topic 的 Queue 也被称为一个 Topic 中消息的分区（Partition）
 
   **一个 Queue 中的消息不允许同一个消费者组中的多个消费者同时消费**
-
-
 
 ## 同步消息
 
@@ -73,23 +100,21 @@ RocketMQ 是一个分布式的消息中间件，孵化于阿里巴巴，后贡�
 ### 实现
 
 ```java
-// 传入组名实例化消息生产者Producer
+// 传入组名实例化消息生产者 Producer
 DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
-// 设置NameServer的地址
+// 设置 NameServer 的地址
 producer.setNamesrvAddr("namesrvAddr");
-// 启动Producer实例
+// 启动 Producer 实例
 producer.start();
-// 创建消息，并指定Topic，Tag和消息体
+// 创建消息，并指定 Topic，Tag 和消息体
 Message msg = new Message("TopicTest" /* Topic */,
                           "TagA" 			/* Tag */,
                  ("Hello RocketMQ " + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */);
-// 发送消息到一个Broker,返回SendResult来判断是否成功送达
+// 发送消息到一个 Broker, 返回 SendResult 来判断是否成功送达
 SendResult sendResult = producer.send(msg);
-// 如果不再发送消息，关闭Producer实例。
+// 如果不再发送消息，关闭 Producer 实例。
 producer.shutdown();
 ```
-
-
 
 ## 异步消息
 
@@ -101,33 +126,31 @@ producer.shutdown();
 ### 实现
 
 ```java
-// 传入组名实例化消息生产者Producer
+// 传入组名实例化消息生产者 Producer
 DefaultMQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
-// 设置NameServer的地址
+// 设置 NameServer 的地址
 producer.setNamesrvAddr("namesrvAddr");
-// 启动Producer实例
+// 启动 Producer 实例
 producer.start();
-// 创建消息，并指定Topic，Tag和消息体
+// 创建消息，并指定 Topic，Tag 和消息体
 Message msg = new Message("TopicTest",
                     			"TagA",
                     			"OrderID188",
                           "Hello world".getBytes(RemotingHelper.DEFAULT_CHARSET));
-// SendCallback接收异步返回结果的回调
+// SendCallback 接收异步返回结果的回调
 producer.send(msg, new SendCallback() {
   @Override
   public void onSuccess(SendResult sendResult) {
-    //发送成功的回调,返回SendResult对象来判断是否发送成功了
+    //发送成功的回调，返回 SendResult 对象来判断是否发送成功了
   }
   @Override
   public void onException(Throwable e) {
-    //发送过程中有异常的回调,返回异常信息
+    //发送过程中有异常的回调，返回异常信息
   }
 });
-// 如果不再发送消息，关闭Producer实例。
+// 如果不再发送消息，关闭 Producer 实例。
 producer.shutdown();
 ```
-
-
 
 ## 单向发送消息
 
@@ -157,8 +180,6 @@ rocketmq-client 方式
   }
   ```
 
-
-
 - 消费者
 
   ```java
@@ -170,7 +191,7 @@ rocketmq-client 方式
           // 设置消费者第一次启动是从队列头部开始还是队列尾部开始消费
           // 如果不是第一次启动，那么按照上次消费的位置继续消费
           consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
-          // 设置消费者订阅的Topic和Tag
+          // 设置消费者订阅的 Topic 和 Tag
           consumer.subscribe("oneway-topic", "*");
           consumer.setMessageListener((MessageListenerConcurrently) (messageExtList, context) -> {
               if (CollectionUtils.isEmpty(messageExtList)) {
@@ -181,7 +202,7 @@ rocketmq-client 方式
                   String topic = messageExt.getTopic();
                   String tags = messageExt.getTags();
                   String body = new String(messageExt.getBody(), StandardCharsets.UTF_8);
-                  System.out.println("MQ消息topic=" + topic + ", tags=" + tags + ", 消息内容=" + body);
+                  System.out.println("MQ 消息 topic=" + topic + ", tags=" + tags + ", 消息内容=" + body);
                   try {
                       TimeUnit.MILLISECONDS.sleep(1500);
                   } catch (InterruptedException e) {
@@ -194,8 +215,6 @@ rocketmq-client 方式
       }
   }
   ```
-
-
 
 rocketmq-spring-boot-starter 方式
 
@@ -210,7 +229,7 @@ rocketmq-spring-boot-starter 方式
       public void sendOnewayMessage(String destination, String messageBody) {
           Message<String> message = MessageBuilder.withPayload(messageBody).build();
           this.rocketMQTemplate.sendOneWay(destination, message);
-          log.info("单向消息发送成功: {}", messageBody);
+          log.info("单向消息发送成功：{}", messageBody);
       }
       
       @Autowired
@@ -219,8 +238,6 @@ rocketmq-spring-boot-starter 方式
       }
   }
   ```
-
-
 
 - 消费者
 
@@ -236,14 +253,12 @@ rocketmq-spring-boot-starter 方式
       public void onMessage(MessageExt messageExt) {
           byte[] body = messageExt.getBody();
           String content = new String(body, StandardCharsets.UTF_8);
-          log.info("接受到消息:{}", content);
+          log.info("接受到消息：{}", content);
       }
   }
   ```
 
   
-
-
 
 ## 事务消息
 
@@ -266,14 +281,10 @@ RocketMQ 的事务消息适用于所有对数据最终一致性有强需求的�
 
 5. 假设由于网络波动、生产者重启导致事务消息的二次确认丢失，MQ 也有补偿措施，它会去扫描自己处于 half 状态的消息，如果这个 MQ 一直没有接收到对这个 half 消息执行 `rollback`  或 `commit` 的命令，会回调一个接口，询问这个订单是什么状态 ，此时订单系统就可以查询这个订单的状态，如果是成功了，那么就发送一个 `commit` 请求；否者发送 `rollback` 请求·
 
-
-
 RocketMQ 实现事务消息的两大核心，是达到分布式事务最终一致性的关键
 
 - **两阶段提交**、半消息（Half 消息）：Broker 只有收到第二阶段的消息，消费者才能拉取
 - **事务补偿机制**：当 Broker 收到状态为 `Unknown` 的消息时，或者由于网络波动、生产者宕机导致长时间没有收到第二阶段提交，会触发事务回查机制
-
-
 
 ### 实现
 
@@ -285,10 +296,10 @@ rocketmq-client 方式
   public class Producer {
    
       public static void main(String[] args) throws MQClientException, UnsupportedEncodingException {
-  		// 设置生产者组、NameServer地址等基本信息
+  		// 设置生产者组、NameServer 地址等基本信息
           TransactionMQProducer producer = new TransactionMQProducer("transaction-producer");
           producer.setNamesrvAddr("localhost:9876");
-   		// 设置MQ事务监听器
+   		// 设置 MQ 事务监听器
           producer.setTransactionListener(new TransactionListener() {
               @Override
               public LocalTransactionState executeLocalTransaction(Message message, Object o) {
@@ -321,7 +332,7 @@ rocketmq-client 方式
   public class Consumer {
    
       public static void main(String[] args) throws MQClientException {
-  		// 设置消费者组、NameServer地址等基本信息
+  		// 设置消费者组、NameServer 地址等基本信息
           DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("transaction-consumer");
           consumer.setNamesrvAddr("localhost:9876");
    		// 设置消费者订阅的 Topic、Tag 信息
@@ -372,7 +383,6 @@ rocketmq-spring-boot-starter 方式
   }
   ```
   
-  
 
   ```java
   // 设置事务消息监听器
@@ -409,8 +419,6 @@ rocketmq-spring-boot-starter 方式
   }
   ```
   
-  
-  
   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220618174639.png)
   
 - 消费者
@@ -426,11 +434,10 @@ rocketmq-spring-boot-starter 方式
       public void onMessage(MessageExt messageExt) {
           byte[] body = messageExt.getBody();
           String content = new String(body, StandardCharsets.UTF_8);
-          log.info("接受到消息: {}", content);
+          log.info("接受到消息：{}", content);
       }
   }
   ```
-  
   
 
 ## 顺序消息
@@ -451,18 +458,12 @@ rocketmq-spring-boot-starter 方式
 - 发送时锁定一个队列来发送（生产者默认用 4 个队列来传输消息），那么消费者订阅这个 Topic 的消息时，这些消息只能从某一个特定的队列被拉取
 - 设置消费线程为 1；或者实现 `MessageListenerOrderly` 接口来实现消费的逻辑
 
-
-
 RocketMQ 保证消息有序分为两种
 
 - 全局有序消息：一个 Topic 下的消息都要保证顺序。需要保证只使用一个队列存放消息，一个消费者从这一个队列拉取消息并使用一个线程进行消费，这样就能保证全局有序
 - 局部有序消息：保证一个队列中的消息有序消费，比如：保证同一个订单的生成、付款、发货。需要保证把同一个订单的消息放入同一个队列中，一个消费者从这一个队列拉取消息并使用一个线程进行消费
 
-
-
 如果使用实现 `MessageListenerOrderly` 接口来实现消费的逻辑，需要注意 `consumeMessage` 方法的返回值 `ConsumeOrderlyStatus` 的值只能是 `SUCCESS` 和 `SUSPEND_CURRENT_QUEUE_A_MOMENT` ，其中 `SUSPEND_CURRENT_QUEUE_A_MOMENT` 表示消费失败，等待一下再继续消费，不会跳过这条消息，否则就破坏了消息的顺序了
-
-
 
 ### 实现
 
@@ -512,9 +513,9 @@ rocketmq-client 方式
       @Override
       public MessageQueue select(List<MessageQueue> messageQueueList, Message msg, Object arg) {
           Long id = (Long) arg;
-          //使用取模算法确定id存放到哪个队列
+          //使用取模算法确定 id 存放到哪个队列
           int index = (int) (id % messageQueueList.size());
-          //index就是要存放的队列的索引
+          //index 就是要存放的队列的索引
           return messageQueueList.get(index);
       }
   }, i);
@@ -534,7 +535,7 @@ rocketmq-client 方式
               // 设置消费者第一次启动是从队列头部开始还是队列尾部开始消费
               // 如果不是第一次启动，那么按照上次消费的位置继续消费
               consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
-              // 设置消费者订阅的Topic和Tag
+              // 设置消费者订阅的 Topic 和 Tag
               consumer.subscribe("order-topic", "*");
               consumer.setMessageListener((MessageListenerOrderly) (messageExtList, context) -> {
                   if (CollectionUtils.isEmpty(messageExtList)) {
@@ -545,7 +546,7 @@ rocketmq-client 方式
                       String topic = messageExt.getTopic();
                       String keys = messageExt.getKeys();
                       String body = new String(messageExt.getBody(), StandardCharsets.UTF_8);
-                      System.out.println("MQ消息topic=" + topic + ", keys=" + keys + ", 消息内容=" + body);
+                      System.out.println("MQ 消息 topic=" + topic + ", keys=" + keys + ", 消息内容=" + body);
                   }
                   return ConsumeOrderlyStatus.SUCCESS;
               });
@@ -556,8 +557,6 @@ rocketmq-client 方式
       }
   }
   ```
-
-
 
 rocketmq-spring-boot-starter 方式
 
@@ -574,17 +573,17 @@ rocketmq-spring-boot-starter 方式
               Message<String> message = MessageBuilder.withPayload("订单创建" + i).build();
               // 同步顺序消息
               SendResult sendResult = this.rocketMQTemplate.syncSendOrderly("test-orderly-rocketmq", message, String.valueOf(i));
-              log.info("发送顺序消息成功:{}", sendResult);
+              log.info("发送顺序消息成功：{}", sendResult);
   
               message = MessageBuilder.withPayload("订单支付" + i).build();
               // 同步顺序消息
               sendResult = this.rocketMQTemplate.syncSendOrderly("test-orderly-rocketmq", message, String.valueOf(i));
-              log.info("发送顺序消息成功:{}", sendResult);
+              log.info("发送顺序消息成功：{}", sendResult);
   
               message = MessageBuilder.withPayload("订单发货" + i).build();
               // 同步顺序消息
               sendResult = this.rocketMQTemplate.syncSendOrderly("test-orderly-rocketmq", message, String.valueOf(i));
-              log.info("发送顺序消息成功:{}", sendResult);
+              log.info("发送顺序消息成功：{}", sendResult);
           }
       }
   
@@ -594,8 +593,6 @@ rocketmq-spring-boot-starter 方式
       }
   }
   ```
-
-
 
 - 消费者
 
@@ -612,7 +609,7 @@ rocketmq-spring-boot-starter 方式
       public void onMessage(MessageExt messageExt) {
           byte[] body = messageExt.getBody();
           String content = new String(body, StandardCharsets.UTF_8);
-          log.info("接受到消息: {}", content);
+          log.info("接受到消息：{}", content);
       }
   }
   ```
