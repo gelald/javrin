@@ -1,6 +1,7 @@
 ---
 title: Controller就该这么写
 icon: article
+isOriginal: true
 category:
 
 - 干货

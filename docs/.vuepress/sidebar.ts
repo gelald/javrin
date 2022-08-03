@@ -35,7 +35,7 @@ export default sidebar([
 						icon: "article"
 					},
 					{
-						text: "SpringBoot线程池的使用",
+						text: "Spring线程池的使用",
 						link: "spring-thread-pool",
 						icon: "article"
 					}

@@ -238,7 +238,7 @@ public void test3() throws ExecutionException, InterruptedException {
 
 ## ThreadPoolTaskExecutor 实现并行调用
 
-Spring 中的线程池的使用看这里：[SpringBoot线程池](../SpringpringBoot线程池.md)
+Spring 中的线程池的使用看这里：[SpringBoot线程池](../Spring/Spring-thread-pool.md)
 
 
 
