@@ -41,13 +41,13 @@ export default sidebar([
 					}
 				]
 			},
-			{
+			/*{
 				text: "消息队列",
 				icon: "note",
 				collapsable: true,
 				prefix: "message-queue/",
 				children: "structure"
-			},
+			},*/
 			{
 				text: "容器技术",
 				icon: "note",
