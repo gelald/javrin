@@ -80,6 +80,19 @@ export default sidebar([
 					}
 				],
 			},
+			{
+				text: "值得学习的文章",
+				icon: "note",
+				collapsable: true,
+				prefix: "outside/",
+				children: [
+					{
+						text: "权限系统就该这么设计",
+						link: "https://mp.weixin.qq.com/s/ED9eqxUTbWVS39ayiXCjoQ",
+						icon: "article"
+					}
+				]
+			}
 			/*{
 				text: "暂时归档的文章",
 				icon: "note",
