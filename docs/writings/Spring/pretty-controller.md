@@ -273,8 +273,7 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
     }
     ```
 
-	-
-	诚然，这种方式可以解决问题，但其实问题的根源不是集合中缺少这一个转换器，而是转换器的顺序导致的，所以最合理的做法应该是调整 `MappingJackson2HttpMessageConverter`
+	- 诚然，这种方式可以解决问题，但其实问题的根源不是集合中缺少这一个转换器，而是转换器的顺序导致的，所以最合理的做法应该是调整 `MappingJackson2HttpMessageConverter`
 	在集合中的顺序
 
     ```java
