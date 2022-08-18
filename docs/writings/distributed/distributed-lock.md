@@ -1,3 +1,20 @@
+---
+title: 分布式锁
+icon: article
+category:
+
+- 干货
+- 分布式理论
+
+tag:
+
+- 基础
+- Redis
+- Zookeeper
+
+---
+
+
 # 分布式锁
 
 > 在 Java 并发编程中，我们会通过**锁**来避免由于竞争而造成的**数据不一致的问题**，如 `synchronized` 、`Lock`

@@ -41,6 +41,13 @@ export default sidebar([
 					}
 				]
 			},
+			{
+				text: "分布式理论",
+				icon: "note",
+				collapsable: true,
+				prefix: "distributed/",
+				children: "structure",
+			},
 			/*{
 				text: "消息队列",
 				icon: "note",
