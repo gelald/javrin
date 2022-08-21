@@ -42,19 +42,19 @@ export default sidebar([
 				]
 			},
 			{
+				text: "消息队列",
+				icon: "note",
+				collapsable: true,
+				prefix: "message-queue/",
+				children: "structure"
+			},
+			{
 				text: "分布式理论",
 				icon: "note",
 				collapsable: true,
 				prefix: "distributed/",
 				children: "structure",
 			},
-			/*{
-				text: "消息队列",
-				icon: "note",
-				collapsable: true,
-				prefix: "message-queue/",
-				children: "structure"
-			},*/
 			{
 				text: "容器技术",
 				icon: "note",
@@ -96,6 +96,11 @@ export default sidebar([
 					{
 						text: "权限系统就该这么设计",
 						link: "https://mp.weixin.qq.com/s/ED9eqxUTbWVS39ayiXCjoQ",
+						icon: "article"
+					},
+					{
+						text: "用 Arthas 定位 Spring Boot 接口的超时问题",
+						link: "https://mp.weixin.qq.com/s/95gg-9vO2CFQh6jE8KEz8w",
 						icon: "article"
 					}
 				]
