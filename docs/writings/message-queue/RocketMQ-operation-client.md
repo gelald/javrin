@@ -211,6 +211,8 @@ public DefaultMQPushConsumer clusteringMQPushConsumerTwo(MessageListenerConcurre
 }
 ```
 
+由于需要同一个消费者组定义多个消费者，RocketMQ 不能自动区分这些消费者，所以我们需要手动为消费者设置一个用于区分的名字，使用 `setInstanceName()` 方法。
+
 - 消费结果
   
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220824173402.png)
@@ -395,8 +397,8 @@ public DefaultMQProducer partitionedMQProducer() throws MQClientException {
 ```
 
 - 发送消息，在发送消息时，多加两个参数：
-  - 第一个参数类型是MessageQueueSelector的匿名内部类，用于定义消息队列选择算法，计算这个消息将被投递到哪一个消息队列上。
-  - 第二参数是选择算法中使用到的，比如我这里的实现就是分别用1-10和2进行模运算（因为一开始只定义了两个队列），计算的结果就是队列的序号。
+  - 第一个参数类型是 MessageQueueSelector 的匿名内部类，用于定义消息队列选择算法，计算这个消息将被投递到哪一个消息队列上。
+  - 第二参数是选择算法中使用到的，比如我这里的实现就是分别用 1-10 和 2 进行模运算（因为一开始只定义了两个队列），计算的结果就是队列的序号。
 
 ```java
 @ApiOperation("测试分区有序消息")
@@ -409,8 +411,8 @@ public String sendPartitionedOrderMessage() throws RemotingException, Interrupte
             message.putUserProperty("number", String.valueOf(i));
             this.partitionedMQProducer.send(message, (messageQueueList, msg, arg) -> {
                 Integer id = (Integer) arg;
-                //使用取模算法确定id存放到哪个队列
-                //index就是要存放的队列的索引
+                //使用取模算法确定 id 存放到哪个队列
+                //index 就是要存放的队列的索引
                 int index = id % 2;
                 return messageQueueList.get(index);
             }, i);
@@ -490,13 +492,13 @@ public String sendPartitionedOrderMessage() throws RemotingException, Interrupte
 public String sendDelayMessage() throws RemotingException, InterruptedException, MQClientException, MQBrokerException {
     Message message = new Message((RocketMQConstant.TOPIC_PREFIX + "client"), "delay", "send third delay level message".getBytes(StandardCharsets.UTF_8));
     message.setDelayTimeLevel(3);
-    message.putUserProperty("delayTime", "10秒");
+    message.putUserProperty("delayTime", "10 秒");
     this.defaultMQProducer.send(message);
     return "send complete";
 }
 ```
 
-- 消费结果，当消费者进入一个稳定消费的状态后，可以看到当生产者发送消息后隔10秒左右消费者才有消息消费的日志出现
+- 消费结果，当消费者进入一个稳定消费的状态后，可以看到当生产者发送消息后隔 10 秒左右消费者才有消息消费的日志出现
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220824225155.png)
 
@@ -510,7 +512,7 @@ public String sendDelayMessage() throws RemotingException, InterruptedException,
 
 > 生产者、消费者定义和发送普通消息一致，只是调用的方法有区别
 
-- 发送消息，每3条消息组成一批消息发送
+- 发送消息，每 3 条消息组成一批消息发送
 
 ```java
 @ApiOperation("批量发送消息")
@@ -521,7 +523,7 @@ public String sendBatchMessage() throws MQBrokerException, RemotingException, In
         String messageBody = "测试批量发送消息第" + i + "条消息";
         Message message = new Message((RocketMQConstant.TOPIC_PREFIX + "client"), "batch", messageBody.getBytes(StandardCharsets.UTF_8));
         messages.add(message);
-        // 3条为一批消息
+        // 3 条为一批消息
         if (messages.size() == 3) {
             log.info("生产者发送消息");
             this.defaultMQProducer.send(messages);
@@ -552,7 +554,7 @@ RocketMQ 过滤消息是指消费者通过一定的方式筛选自己需要的�
 
 ```java
 /**
- * 使用Tag过滤的消费者
+ * 使用 Tag 过滤的消费者
  */
 @Bean
 public DefaultMQPushConsumer tagFilterConsumer(MessageListenerConcurrently tagListenerOne) throws MQClientException {
@@ -571,32 +573,32 @@ public DefaultMQPushConsumer tagFilterConsumer(MessageListenerConcurrently tagLi
 - 发送消息
   
 ```java
-@ApiOperation("测试tag过滤消息")
+@ApiOperation("测试 tag 过滤消息")
 @GetMapping("/tag-filter-message")
 public String tagFilterMessage() throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
     // 消费者方设置如下
-    // 消费者1只接受tag为phone或shoes的消息
-    // 消费者2只接受tag为phone或clothes，并且price位于[10,20]区间的消息
-    Message message1 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-tag-filter"), "phone", "手机订单消息:17元".getBytes(StandardCharsets.UTF_8));
+    // 消费者 1 只接受 tag 为 phone 或 shoes 的消息
+    // 消费者 2 只接受 tag 为 phone 或 clothes，并且 price 位于 [10,20] 区间的消息
+    Message message1 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-tag-filter"), "phone", "手机订单消息：17 元".getBytes(StandardCharsets.UTF_8));
     message1.putUserProperty("price", "17");
     this.defaultMQProducer.send(message1);
-    log.info("生产者发送消息: {}", message1);
-    Message message2 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-tag-filter"), "phone", "手机订单消息:26元".getBytes(StandardCharsets.UTF_8));
+    log.info("生产者发送消息：{}", message1);
+    Message message2 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-tag-filter"), "phone", "手机订单消息：26 元".getBytes(StandardCharsets.UTF_8));
     message2.putUserProperty("price", "26");
     this.defaultMQProducer.send(message2);
-    log.info("生产者发送消息: {}", message2);
-    Message message3 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-tag-filter"), "clothes", "衣服订单消息:19元".getBytes(StandardCharsets.UTF_8));
+    log.info("生产者发送消息：{}", message2);
+    Message message3 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-tag-filter"), "clothes", "衣服订单消息：19 元".getBytes(StandardCharsets.UTF_8));
     message3.putUserProperty("price", "19");
     this.defaultMQProducer.send(message3);
-    log.info("生产者发送消息: {}", message3);
-    Message message4 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-tag-filter"), "shoes", "鞋子订单消息:null".getBytes(StandardCharsets.UTF_8));
+    log.info("生产者发送消息：{}", message3);
+    Message message4 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-tag-filter"), "shoes", "鞋子订单消息：null".getBytes(StandardCharsets.UTF_8));
     this.defaultMQProducer.send(message4);
-    log.info("生产者发送消息: {}", message4);
+    log.info("生产者发送消息：{}", message4);
     return "send complete";
 }
 ```
 
-- 消费结果，最终只有tag为phone和clothes的消息能被消费者消费
+- 消费结果，最终只有 tag 为 phone 和 clothes 的消息能被消费者消费
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220824232433.png)
 
@@ -604,7 +606,7 @@ public String tagFilterMessage() throws MQBrokerException, RemotingException, In
 
 SQL 过滤是指使用一些类似 SQL 语句的语法进行过滤 ，如 is null、between 等关键词。生产者在发送消息时，给消息自定义某些属性；消费者订阅消息时使用 SQL 语句来对这些属性进行过滤，这种方式实现起来有难度，但是灵活。
 
-但是要使用这个SQL过滤的特性，有一个前提就是：Broker需要开启属性过滤。要开启这个功能，需要在 `broker.conf` 文件中加入 `enablePropertyFilter=true`。否则消费者启动时会提示：
+但是要使用这个 SQL 过滤的特性，有一个前提就是：Broker 需要开启属性过滤。要开启这个功能，需要在 `broker.conf` 文件中加入 `enablePropertyFilter=true`。否则消费者启动时会提示：
 
 ```
 Caused by: org.apache.rocketmq.client.exception.MQClientException: CODE: 1  DESC: The broker does not support consumer to filter message by SQL92
@@ -635,30 +637,32 @@ public DefaultMQPushConsumer sqlFilterConsumer(MessageListenerConcurrently defau
 - 发送消息
 
 ```java
-@ApiOperation("测试sql过滤消息")
+@ApiOperation("测试 sql 过滤消息")
 @GetMapping("/sql-filter-message")
 public String sqlFilterMessage() throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
     // 消费者方设置如下
-    // 只有price在[10-30]区间才能接收并消费
-    Message message1 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-sql-filter"), "phone", "手机订单消息:18元".getBytes(StandardCharsets.UTF_8));
+    // 只有 price 在 [10-30] 区间才能接收并消费
+    Message message1 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-sql-filter"), "phone", "手机订单消息：18 元".getBytes(StandardCharsets.UTF_8));
     message1.putUserProperty("price", "18");
     this.defaultMQProducer.send(message1);
-    log.info("生产者发送消息: {}", message1);
-    Message message2 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-sql-filter"), "clothes", "衣服订单消息:7元".getBytes(StandardCharsets.UTF_8));
+    log.info("生产者发送消息：{}", message1);
+    Message message2 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-sql-filter"), "clothes", "衣服订单消息：7 元".getBytes(StandardCharsets.UTF_8));
     message2.putUserProperty("price", "7");
     this.defaultMQProducer.send(message2);
-    log.info("生产者发送消息: {}", message2);
-    Message message3 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-sql-filter"), "clothes", "衣服订单消息:20元".getBytes(StandardCharsets.UTF_8));
+    log.info("生产者发送消息：{}", message2);
+    Message message3 = new Message((RocketMQConstant.TOPIC_PREFIX + "client-sql-filter"), "clothes", "衣服订单消息：20 元".getBytes(StandardCharsets.UTF_8));
     message3.putUserProperty("price", "20");
     this.defaultMQProducer.send(message3);
-    log.info("生产者发送消息: {}", message3);
+    log.info("生产者发送消息：{}", message3);
     return "send complete";
 }
 ```
 
 - 消费结果
 
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220825210744.png)
 
+可以看到只有价格位于 [10, 30] 的两条消息能成功被消费
 
 ## RocketMQ 事务消息
 
@@ -668,8 +672,107 @@ RocketMQ 事务消息有两大核心点：两阶段提交、事务补偿机制�
 
 ### 两阶段提交
 
-Broker 只有收到第二阶段的消息，消费者才能拉取消息进行消费。
+第一阶段的提交 Half 消息是对消费者不可见的，Broker 只有收到第二阶段的消息，消费者才能拉取消息进行消费。
 
 ### 事务补偿机制
 
 当 Broker 收到状态为 `UNKNOWN` 的消息时，或者由于网络波动、生产者宕机导致长时间没有收到第二阶段提交，Broker 会调用生产者的接口查询本地事务执行情况。
+
+代码实现：
+
+> 由于消费者及其监听器逻辑与普通消息区别不大，所以代码重点展示生产者代码及其结果
+
+- 生产者定义
+
+```java
+@Slf4j
+@Configuration
+@ConditionalOnProperty(prefix = "learning.rocketmq.producer.producer-switch", name = "transaction", havingValue = "true")
+public class RocketMQTransactionProducerConfiguration extends RocketMQBaseProducerConfiguration {
+
+    @Bean
+    public TransactionMQProducer transactionMQProducer(TransactionListener bizTransactionListener) throws MQClientException {
+        // 定义事务型生产者
+        TransactionMQProducer transactionMQProducer = new TransactionMQProducer();
+        transactionMQProducer.setNamesrvAddr(rocketMQProducerProperties.getNameServerAddr());
+        transactionMQProducer.setProducerGroup((RocketMQConstant.PRODUCER_GROUP_PREFIX + "client-transactional"));
+        // 定义事务监听器
+        transactionMQProducer.setTransactionListener(bizTransactionListener);
+        transactionMQProducer.start();
+        mqProducers.add(transactionMQProducer);
+        return transactionMQProducer;
+    }
+
+    @Bean
+    public TransactionListener bizTransactionListener() {
+        return new TransactionListener() {
+            // 执行生产者方本地事务
+            @Override
+            public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
+                log.info("接收到 RocketMQ 的 Half 消息的响应，现在执行本地事务。..");
+                int number = (Integer) arg;
+                try {
+                    // 事务执行逻辑执行一个除法运算，可以演示执行失败的情况
+                    Integer result = 100 / number;
+                    log.info("事务执行结果：{}", result);
+                    // 线程睡眠 500 毫秒模拟本地事务执行
+                    TimeUnit.MILLISECONDS.sleep(500);
+                    log.info("本地事务执行成功，给 RocketMQ 发送 ACK 响应");
+                    return LocalTransactionState.COMMIT_MESSAGE;
+                } catch (Exception e) {
+                    log.info("本地事务执行发生异常，需要回滚事务");
+                    return LocalTransactionState.ROLLBACK_MESSAGE;
+                }
+            }
+
+            // 回查本地事务执行情况
+            @Override
+            public LocalTransactionState checkLocalTransaction(MessageExt msg) {
+                log.info("由于 RocketMQ 长时间无法收到消息的状态或本地执行事务状态为 UNKNOW，现在执行补偿事务/回查本地事务。..");
+                return LocalTransactionState.COMMIT_MESSAGE;
+            }
+        };
+    }
+
+}
+```
+
+当使用事务型生产者时，就能体现出生产者组的作用：当生产者发生宕机时，Broker 可以向同一个组内其他生产者调用回查本地事务执行情况。
+
+- 消息发送
+
+```java
+@ApiOperation("发送事务消息")
+@GetMapping("/{number}")
+public String sendTransactionMessage(@PathVariable Integer number) throws MQClientException {
+    log.info("接收到事务请求，准备执行生产者本地事务。..");
+    Message message = new Message((RocketMQConstant.TOPIC_PREFIX + "client-transaction"), "通知消费者执行本地事务的事务消息".getBytes(StandardCharsets.UTF_8));
+    // 把 number 传入，在执行本地事务时使用
+    this.transactionMQProducer.sendMessageInTransaction(message, number);
+    return "事务消息发送成功";
+}
+```
+
+- 生产者本地事务执行成功
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220825212636.png)
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220825212709.png)
+
+生产者事务执行成功后，会发送 ACK 到 RocketMQ 通知本次事务成功提交了，然后消费者能收到消息进行消费。
+
+- 生产者本地事务执行失败
+
+number 参数传入 0 导致除 0 异常。
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220825212809.png)
+
+回滚事务后，消费者无法收到此消息。
+
+## 总结
+
+这篇文章使用 spring-boot 集成 rocketmq-client 的方式演示了 RocketMQ 大部分的使用场景，希望能给有需要的你有帮助。
+
+如果本文有错漏的地方，欢迎提出指正。
+
+本文使用的代码 GitHub 地址：[rocketmq-learning](https://github.com/gelald/rocketmq-learning)，如果觉得我写得还不错，希望能给我点上一个 star🌟，感谢。
