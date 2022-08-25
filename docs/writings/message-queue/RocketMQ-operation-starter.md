@@ -1,5 +1,5 @@
 ---
-title: RocketMQ 操作落地(rocketmq-spring-boot-starter方式)
+title: RocketMQ 操作落地 (rocketmq-starter方式)
 icon: article
 category:
 
@@ -13,7 +13,7 @@ tag:
 
 ---
 
-# RocketMQ 操作落地(rocketmq-spring-boot-starter方式)
+# RocketMQ 操作落地 (rocketmq-starter方式)
 >本文使用rocketmq-spring-boot-starter的集成方式展示RocketMQ的常见用法
 
 ## RocketMQ 普通消息发送

@@ -1,3 +1,18 @@
+---
+title: RocketMQ 原理分析
+icon: article
+category:
+
+- 干货
+- 消息队列
+
+tag:
+
+- 原理
+- RocketMQ
+
+---
+
 # RocketMQ 原理分析
 
 ## RocketMQ 高可用机制

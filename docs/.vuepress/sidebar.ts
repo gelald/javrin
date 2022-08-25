@@ -27,7 +27,7 @@ export default sidebar([
 				text: "Spring&SpringBoot框架",
 				icon: "note",
 				collapsable: true,
-				prefix: "spring/",
+				prefix: "Spring/",
 				children: [
 					{
 						text: "Controller就该这么写",
@@ -46,7 +46,28 @@ export default sidebar([
 				icon: "note",
 				collapsable: true,
 				prefix: "message-queue/",
-				children: "structure"
+				children: [
+					{
+						text: "RocketMQ 入门",
+						link: "RockerMQ-start",
+						icon: "article"
+					},
+					{
+						text: "RocketMQ 操作落地 (rocketmq-client 方式)",
+						link: "RockerMQ-operation-client",
+						icon: "article"
+					},
+					{
+						text: "RocketMQ 操作落地 (rocketmq-starter方式)",
+						link: "RockerMQ-operation-starter",
+						icon: "article"
+					},
+					{
+						text: "RocketMQ 原理分析",
+						link: "RockerMQ-theory",
+						icon: "article"
+					}
+				]
 			},
 			{
 				text: "分布式理论",
