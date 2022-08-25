@@ -1,5 +1,5 @@
 ---
-title: RocketMQ 操作落地 (rocketmq-starter方式)
+title: RocketMQ 操作落地 (rocketmq-starter 方式）
 icon: article
 category:
 
@@ -13,8 +13,12 @@ tag:
 
 ---
 
-# RocketMQ 操作落地 (rocketmq-starter方式)
->本文使用rocketmq-spring-boot-starter的集成方式展示RocketMQ的常见用法
+# RocketMQ 操作落地 (rocketmq-starter 方式）
+>本文使用 rocketmq-spring-boot-starter 的集成方式展示 RocketMQ 的常见用法
+>
+>rocketmq-spring-boot-starter 和 rocketmq-client 方式相比，框架的集成度很高，使用起来非常方便。
+>
+>源码地址：[rocketmq-learning](https://github.com/gelald/rocketmq-learning)
 
 ## RocketMQ 普通消息发送
 
@@ -22,17 +26,91 @@ tag:
 
 生产者向 RocketMQ 发送一条消息，RocketMQ 返回生产者其发送结果，可用于判断是否发送成功。
 
+代码实现：
+
+>以下是核心代码片段，详情可以查看 GitHub 上的源码：[rocketmq-learning](https://github.com/gelald/rocketmq-learning)，如果觉得对你有帮助，希望可以给我个小星星鼓励鼓励噢~
+
+- 生产者发送消息，生产者无需再手动定义，可以使用框架提供的 `RocketMQTemplate` 来完成消息的发送
+
+```java
+@ApiOperation("同步发送普通消息")
+@GetMapping("/sync-ordinary")
+public SendResult sendMessageSynchronously() {
+    Message<String> message = MessageBuilder.withPayload("send ordinary message synchronously").build();
+    log.info("生产者发送消息：{}", message);
+    SendResult sendResult = this.rocketMQTemplate.syncSend((RocketMQConstant.TOPIC_PREFIX + "starter:sync"), message);
+    log.info("消息发送状态：{}", sendResult);
+    return sendResult;
+}
+```
+
+- 消费者消费消息，消费者和消息监听器的定义大大简化了，只需要加上 `@RocketMQMessageListener` 注解，另外实现 `RocketMQListener<T>` 接口 (T 是消息类型的泛型）即可
+
+```java
+@Slf4j
+@Component
+@RocketMQMessageListener(
+        consumerGroup = (RocketMQConstant.CONSUMER_GROUP_PREFIX + "starter"),
+        topic = (RocketMQConstant.TOPIC_PREFIX + "starter")
+)
+public class DefaultConsumer implements RocketMQListener<MessageExt> {
+    @Override
+    public void onMessage(MessageExt messageExt) {
+        String topic = messageExt.getTopic();
+        String tags = messageExt.getTags();
+        String body = new String(messageExt.getBody(), StandardCharsets.UTF_8);
+        log.info("DefaultConsumer 接收消息，topic: {}, tags: {}, 消息内容：{}", topic, tags, body);
+    }
+}
+```
+
 ### 普通消息异步发送
 
 如果发送的消息太大或者业务对等待发送结果的时间较为敏感，可以采用异步发送的方式，RocketMQ 将会在成功接收到消息后或接收异常时回调生产者的接口，通知生产者本次消息的发送状态。
 
-```java
+代码实现：
 
+- 生产者发送消息
+
+```java
+@ApiOperation("异步发送普通消息")
+@GetMapping("/async-ordinary")
+public String sendMessageAsynchronously() {
+    Message<String> message = MessageBuilder.withPayload("send ordinary message asynchronously").build();
+    this.rocketMQTemplate.asyncSend((RocketMQConstant.TOPIC_PREFIX + "starter:async"), message, new SendCallback() {
+        @Override
+        public void onSuccess(SendResult sendResult) {
+            log.info("消息发送状态: {}", sendResult);
+        }
+
+        @Override
+        public void onException(Throwable e) {
+            log.info("消息发送失败，原因: ", e);
+        }
+    });
+    log.info("生产者发送消息: {}", message);
+    return "sent message";
+}
 ```
 
 ### 普通消息单向发送
 
 如果生产者对本次发送的消息的到达状态不关心，如日志采集，那么可以采用单向发送的方式，把消息发送后就完成本次操作，性能较高。
+
+代码实现：
+
+- 生产者发送消息
+
+```java
+@ApiOperation("发送单向普通消息")
+@GetMapping("/one-way")
+public String sendOneWayMessage() {
+    Message<String> message = MessageBuilder.withPayload("send one-way message").build();
+    log.info("生产者发送消息: {}", message);
+    this.rocketMQTemplate.sendOneWay((RocketMQConstant.TOPIC_PREFIX + "starter:one-way"), message);
+    return "sent message";
+}
+```
 
 ## RocketMQ 消息消费模式
 
@@ -42,17 +120,133 @@ tag:
 
 默认的模式，消费进度存储在 Broker 中，可靠性更高。
 
+代码实现：
+
+- 定义两个集群模式的消费者，设置消费模式可以通过 `@RocketMQMessageListener` 注解中的 `messageModel` 方法设置。
+
+```java
+// 集群模式消费者1
+@Slf4j
+@Component
+@RocketMQMessageListener(
+        consumerGroup = (RocketMQConstant.CONSUMER_GROUP_PREFIX + "starter-clustering"),
+        topic = (RocketMQConstant.TOPIC_PREFIX + "starter-clustering"),
+        // 设置消费模式为集群消费
+        messageModel = MessageModel.CLUSTERING
+)
+public class ClusteringConsumerOne implements RocketMQListener<String>, RocketMQPushConsumerLifecycleListener {
+    @Override
+    public void onMessage(String message) {
+        log.info("ClusteringConsumerOne接收到消息, 消息内容: {}", message);
+    }
+
+    @Override
+    public void prepareStart(DefaultMQPushConsumer consumer) {
+        consumer.setInstanceName("clustering-consumer-one");
+    }
+}
+
+// 集群模式消费者2
+@Slf4j
+@Component
+@RocketMQMessageListener(
+        consumerGroup = (RocketMQConstant.CONSUMER_GROUP_PREFIX + "starter-clustering"),
+        topic = (RocketMQConstant.TOPIC_PREFIX + "starter-clustering"),
+        // 设置消费模式为集群消费
+        messageModel = MessageModel.CLUSTERING
+)
+public class ClusteringConsumerTwo implements RocketMQListener<String>, RocketMQPushConsumerLifecycleListener {
+    @Override
+    public void onMessage(String message) {
+        log.info("ClusteringConsumerTwo接收到消息, 消息内容: {}", message);
+    }
+
+    @Override
+    public void prepareStart(DefaultMQPushConsumer consumer) {
+        consumer.setInstanceName("clustering-consumer-two");
+    }
+}
+```
+
+由于需要同一个消费者组定义多个消费者，RocketMQ 不能自动区分这些消费者，所以消费者需要实现 `RocketMQPushConsumerLifecycleListener` 接口，来为消费者设置用于区分的名字。
+
+- 消费结果
+
+
+
 ### 广播消费模式
 
 如果一个消费者组内有多个消费者，它们订阅同一个 Topic 的消息，当队列中有消息到来时，这些消息都会被**投放到每一个消费者实例上**。
 
 这种消费模式下，消费进度不会保存到 Broker 中，而是持久化到消费者实例中，因为消息被复制成多分给多个消费者进行消费了，消费进度只和消费者实例相关。
 
-消息重复消费的风险会变大，不支持顺序消费，无法重置消费位点，当消费者客户端重启，会丢失重启时间段内传到 RocketMQ 的消息，一般情况不推荐使用。
+消息重复消费的风险会变大，不支持顺序消费，无法重置消费位点，当消费者客户端重启，会丢失重启时间段内传到 RocketMQ 的消息，**一般情况不推荐使用**。
+
+代码实现：
+
+- 定义两个广播模式的消费者，和集群模式的定义唯一的区别就是消费模式的区别。
+
+```java
+/**
+ * 广播消费消费者 1
+ */
+@Slf4j
+@Component
+@RocketMQMessageListener(
+        consumerGroup = (RocketMQConstant.CONSUMER_GROUP_PREFIX + "starter-broadcast"),
+        topic = (RocketMQConstant.TOPIC_PREFIX + "starter-broadcast"),
+        // 设置消费模式为广播消费
+        messageModel = MessageModel.BROADCASTING
+)
+public class BroadcastConsumerOne implements RocketMQListener<String>, RocketMQPushConsumerLifecycleListener {
+    @Override
+    public void onMessage(String message) {
+        log.info("BroadcastConsumerOne接收到消息, 消息内容: {}", message);
+    }
+
+    @Override
+    public void prepareStart(DefaultMQPushConsumer consumer) {
+        consumer.setInstanceName("broadcast-consumer-one");
+    }
+}
+
+/**
+ * 广播消费消费者 2
+ */
+@Slf4j
+@Component
+@RocketMQMessageListener(
+        consumerGroup = (RocketMQConstant.CONSUMER_GROUP_PREFIX + "starter-broadcast"),
+        topic = (RocketMQConstant.TOPIC_PREFIX + "starter-broadcast"),
+        // 设置消费模式为广播消费
+        messageModel = MessageModel.BROADCASTING
+)
+public class BroadcastConsumerTwo implements RocketMQListener<String>, RocketMQPushConsumerLifecycleListener {
+    @Override
+    public void onMessage(String message) {
+        log.info("BroadcastConsumerTwo接收到消息, 消息内容: {}", message);
+    }
+
+    @Override
+    public void prepareStart(DefaultMQPushConsumer consumer) {
+        consumer.setInstanceName("broadcast-consumer-two");
+    }
+}
+```
+
+- 消费结果
+
+
 
 ## RocketMQ 顺序消息
 
 生产者按照顺序把消息发送到 RocketMQ，然后 RocketMQ 按照投递消息的顺序把消息投递给消费者消费。
+
+### 顺序消费消息
+
+一般消费者消费消息时会实现 `MessageListenerConcurrently` 接口，消费者可以并发地消费消息，提高消费效率。
+
+但是当消费者需要按顺序消费消息则需要实现 `MessageListenerOrderly` 接口。并且当消息消费异常时，返回的状态是 `SUSPEND_CURRENT_QUEUE_A_MOMENT` 代表等待一会之后再消费，不能放到重试队列，因为会导致顺序性被破坏。
 
 ### 生产全局顺序消息
 
@@ -64,18 +258,12 @@ tag:
 
 对消息指定发送到一个具体的 Queue，这些消息在局部上是有序的，正如购买手机、衣服时，两种商品都需要经过下订单、扣库存、付款的流程，商品的这些流程是有顺序要求的，但是两种商品之间的流程是没有关联的，所以可以处理成局部有序的。
 
-### 顺序消费消息
-
-一般消费者消费消息时会实现 `MessageListenerConcurrently` 接口，消费者可以并发地消费消息，提高消费效率。
-
-但是当消费者需要按顺序消费消息则需要实现 `MessageListenerOrderly` 接口。并且当消息消费异常时，返回的状态是 `SUSPEND_CURRENT_QUEUE_A_MOMENT` 代表等待一会之后再消费，不能放到重试队列，因为会导致顺序性被破坏。
-
 ## RocketMQ 延时消息
 
 生产者把消息发送给 RocketMQ 时，不希望 RocketMQ 立马把消息投递到消费者，而是延迟一定的时间，再投递，这种消息就是延时消息。
 
 社区版的 RocketMQ 目前是支持了 18 个固定的延时间隔。
-延时等级定义在RocketMQ服务端的MessageStoreConfig类中的如下变量中。
+延时等级定义在 RocketMQ 服务端的 MessageStoreConfig 类中的如下变量中。
 
 `private String messageDelayLevel = "1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h";`
 
@@ -103,7 +291,7 @@ SQL 过滤是指使用一些类似 SQL 语句的语法进行过滤 ，如 is nul
 
 ## RocketMQ 事务消息
 
-基于可以发送事务消息这一特性，RocketMQ成为了分布式事务的解决方案之一，RocketMQ 的事务消息适用于所有对数据最终一致性有强需求的场景。
+基于可以发送事务消息这一特性，RocketMQ 成为了分布式事务的解决方案之一，RocketMQ 的事务消息适用于所有对数据最终一致性有强需求的场景。
 
 RocketMQ 事务消息有两大核心点：两阶段提交、事务补偿机制。
 
