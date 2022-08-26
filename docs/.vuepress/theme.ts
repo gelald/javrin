@@ -30,7 +30,7 @@ export default hopeTheme({
 
     displayFooter: true,
 
-    pageInfo: ["Author", "Original", "Date", "Category", "Tag", "ReadingTime"],
+    pageInfo: ["Author", "Original", "Date", "Category", "Tag", "Word", "ReadingTime"],
 
     blog: {
         description: "一个Java后台开发者",
