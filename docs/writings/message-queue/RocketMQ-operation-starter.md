@@ -173,7 +173,9 @@ public class ClusteringConsumerTwo implements RocketMQListener<String>, RocketMQ
 
 - 消费结果
 
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220826155314.png)
 
+从消费结果可以看到两个消费者共同平了这些消息。
 
 ### 广播消费模式
 
@@ -237,7 +239,9 @@ public class BroadcastConsumerTwo implements RocketMQListener<String>, RocketMQP
 
 - 消费结果
 
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220826163008.png)
 
+从消费结果看，两个消费者都消费了相同数量的消息。
 
 ## RocketMQ 顺序消息
 
@@ -245,19 +249,64 @@ public class BroadcastConsumerTwo implements RocketMQListener<String>, RocketMQP
 
 ### 顺序消费消息
 
-一般消费者消费消息时会实现 `MessageListenerConcurrently` 接口，消费者可以并发地消费消息，提高消费效率。
+使用rocketmq-spring-boot-starter 时想要设置消费者顺序消费很简单，`RocketMQMessageListener` 注解中 `consumeMode`方法是用于指定消费模式的
 
-但是当消费者需要按顺序消费消息则需要实现 `MessageListenerOrderly` 接口。并且当消息消费异常时，返回的状态是 `SUSPEND_CURRENT_QUEUE_A_MOMENT` 代表等待一会之后再消费，不能放到重试队列，因为会导致顺序性被破坏。
+代码实现，以全局有序消费者为例：
+
+```java
+@Slf4j
+@Component
+@RocketMQMessageListener(
+        consumerGroup = (RocketMQConstant.CONSUMER_GROUP_PREFIX + "starter-global-order"),
+        topic = (RocketMQConstant.TOPIC_PREFIX + "starter-global-order"),
+        consumeMode = ConsumeMode.ORDERLY
+)
+public class GlobalConsumer implements RocketMQListener<String> {
+    @Override
+    public void onMessage(String message) {
+        log.info("GlobalConsumer接收到消息, 消息内容: {}", message);
+    }
+}
+```
 
 ### 生产全局顺序消息
 
 只创建一个 Queue，生产者把所有消息都发送到这个 Queue 上，此时所有消息都只能按照先进先出的特点消费。
 
-这种方式导致整个业务变得不灵活，而且效率也不高，不推荐使用。
+这种方式导致整个业务变得不灵活，而且效率也不高，**不推荐使用**。
+
+代码实现：
+
+- 发送消息
+
+在发送消息时，传入一个参数作为选择队列的hashKey，就可以实现指定一个队列的目的
+```java
+@ApiOperation("测试全局有序消息")
+@GetMapping("/global-order")
+public String sendGlobalOrderMessage() {
+    for (int i = 0; i < 10; i++) {
+        String messageBody = "测试全局有序消息第" + (i + 1) + "条消息";
+        Message<String> message = MessageBuilder.withPayload(messageBody).build();
+        log.info("生产者发送消息: {}", message);
+        // 传入hashKey来指定具体的一个队列
+        this.rocketMQTemplate.sendOneWayOrderly((RocketMQConstant.TOPIC_PREFIX + "starter-global-order"), message, "123");
+    }
+    return "sent message";
+}
+```
+- 消费结果
 
 ### 生产局部顺序消息
 
 对消息指定发送到一个具体的 Queue，这些消息在局部上是有序的，正如购买手机、衣服时，两种商品都需要经过下订单、扣库存、付款的流程，商品的这些流程是有顺序要求的，但是两种商品之间的流程是没有关联的，所以可以处理成局部有序的。
+
+**推荐使用这种方式**，分区有序的消费方式不会降低太多消费性能。
+
+代码实现：
+
+- 发送消息
+
+如果消费者方定义了两个队列
 
 ## RocketMQ 延时消息
 
