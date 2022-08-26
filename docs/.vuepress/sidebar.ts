@@ -46,7 +46,28 @@ export default sidebar([
 				icon: "note",
 				collapsable: true,
 				prefix: "message-queue/",
-				children: "structure"
+				children: [
+					{
+						text: "RocketMQ入门",
+						link: "RocketMQ-start",
+						icon: "article"
+					},
+					{
+						text: "RocketMQ操作落地(rocketmq-client方式)",
+						link: "RocketMQ-operation-client",
+						icon: "article"
+					},
+					{
+						text: "RocketMQ操作落地(rocketmq-starter方式)",
+						link: "RocketMQ-operation-starter",
+						icon: "article"
+					},
+					{
+						text: "RocketMQ原理分析",
+						link: "RocketMQ-theory",
+						icon: "article"
+					}
+				]
 			},
 			{
 				text: "分布式理论",
