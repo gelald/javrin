@@ -21,3 +21,10 @@ tag:
 - 多master模式：可以创建跨越多个broker的Topic，如果一个Topic有8个队列
 
 ### 刷盘与主从同步
+
+## 顺序消费和并发消费的区别
+### MessageListenerOrderly 和只设置一个线程的 MessageListenerConcurrently 的区别
+
+## 事务消息原理
+
+## 延时消息原理
