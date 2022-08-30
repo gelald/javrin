@@ -25,7 +25,11 @@ tag:
 
 生产者向 RocketMQ 发送一条消息，RocketMQ 返回生产者其发送结果，可用于判断是否发送成功。
 
-代码实现：
+#### 使用场景
+
+对消息可靠程度要求比较高、需要有是否发送成功的应答的场景。比如：重要的消息通知、通信通知等。
+
+#### 代码实现
 
 >以下是核心代码片段，详情可以查看 GitHub 上的源码：[rocketmq-learning](https://github.com/gelald/rocketmq-learning)，如果觉得对你有帮助，希望可以给我个小星星鼓励鼓励噢~
 
@@ -120,9 +124,13 @@ public class DefaultListener implements MessageListenerConcurrently {
 
 ### 普通消息异步发送
 
-如果发送的消息太大或者业务对等待发送结果的时间较为敏感，可以采用异步发送的方式，RocketMQ 将会在成功接收到消息后或接收异常时回调生产者的接口，通知生产者本次消息的发送状态。
+RocketMQ 将会在成功接收到消息后或接收异常时开启一个异步线程回调生产者的接口，通知生产者本次消息的发送状态。
 
-代码实现：
+#### 使用场景
+
+一般对响应时间敏感的业务场景都合适。适合发送的消息太大或者业务对等待发送结果的时间较为敏感。
+
+#### 代码实现
 
 > 和普通消息同步发送的区别在于发送时调用的方法，其他代码都一致。
 ```java
@@ -147,9 +155,13 @@ public String sendOrdinaryMessageAsynchronously() throws RemotingException, Inte
 
 ### 普通消息单向发送
 
-如果生产者对本次发送的消息的到达状态不关心，如日志采集，那么可以采用单向发送的方式，把消息发送后就完成本次操作，性能较高。
+把消息发送后就完成本次操作，性能较高。
 
-代码实现：
+#### 使用场景
+
+适合不需要关心消息发送的的到达状态的场景，如日志采集等。
+
+#### 代码实现
 
 > 和普通消息同步发送的区别在于发送时调用的方法，其他代码都一致。
 ```java
@@ -170,7 +182,7 @@ public String sendOneWayMessage() throws RemotingException, InterruptedException
 
 默认的模式，消费进度存储在 Broker 中，可靠性更高。
 
-代码实现：
+#### 代码实现
 
 - 定义两个集群模式的消费者
 
@@ -228,7 +240,7 @@ public DefaultMQPushConsumer clusteringMQPushConsumerTwo(MessageListenerConcurre
 
 消息重复消费的风险会变大，不支持顺序消费，无法重置消费位点，当消费者客户端重启，会丢失重启时间段内传到 RocketMQ 的消息，**一般情况不推荐使用**。
 
-代码实现：
+#### 代码实现
 
 - 定义两个广播模式的消费者，和集群模式的定义唯一的区别就是消费模式的区别。
 
@@ -279,6 +291,10 @@ public DefaultMQPushConsumer broadcastMQPushConsumerTwo(MessageListenerConcurren
 ## RocketMQ 顺序消息
 
 生产者按照顺序把消息发送到 RocketMQ，然后 RocketMQ 按照投递消息的顺序把消息投递给消费者消费。
+
+### 使用场景
+
+适合逻辑上具有先后次序的业务场景。比如：先下单后支付等。
 
 ### 顺序消费消息
 
@@ -331,11 +347,11 @@ public class GlobalOrderListener implements MessageListenerOrderly {
 
 ### 生产全局顺序消息
 
-只创建一个 Queue，生产者把所有消息都发送到这个 Queue 上，此时所有消息都只能按照先进先出的特点消费。
+只创建一个 Queue，生产者把所有消息都发送到这个 Queue 上，此时所有消息都只能按照先进先出的特点消费。而且一个Queue只能由一个消费者来订阅，所以也只能有一个消费者来消费消息，此时消息中间件的存在意义很低。
 
 这种方式导致整个业务变得不灵活，而且效率也不高，**不推荐使用**。
 
-代码实现：
+#### 代码实现
 
 - 生产者定义
 
@@ -379,7 +395,7 @@ public String sendGlobalOrderMessage() throws RemotingException, InterruptedExce
 
 推荐使用这种方式，分区有序的消费方式不会降低太多消费性能。
 
-代码实现：
+#### 代码实现
 
 - 生产者定义
 
@@ -481,7 +497,7 @@ public String sendPartitionedOrderMessage() throws RemotingException, Interrupte
 
 电商交易系统的订单超时未支付，自动取消订单。下订单时锁定库存，如果 30 分钟后这个消息投递给了下游的消费服务，消费者服务会去检查这个订单的状态，如果支付成功，则忽略不处理；如果订单依然是未支付，那么取消订单，释放库存等。
 
-代码实现：
+### 代码实现
 
 > 生产者、消费者定义和发送普通消息一致，只是调用的方法有区别
 
@@ -509,7 +525,7 @@ public String sendDelayMessage() throws RemotingException, InterruptedException,
 
 但是批量消息也有限制，一次发送的组装后的消息不能超过 4MB，所以需要按数量打包，比如每 100 条打包成一份就先把这 100 条消息批量发送了。
 
-代码实现：
+### 代码实现
 
 > 生产者、消费者定义和发送普通消息一致，只是调用的方法有区别
 
@@ -549,7 +565,7 @@ RocketMQ 过滤消息是指消费者通过一定的方式筛选自己需要的�
 
 生产者发送消息时传入 Tag，消费者订阅消息时，指定订阅某些 Tag。这种方式使用起来比较容易，效率高，适用于简单过滤的场景。比如只订阅手机类型、衣服类型的订单消息。
 
-代码实现：
+#### 代码实现
 
 - 消费者定义，监听器逻辑和普通消息的监听器大同小异，不罗列出来了
 
@@ -669,17 +685,17 @@ public String sqlFilterMessage() throws MQBrokerException, RemotingException, In
 
 基于可以发送事务消息这一特性，RocketMQ 成为了分布式事务的解决方案之一，RocketMQ 的事务消息适用于所有对数据最终一致性有强需求的场景。
 
-RocketMQ 事务消息有两大核心点：两阶段提交、事务补偿机制。
+### 核心点
 
-### 两阶段提交
+- 两阶段提交：第一阶段生产者发送 Half 消息到 Broker 来测试 RocketMQ 是否正常；Broker 只有在收到第二阶段的消息时，消费者才能对消息进行消费。
+- 事务补偿机制：当 Broker 收到状态为 `unknown` 的消息或者由于网络波动、生产者宕机导致长时间没有收到第二阶段的提交时，Broker 会调用生产者接口来回查本次事务的状态。
 
-第一阶段的提交 Half 消息是对消费者不可见的，Broker 只有收到第二阶段的消息，消费者才能拉取消息进行消费。
+### 使用场景
 
-### 事务补偿机制
+RocketMQ 的事务消息适用于所有对数据最终一致性有强需求的场景。
 
-当 Broker 收到状态为 `UNKNOWN` 的消息时，或者由于网络波动、生产者宕机导致长时间没有收到第二阶段提交，Broker 会调用生产者的接口查询本地事务执行情况。
 
-代码实现：
+### 代码实现
 
 > 由于消费者及其监听器逻辑与普通消息区别不大，所以代码重点展示生产者代码及其结果
 
