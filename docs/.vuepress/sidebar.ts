@@ -71,6 +71,11 @@ export default sidebar([
 						text: "RocketMQ原理分析(下)",
 						link: "RocketMQ-theory-2",
 						icon: "article"
+					},
+					{
+						text: "RocketMQ中Broker配置详解",
+						link: "RocketMQ-broker-config",
+						icon: "article"
 					}
 				]
 			},
