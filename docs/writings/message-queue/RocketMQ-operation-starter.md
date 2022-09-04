@@ -1,5 +1,5 @@
 ---
-title: RocketMQ 操作落地 (rocketmq-starter 方式）
+title: RocketMQ 操作落地 (rocketmq-starter 方式)
 icon: article
 category:
 
@@ -14,7 +14,7 @@ tag:
 
 ---
 
-# RocketMQ 操作落地 (rocketmq-starter 方式）
+# RocketMQ 操作落地 (rocketmq-starter 方式)
 >本文使用 rocketmq-spring-boot-starter 的集成方式展示 RocketMQ 的常见用法
 >
 >rocketmq-spring-boot-starter 和 rocketmq-client 方式相比，框架的集成度很高，使用起来非常方便。

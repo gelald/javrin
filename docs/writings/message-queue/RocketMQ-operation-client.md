@@ -1,5 +1,5 @@
 ---
-title: RocketMQ 操作落地 (rocketmq-client 方式）
+title: RocketMQ 操作落地 (rocketmq-client 方式)
 icon: article
 category:
 
@@ -14,7 +14,7 @@ tag:
 
 ---
 
-# RocketMQ 操作落地 (rocketmq-client 方式）
+# RocketMQ 操作落地 (rocketmq-client 方式)
 >本文使用 rocketmq-client 的集成方式展示 RocketMQ 的常见用法
 >
 >源码地址：[rocketmq-learning](https://github.com/gelald/rocketmq-learning)
