@@ -50,7 +50,7 @@ RocketMQ 不保证消息不重复，如果要严格确保不重复，需要在�
 
 RocketMQ 的顺序消息包含两个层面，有顺序地生产消息以及有顺序地消费消息。有些业务场景下必须保证顺序，比如订单的生成、付款、发货，这个顺序是必须保证的。
 
-RocketMQ 顺序消息可以分为全局有序以及分区有序，全局有序与分区有序的区别与落地在这篇文章中也适当介绍了：[RocketMQ 操作落地 (rocketmq-client 方式）](/docs/writings/message-queue/RocketMQ-operation-client.md)。
+RocketMQ 顺序消息可以分为全局有序以及分区有序，全局有序与分区有序的区别与落地在这篇文章中也适当介绍了：[RocketMQ 操作落地 (rocketmq-client 方式)](/docs/writings/message-queue/RocketMQ-operation-client.md)。
 
 如果要严格控制消息的顺序，那么生产者、queue、消费者最好都是一对一的关系，把整个流程中并发的部分全都消除了，各部分都设计成单线程工作。但是这样的设计，完全牺牲了 RocketMQ 高并发高吞吐的特性，也容易成为系统性能瓶颈。
 
