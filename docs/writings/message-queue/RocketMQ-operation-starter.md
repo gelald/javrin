@@ -73,7 +73,7 @@ public class DefaultConsumer implements RocketMQListener<MessageExt> {
 
 如果发送的消息太大或者业务对等待发送结果的时间较为敏感，可以采用异步发送的方式，RocketMQ 将会在成功接收到消息后或接收异常时回调生产者的接口，通知生产者本次消息的发送状态。
 
-代码实现：
+#### 代码实现
 
 - 生产者发送消息
 
@@ -102,7 +102,7 @@ public String sendMessageAsynchronously() {
 
 如果生产者对本次发送的消息的到达状态不关心，如日志采集，那么可以采用单向发送的方式，把消息发送后就完成本次操作，性能较高。
 
-代码实现：
+#### 代码实现
 
 - 生产者发送消息
 
@@ -125,7 +125,7 @@ public String sendOneWayMessage() {
 
 默认的模式，消费进度存储在 Broker 中，可靠性更高。
 
-代码实现：
+#### 代码实现
 
 - 定义两个集群模式的消费者，设置消费模式可以通过 `@RocketMQMessageListener` 注解中的 `messageModel` 方法设置。
 
@@ -189,7 +189,7 @@ public class ClusteringConsumerTwo implements RocketMQListener<String>, RocketMQ
 
 消息重复消费的风险会变大，不支持顺序消费，无法重置消费位点，当消费者客户端重启，会丢失重启时间段内传到 RocketMQ 的消息，**一般情况不推荐使用**。
 
-代码实现：
+#### 代码实现
 
 - 定义两个广播模式的消费者，和集群模式的定义唯一的区别就是消费模式的区别。
 
@@ -255,7 +255,9 @@ public class BroadcastConsumerTwo implements RocketMQListener<String>, RocketMQP
 
 使用 rocketmq-spring-boot-starter 时想要设置消费者顺序消费很简单，`RocketMQMessageListener` 注解中 `consumeMode`方法是用于指定消费模式的
 
-代码实现，以全局有序消费者为例：
+#### 代码实现
+
+- 以全局有序消费者为例：
 
 ```java
 @Slf4j
@@ -279,7 +281,7 @@ public class GlobalConsumer implements RocketMQListener<String> {
 
 这种方式导致整个业务变得不灵活，而且效率也不高，**不推荐使用**。
 
-代码实现：
+#### 代码实现
 
 - 发送消息
 
@@ -310,7 +312,7 @@ public String sendGlobalOrderMessage() {
 
 **推荐使用这种方式**，分区有序的消费方式不会降低太多消费性能。
 
-代码实现：
+#### 代码实现
 
 - 发送消息，使用两个不同的 hashKey，就能保证本次消息的投递是投递到两个不同的队列中的。
 
@@ -359,7 +361,7 @@ public String sendPartitionedOrderMessage() {
 
 电商交易系统的订单超时未支付，自动取消订单。下订单时锁定库存，如果 30 分钟后这个消息投递给了下游的消费服务，消费者服务会去检查这个订单的状态，如果支付成功，则忽略不处理；如果订单依然是未支付，那么取消订单，释放库存等。
 
-代码实现：
+### 代码实现
 
 - 发送消息，在发送时传入延时等级即可实现延时消息。
 
@@ -379,9 +381,9 @@ public SendResult sendDelayMessage() {
 
 当有大批量的消息需要发送时，生产者还是一条一条地发，会出现系统瓶颈，可以把这些消息放到一个集合里面，一次性发送一个集合所有消息。
 
-但是批量消息也有大小上的限制，一次发送的组装后的消息不能超过消息最大限制（默认是 4MB)，所以组装消息时需要注意，当超出限制时需要把消息列表分割后再发送。
+但是批量消息也有大小上的限制，一次发送的组装后的消息不能超过消息最大限制(默认是 4MB)，所以组装消息时需要注意，当超出限制时需要把消息列表分割后再发送。
 
-代码实现：
+### 代码实现
 
 - 定义消息分割器
 
@@ -491,7 +493,7 @@ RocketMQ 过滤消息是指消费者通过一定的方式筛选自己需要的�
 
 生产者发送消息时传入 Tag，消费者订阅消息时，指定订阅某些 Tag。这种方式使用起来比较容易，效率高，适用于简单过滤的场景。比如只订阅手机类型、衣服类型的订单消息。
 
-代码实现：
+#### 代码实现
 
 - 发送消息，为不同消息带上不同的 tag，用于消费者方过滤
 
@@ -555,7 +557,7 @@ For more information, please visit the url, http://rocketmq.apache.org/docs/faq/
     ...
 ```
 
-代码实现：
+#### 代码实现
 
 - 发送消息
 
@@ -623,7 +625,7 @@ RocketMQ 事务消息有两大核心点：两阶段提交、事务补偿机制�
 
 当 Broker 收到状态为 `UNKNOWN` 的消息时，或者由于网络波动、生产者宕机导致长时间没有收到第二阶段提交，Broker 会调用生产者的接口查询本地事务执行情况。
 
-代码实现：
+### 代码实现
 
 > 消费者大同小异，重点展示生产者方代码
 

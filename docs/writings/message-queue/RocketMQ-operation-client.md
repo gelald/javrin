@@ -523,35 +523,100 @@ public String sendDelayMessage() throws RemotingException, InterruptedException,
 
 当有大批量的消息需要发送时，生产者还是一条一条地发，会出现系统瓶颈，可以把这些消息放到一个集合里面，一次性发送一个集合所有消息。
 
-但是批量消息也有限制，一次发送的组装后的消息不能超过 4MB，所以需要按数量打包，比如每 100 条打包成一份就先把这 100 条消息批量发送了。
+但是批量消息也有大小上的限制，一次发送的组装后的消息不能超过消息最大限制(默认是 4MB)，所以组装消息时需要注意，当超出限制时需要把消息列表分割后再发送。
 
 ### 代码实现
 
 > 生产者、消费者定义和发送普通消息一致，只是调用的方法有区别
 
-- 发送消息，每 3 条消息组成一批消息发送
+- 定义消息分隔器
+
+```java
+public class MessagesSplitter implements Iterator<List<Message>> {
+    private final int MAX_SIZE = 1024 * 1024 * 4;
+    private final int LOG_SIZE = 20;
+    private final List<Message> messages;
+    private int currentIndex = 0;
+
+    public MessagesSplitter(List<Message> messages) {
+        this.messages = messages;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return currentIndex < messages.size();
+    }
+
+    @Override
+    public List<Message> next() {
+        int startIndex = getStartIndex();
+        int nextIndex = startIndex;
+        int totalSize = 0;
+        while (nextIndex < messages.size()) {
+            Message message = messages.get(nextIndex);
+            // 计算当前消息的长度
+            int singleMessageSize = calcMessageTotalSize(message);
+            // 只要消息还没超出长度限制就一直往后累计直到达到消息长度限制
+            if (singleMessageSize + totalSize > MAX_SIZE) {
+                break;
+            } else {
+                totalSize += singleMessageSize;
+            }
+            nextIndex++;
+        }
+        // 提取子集合
+        List<Message> subList = messages.subList(startIndex, nextIndex);
+        currentIndex = nextIndex;
+        return subList;
+    }
+
+    // 计算一个消息的尺寸
+    private int calcMessageTotalSize(Message message) {
+        int size = message.getBody().length;
+        Map<String, String> properties = message.getProperties();
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            size += entry.getKey().length();
+            size += entry.getValue().length();
+        }
+        size += LOG_SIZE;
+        return size;
+    }
+
+    // 获取下一个应该取的索引
+    private int getStartIndex() {
+        // 先获取当前集合第一个消息的长度
+        Message currentMessage = messages.get(currentIndex);
+        int currentMessageSize = calcMessageTotalSize(currentMessage);
+        while (currentMessageSize > MAX_SIZE) {
+            // 如果这个消息的长度本就大于消息长度限制
+            // 那么就取下一个消息，直到消息长度小于长度限制
+            currentIndex += 1;
+            currentMessage = messages.get(currentIndex);
+            currentMessageSize = calcMessageTotalSize(currentMessage);
+        }
+        return currentIndex;
+    }
+}
+```
+
+- 发送消息，使用分割器每次获取一批大小合适的消息
 
 ```java
 @ApiOperation("批量发送消息")
 @GetMapping("/batch-message")
 public String sendBatchMessage() throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
-    List<Message> messages = new ArrayList<>(3);
+    List<Message> messages = new ArrayList<>();
     for (int i = 1; i <= 20; i++) {
         String messageBody = "测试批量发送消息第" + i + "条消息";
         Message message = new Message((RocketMQConstant.TOPIC_PREFIX + "client"), "batch", messageBody.getBytes(StandardCharsets.UTF_8));
         messages.add(message);
-        // 3 条为一批消息
-        if (messages.size() == 3) {
-            log.info("生产者发送消息");
-            this.defaultMQProducer.send(messages);
-            // 发送完消息需要清空集合
-            messages.clear();
-        }
     }
-    if (!CollectionUtils.isEmpty(messages)) {
-        // 如果遍历结束后集合还有内容，那么也需要把剩下的消息发送
-        log.info("生产者发送消息");
-        this.defaultMQProducer.send(messages);
+    // 每次获取一批不超出消息大小限制的消息来发送
+    MessagesSplitter messagesSplitter = new MessagesSplitter(messages);
+    while (messagesSplitter.hasNext()) {
+        List<Message> subMessageList = messagesSplitter.next();
+        SendResult sendResult = this.defaultMQProducer.send(subMessageList);
+        log.info("消息发送状态: {}", sendResult);
     }
     return "send complete";
 }
