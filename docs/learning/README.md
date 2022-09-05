@@ -15,7 +15,7 @@ category:
 
 ## 学习项目包括
 
-- RocketMQ-Learning
+- [RocketMQ-Learning](./RocketMQ-learning.md)
 
 - Redis-Learning
 
