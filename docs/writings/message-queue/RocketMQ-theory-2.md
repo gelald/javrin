@@ -96,11 +96,11 @@ CommitLog 文件存储消息，数据量大，虽然写入是顺序写不耗费�
 
 ### 零拷贝
 
-另外，RocketMQ 主要通过 MappedByteBuffer 对文件进行读写操作。其中，利用了 NIO 中的 FileChannel 模型将磁盘上的物理文件直接映射到用户态的内存地址中，将对文件的操作转化为直接对内存地址进行操作，从而极大地提高了文件的读写效率（正因为需要使用内存映射机制，故RocketMQ的文件存储都使用定长结构来存储，方便一次将整个文件映射至内存）。
+另外，RocketMQ 主要通过 MappedByteBuffer 对文件进行读写操作。其中，利用了 NIO 中的 FileChannel 模型将磁盘上的物理文件直接映射到用户态的内存地址中，将对文件的操作转化为直接对内存地址进行操作，从而极大地提高了文件的读写效率（正因为需要使用内存映射机制，故 RocketMQ 的文件存储都使用定长结构来存储，方便一次将整个文件映射至内存）。
 
 ## RocketMQ 消费者如何拉取消息
 
-消费者会对 Broker 发起一个长轮询，如果对应的 Message Queue 没有数据，Broker 不会立即返回，而是把 PullRequest hold住，等待有消息的时候或者长轮询的阻塞时间到了，就再重新处理该 Message Queue 上所有的 PullRequest。
+消费者会对 Broker 发起一个长轮询，如果对应的 Message Queue 没有数据，Broker 不会立即返回，而是把 PullRequest hold 住，等待有消息的时候或者长轮询的阻塞时间到了，就再重新处理该 Message Queue 上所有的 PullRequest。
 
 ```java
 //PullMessageProcessor#processRequest
@@ -203,6 +203,127 @@ RocketMQ 负载均衡都在客户端完成，具体可以分为生产者和消�
 
 ### 生产者的负载均衡
 
+生产者的负载均衡主要体现在发送消息时进行队列选择的过程。
+
+生产者客户端发送消息最终会调用 `DefaultMQProducerImpl#sendDefaultImpl` 方法，其中发送时会进行队列选择：
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220907160241.png)
+
+在 `TopicPublishInfo` 中使用索引递增取模方式来确定使用的队列：
+
+```java
+public MessageQueue selectOneMessageQueue() {
+    //索引递增，如果原本的值是 null 值，那么会随机选择一个值
+    int index = this.sendWhichQueue.incrementAndGet();
+    //模运算
+    int pos = Math.abs(index) % this.messageQueueList.size();
+    if (pos < 0)
+        pos = 0;
+    return this.messageQueueList.get(pos);
+}
+```
+
+其中在 `MQFaultStrategy` 的 `selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName)` 方法中涉及到一个参数 `sendLatencyFaultEnable`，这个参数主要的用途是如果之前有发送失败的，需要做一定的策略来规避。比如上次请求的延迟超过 500ms，那就 3000ms 内不使用。如果这个设置关闭了，那么直接使用索引递增取模的方式来确定使用的队列。**`latencyFaultTolerance` 机制是实现消息发送高可用的核心关键所在**。
+
+```java
+public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
+    //规避策略是否打开
+    if (this.sendLatencyFaultEnable) {
+        try {
+            int index = tpInfo.getSendWhichQueue().incrementAndGet();
+            for (int i = 0; i < tpInfo.getMessageQueueList().size(); i++) {
+                int pos = Math.abs(index++) % tpInfo.getMessageQueueList().size();
+                if (pos < 0)
+                    pos = 0;
+                MessageQueue mq = tpInfo.getMessageQueueList().get(pos);
+                //检查这个队列是否需要退避/不使用
+                if (latencyFaultTolerance.isAvailable(mq.getBrokerName()))
+                    return mq;
+            }
+
+            //如果所有队列不不满足使用方式，还有最后的方案
+            final String notBestBroker = latencyFaultTolerance.pickOneAtLeast();
+            int writeQueueNums = tpInfo.getQueueIdByBroker(notBestBroker);
+            if (writeQueueNums > 0) {
+                final MessageQueue mq = tpInfo.selectOneMessageQueue();
+                if (notBestBroker != null) {
+                    mq.setBrokerName(notBestBroker);
+                    mq.setQueueId(tpInfo.getSendWhichQueue().incrementAndGet() % writeQueueNums);
+                }
+                return mq;
+            } else {
+                latencyFaultTolerance.remove(notBestBroker);
+            }
+        } catch (Exception e) {
+            log.error("Error occurred when selecting message queue", e);
+        }
+
+        return tpInfo.selectOneMessageQueue();
+    }
+    //规避策略关闭则直接使用索引递增取模的方式
+    return tpInfo.selectOneMessageQueue(lastBrokerName);
+}
+```
+
+### 消费者负载均衡
+
+消费者负载均衡主要体现在从消息队列中获取消息。因为一个 Topic 下可以绑定多个 Message Queue，这些 Message Queue 会分配给一个消费者组来消费。（消费者消费模式有有 Push 模式和 Pull 模式，其实都是基于 Pull 模式来从服务器拉取消息）
+
+消费者端发送心跳包为 Broker 提供元数据信息，以便后续做消费者端的负载均衡。
+
+`ClientManageProcessor` 接收到心跳包后会注册客户端：
+```java
+public RemotingCommand heartBeat(ChannelHandlerContext ctx, RemotingCommand request) {
+    RemotingCommand response = RemotingCommand.createResponseCommand(null);
+    HeartbeatData heartbeatData = HeartbeatData.decode(request.getBody(), HeartbeatData.class);
+    ClientChannelInfo clientChannelInfo = new ClientChannelInfo(
+        ctx.channel(),
+        heartbeatData.getClientID(),
+        request.getLanguage(),
+        request.getVersion()
+    );
+
+    for (ConsumerData data : heartbeatData.getConsumerDataSet()) {
+        ...
+        //注册消费者
+        boolean changed = this.brokerController.getConsumerManager().registerConsumer(
+            data.getGroupName(),
+            clientChannelInfo,
+            data.getConsumeType(),
+            data.getMessageModel(),
+            data.getConsumeFromWhere(),
+            data.getSubscriptionDataSet(),
+            isNotifyConsumerIdsChangedEnable
+        );
+        ...
+    }
+
+    for (ProducerData data : heartbeatData.getProducerDataSet()) {
+        //注册生产者
+        this.brokerController.getProducerManager().registerProducer(data.getGroupName(),
+            clientChannelInfo);
+    }
+    return response;
+}
+```
+
+`ConsumerManager` 收到注册请求时，一方面会把消费者客户端维护到 `consumerTable` 中，另一方面会把封装后的客户端网络通道信息维护到 `channelInfoTable` 中：
+```java
+public boolean registerConsumer(final String group, final ClientChannelInfo clientChannelInfo,
+    ConsumeType consumeType, MessageModel messageModel, ConsumeFromWhere consumeFromWhere,
+    final Set<SubscriptionData> subList, boolean isNotifyConsumerIdsChangedEnable) {
+
+    //如果本次请求注册的客户端之前没有保存过的话就保存起来，如果保存过只更新网络通道信息
+    ConsumerGroupInfo consumerGroupInfo = this.consumerTable.get(group);
+    if (null == consumerGroupInfo) {
+        ConsumerGroupInfo tmp = new ConsumerGroupInfo(group, consumeType, messageModel, consumeFromWhere);
+        ConsumerGroupInfo prev = this.consumerTable.putIfAbsent(group, tmp);
+        consumerGroupInfo = prev != null ? prev : tmp;
+    }
+
+    //更新网络通道信息
+    boolean r1 = consumerGroupInfo.updateChannel(clientChannelInfo, consumeType, messageModel, consumeFromWhere);
+```
 
 
 
