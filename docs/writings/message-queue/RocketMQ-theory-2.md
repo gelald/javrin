@@ -172,31 +172,6 @@ protected void checkHoldRequest() {
 }
 ```
 
-## RocketMQ 集群部署同步消息方式
-
-### 异步刷盘和异步复制的区别
-
-## RocketMQ 高可用机制
-
-### 集群部署模式
-- 多 master 模式：可以创建跨越多个 Broker 的 topic，如果一个 topic 有 8 个队列，那么两个 master 节点上会各有 4 个队列，当其中一个节点宕机时，这个 topic 还有 4 个队列可以使用，确保消息的生产和消费还是正常的。
-- 多 master 多 slave 模式：当其中一个 master 节点宕机时，部分还没来得及消费的消息可以从 slave 节点中把还没来得及消费的节点消费掉，确保消息不会丢失。
-  - 同步复制：当消息发送到其中一个 master 节点时，只有消息复制到 slave 节点上，才会给生产者发送消息发送成功的结果，这个复制过程是同步阻塞的。
-  - 异步复制：当消息发送到其中一个 master 节点时，master 节点就会给生产者返回发送确认，并且会启动一个异步线程把消息复制到 slave 节点上。
-
-### 刷盘
-- 同步刷盘：当生产者把消息发送到 Broker 时，Broker 需要把消息持久化到磁盘中才能给生产者返回发送成功的结果。这种做法可靠性高，效率低。
-- 异步刷盘：当生产者把消息发送到 Broker 时，Broker 会返回发送确认给生产者并且启动一个异步线程把消息持久化到磁盘中。这种做法牺牲了可靠性，但是效率高。
-
-### 一般做法
-
-如果要高可用和发送效率同时兼得，一般采取多 master 多 slave 同步复制+异步刷盘的模式。
-
-因为把消息同步复制到从节点上的时间比把消息持久化到磁盘中的时间要短，可以确保消息发送的高并发，同时消息也不会丢失，因为一旦 master 节点宕机了，那么还是能在 slave 节点中找到。
-刷盘需要把数据写入到磁盘中，速度是比较慢的，所以这个过程需要使用异步线程，否则生产者发送消息会变得缓慢。
-
-## RocketMQ 如何保证高可用
-
 ## RocketMQ 如何保证负载均衡
 
 RocketMQ 负载均衡都在客户端完成，具体可以分为生产者和消费者
@@ -205,25 +180,15 @@ RocketMQ 负载均衡都在客户端完成，具体可以分为生产者和消�
 
 生产者的负载均衡主要体现在发送消息时进行队列选择的过程。
 
+- 发送消息
+
 生产者客户端发送消息最终会调用 `DefaultMQProducerImpl#sendDefaultImpl` 方法，其中发送时会进行队列选择：
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220907160241.png)
 
-在 `TopicPublishInfo` 中使用索引递增取模方式来确定使用的队列：
+- 退避策略
 
-```java
-public MessageQueue selectOneMessageQueue() {
-    //索引递增，如果原本的值是 null 值，那么会随机选择一个值
-    int index = this.sendWhichQueue.incrementAndGet();
-    //模运算
-    int pos = Math.abs(index) % this.messageQueueList.size();
-    if (pos < 0)
-        pos = 0;
-    return this.messageQueueList.get(pos);
-}
-```
-
-其中在 `MQFaultStrategy` 的 `selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName)` 方法中涉及到一个参数 `sendLatencyFaultEnable`，这个参数主要的用途是如果之前有发送失败的，需要做一定的策略来规避。比如上次请求的延迟超过 500ms，那就 3000ms 内不使用。如果这个设置关闭了，那么直接使用索引递增取模的方式来确定使用的队列。**`latencyFaultTolerance` 机制是实现消息发送高可用的核心关键所在**。
+其中在 `MQFaultStrategy` 的 `selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName)` 方法中涉及到一个参数 `sendLatencyFaultEnable`，这个参数主要的用途是如果之前有发送失败的，需要做一定的策略来退避，降低发送失败的风险。比如上次请求的延迟超过 500ms，那就 3000ms 内不使用。如果这个设置关闭了，那么直接使用索引递增取模的方式来确定使用的队列。**`latencyFaultTolerance` 机制是实现消息发送高可用的核心关键所在**。
 
 ```java
 public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
@@ -265,9 +230,27 @@ public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final S
 }
 ```
 
+- 选择队列
+
+在 `TopicPublishInfo` 中使用索引递增取模方式来确定使用的队列：
+
+```java
+public MessageQueue selectOneMessageQueue() {
+    //索引递增，如果原本的值是 null 值，那么会随机选择一个值
+    int index = this.sendWhichQueue.incrementAndGet();
+    //模运算
+    int pos = Math.abs(index) % this.messageQueueList.size();
+    if (pos < 0)
+        pos = 0;
+    return this.messageQueueList.get(pos);
+}
+```
+
 ### 消费者负载均衡
 
 消费者负载均衡主要体现在从消息队列中获取消息。因为一个 Topic 下可以绑定多个 Message Queue，这些 Message Queue 会分配给一个消费者组来消费。（消费者消费模式有有 Push 模式和 Pull 模式，其实都是基于 Pull 模式来从服务器拉取消息）
+
+- 发送心跳包
 
 消费者端发送心跳包为 Broker 提供元数据信息，以便后续做消费者端的负载均衡。
 
@@ -307,6 +290,8 @@ public RemotingCommand heartBeat(ChannelHandlerContext ctx, RemotingCommand requ
 }
 ```
 
+- 注册消费者客户端
+
 `ConsumerManager` 收到注册请求时，一方面会把消费者客户端维护到 `consumerTable` 中，另一方面会把封装后的客户端网络通道信息维护到 `channelInfoTable` 中：
 ```java
 public boolean registerConsumer(final String group, final ClientChannelInfo clientChannelInfo,
@@ -325,6 +310,194 @@ public boolean registerConsumer(final String group, final ClientChannelInfo clie
     boolean r1 = consumerGroupInfo.updateChannel(clientChannelInfo, consumeType, messageModel, consumeFromWhere);
 ```
 
+- 负载均衡入口
+
+负载均衡服务 `RebalanceService` 线程启动时会让所有的消费者都调用负载均衡逻辑。
+
+```java
+//RebalanceService
+@Override
+public void run() {
+    log.info(this.getServiceName() + " service started");
+
+    while (!this.isStopped()) {
+        this.waitForRunning(waitInterval);
+        //负载均衡
+        this.mqClientFactory.doRebalance();
+    }
+
+    log.info(this.getServiceName() + " service end");
+}
+```
+
+无论是哪一种类型(Push、Pull)的消费者，最终都会调用负载均衡核心类 `RebalanceService` 的 `rebalanceByTopic()` 方法，这个方法中对广播模式和集群模式分类处理了，广播模式下每一条消息都会发到每一个消费者实例上，我们主要看集群模式下的负载均衡实现。
+
+```java
+//RebalanceService#rebalanceByTopic核心逻辑
+private void rebalanceByTopic(final String topic, final boolean isOrder) {
+    switch (messageModel) {
+        case CLUSTERING: {
+            //根据Topic获取与这个Topic绑定的消息队列
+            Set<MessageQueue> mqSet = this.topicSubscribeInfoTable.get(topic);
+            //根据Topic和消费者组获取所有的消费者Id
+            List<String> cidAll = this.mQClientFactory.findConsumerIdList(topic, consumerGroup);
+            
+            if (mqSet != null && cidAll != null) {
+                List<MessageQueue> mqAll = new ArrayList<MessageQueue>();
+                mqAll.addAll(mqSet);
+                //对所有的消息队列和消费者实例进行排序，保证一个consumerGroup中的所有consumer看到的视图保持一致，确保一个MessageQueue不会被多个消费者分配
+                Collections.sort(mqAll);
+                Collections.sort(cidAll);
+                //消费者消息分配负载均衡策略，默认是使用AllocateMessageQueueAveragely平均分配算法
+                AllocateMessageQueueStrategy strategy = this.allocateMessageQueueStrategy;
+
+                List<MessageQueue> allocateResult = null;
+                try {
+                    //根据这个策略来获取将要使用的消息队列
+                    allocateResult = strategy.allocate(
+                        this.consumerGroup,
+                        this.mQClientFactory.getClientId(),
+                        mqAll,
+                        cidAll);
+                } catch (Throwable e) {
+                    log.error("AllocateMessageQueueStrategy.allocate Exception. allocateMessageQueueStrategyName={}", strategy.getName(),
+                        e);
+                    return;
+                }
+
+                //对比新分配的MessageQueue及consumer当前的负载集合，看看是否有MessageQueue的变化，并依据变化做出不同的处理
+                boolean changed = this.updateProcessQueueTableInRebalance(topic, allocateResultSet, isOrder);
+  
+            }
+            break;
+        }
+    }
+}
+```
+
+分配队列 6 种策略：
+- `AllocateMessageQueueAveragely` ：平均分配策略，将所有 Message Queue 平均地分配每一个消费者实例。这是默认的分配策略。
+  - 如果消费者实例数量和消息队列数量进行除法运算可以除尽，那么各个消费者实例互相平分这些消息队列。
+  - 如果不能除尽，假设余数是n，那么前n个消费者实例就平分这n个消息队列。
+  - 如果消费者实例数量大于消息队列数量，那么位于消费者实例前面的消费者来平分这些消息队列，靠后的消费者实例不进行消费。
+  ```java
+    public List<MessageQueue> allocate(String consumerGroup, String currentCID, List<MessageQueue> mqAll, List<String> cidAll) {
+        List<MessageQueue> result = new ArrayList<MessageQueue>();
+        //查询自己在消费者实例集合中的索引
+        int index = cidAll.indexOf(currentCID);
+        //模运算的意义在于判断两个集合的长度是否能除尽
+        int mod = mqAll.size() % cidAll.size();
+        // 如果消息队列的数量小于消费者实例的个数，那么就一个消费者分配一个队列，直到分配完所有消息队列
+        // 如果mod为0的话 那么所有消费者实例完全平均分配所有的消息队列
+        // 如果mod不为0，那么当前消费者所处的位置小于mod，那就要多负载一个队列，大于mod就消费是平均数
+        int averageSize =
+            mqAll.size() <= cidAll.size() ? 1 : (mod > 0 && index < mod ? mqAll.size() / cidAll.size()
+                + 1 : mqAll.size() / cidAll.size());
+    }
+  ```
+- `AllocateMessageQueueAveragelyCircle` ：环形平均分配策略
+  - 比如有7个消息队列，3个消费者实例，那么1号消费者分配到的消息队列是1、4、7；2号消费者分配到的队列是2、5；3号消费者分配到的队列是3、6。
+- `AllocateMachineRoomNearby` ：就近机房分配
+- `AllocateMessageQueueByMachineRoom` ：指定机房分配
+- `AllocateMessageQueueByConfig` ：配置化分配
+- `AllocateMessageQueueConsistentHash` ：一致性hash分配
+
+```java
+private boolean updateProcessQueueTableInRebalance(final String topic, final Set<MessageQueue> mqSet, final boolean isOrder) {
+    boolean changed = false;
+    //this.processQueueTable ：消费者当前的负载集合
+    //mqSet ：新分配的负载集合
+    Iterator<Entry<MessageQueue, ProcessQueue>> it = this.processQueueTable.entrySet().iterator();
+    //遍历当前负载的MessageQueue集合
+    while (it.hasNext()) {
+        Entry<MessageQueue, ProcessQueue> next = it.next();
+        MessageQueue mq = next.getKey();
+        ProcessQueue pq = next.getValue();
+
+        if (mq.getTopic().equals(topic)) {
+            if (!mqSet.contains(mq)) {
+                //MessageQueue不在新分配的队列集合中，说明这一次负载均衡后这个消息队列被分配给其他消费者实例了
+                //需要暂停消费者在这个消息队列上面的消费，具体的做法是设置dropper为true，意为剔除
+                //并调用removeUnnecessaryMessageQueue保存消费进度并根据返回结果判断是否要从processQueueTable中删除
+                pq.setDropped(true);
+                if (this.removeUnnecessaryMessageQueue(mq, pq)) {
+                    it.remove();
+                    changed = true;
+                    log.info("doRebalance, {}, remove unnecessary mq, {}", consumerGroup, mq);
+                }
+            }
+        }
+    }
+
+    List<PullRequest> pullRequestList = new ArrayList<PullRequest>();
+    //遍历新分配的MessageQueue集合mqSet
+    for (MessageQueue mq : mqSet) {
+        //如果processQueueTable中不包含这个消息队列则说明该消息队列是本次新分配的
+        if (!this.processQueueTable.containsKey(mq)) {
+            //删除内存中该消息队列的消费进度
+            this.removeDirtyOffset(mq);
+            ProcessQueue pq = new ProcessQueue();
+            //从磁盘中读取这个消息队列的消费进度
+            long nextOffset = this.computePullFromWhere(mq);
+            if (nextOffset >= 0) {
+                //把新分配的消息队列放到自己的processQueueTable中
+                ProcessQueue pre = this.processQueueTable.putIfAbsent(mq, pq);
+                if (pre != null) {
+                    log.info("doRebalance, {}, mq already exists, {}", consumerGroup, mq);
+                } else {
+                    //构建PullRequest
+                    log.info("doRebalance, {}, add a new mq, {}", consumerGroup, mq);
+                    PullRequest pullRequest = new PullRequest();
+                    pullRequest.setConsumerGroup(consumerGroup);
+                    //并且把消费进度加入到PullRequest中，计算从哪里开始拉取消息
+                    pullRequest.setNextOffset(nextOffset);
+                    pullRequest.setMessageQueue(mq);
+                    pullRequest.setProcessQueue(pq);
+                    pullRequestList.add(pullRequest);
+                    changed = true;
+                }
+            }
+        }
+    }
+    //调度这个PullRequest，具体做法是
+    //把这个PullRequest放到PullMessageService中的pullRequestQueue并唤醒PullMessageService线程
+    //PullMessageService会将PullRequest发送到Broker，Broker根据请求信息封装好消息数据并将其发送给具体的消费者实例
+    this.dispatchPullRequest(pullRequestList);
+
+    return changed;
+}
+
+```
+
+消息消费队列在同一消费组不同消费者之间的负载均衡，其核心设计理念是：
+
+- 一个消息消费队列在同一时间只允许被同一消费组内的一个消费者消费
+- 一个消息消费者能同时消费多个消息队列
+
+## RocketMQ 集群部署同步消息方式
+
+### 异步刷盘和异步复制的区别
+
+## RocketMQ 高可用机制
+
+### 集群部署模式
+- 多 master 模式：可以创建跨越多个 Broker 的 topic，如果一个 topic 有 8 个队列，那么两个 master 节点上会各有 4 个队列，当其中一个节点宕机时，这个 topic 还有 4 个队列可以使用，确保消息的生产和消费还是正常的。
+- 多 master 多 slave 模式：当其中一个 master 节点宕机时，部分还没来得及消费的消息可以从 slave 节点中把还没来得及消费的节点消费掉，确保消息不会丢失。
+  - 同步复制：当消息发送到其中一个 master 节点时，只有消息复制到 slave 节点上，才会给生产者发送消息发送成功的结果，这个复制过程是同步阻塞的。
+  - 异步复制：当消息发送到其中一个 master 节点时，master 节点就会给生产者返回发送确认，并且会启动一个异步线程把消息复制到 slave 节点上。
+
+### 刷盘
+- 同步刷盘：当生产者把消息发送到 Broker 时，Broker 需要把消息持久化到磁盘中才能给生产者返回发送成功的结果。这种做法可靠性高，效率低。
+- 异步刷盘：当生产者把消息发送到 Broker 时，Broker 会返回发送确认给生产者并且启动一个异步线程把消息持久化到磁盘中。这种做法牺牲了可靠性，但是效率高。
+
+### 一般做法
+
+如果要高可用和发送效率同时兼得，一般采取多 master 多 slave 同步复制+异步刷盘的模式。
+
+因为把消息同步复制到从节点上的时间比把消息持久化到磁盘中的时间要短，可以确保消息发送的高并发，同时消息也不会丢失，因为一旦 master 节点宕机了，那么还是能在 slave 节点中找到。
+刷盘需要把数据写入到磁盘中，速度是比较慢的，所以这个过程需要使用异步线程，否则生产者发送消息会变得缓慢。
+
+## RocketMQ 如何保证高可用
 
 
 > 参考链接
@@ -332,3 +505,5 @@ public boolean registerConsumer(final String group, final ClientChannelInfo clie
 > - [RocketMQ 消息存储](https://blog.csdn.net/qq_21040559/article/details/122775049)
 >
 > - [RocketMQ（六）—IndexFile 详解](https://blog.csdn.net/eclipse9527/article/details/122131297)
+>
+> - [RocketMQ源码分析之RebalanceService](https://blog.csdn.net/qq_25145759/article/details/111929810)
