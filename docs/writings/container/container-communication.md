@@ -143,8 +143,16 @@ Compose 来启动 Redis 和 RedisInsight
   			- new_net
   networks:
   	new_net:
-  		# 声明使用的网络是使用 bridge 驱动来创建的
-  		driver: bridge
+      # IPAM设置
+      ipam:
+        # 声明使用的网络是使用 bridge 驱动来创建的
+        driver: bridge
+        # 网络配置
+        config:
+          # 分配的子网网段
+          - subnet: 192.168.80.0/20
+          # 网关地址
+          - gateway: 192.168.80.1
   ```
 
   
