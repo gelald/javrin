@@ -1,5 +1,5 @@
 ---
-title: RocketMQ 原理分析（下）
+title: RocketMQ 原理分析-2
 icon: article
 category:
 
@@ -13,7 +13,7 @@ tag:
 
 ---
 
-# RocketMQ 原理分析（下）
+# RocketMQ 原理分析-2
 >本篇原理分析主要讲解消息存储与读取方面
 
 ## Broker 消息刷盘怎么实现的

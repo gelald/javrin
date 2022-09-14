@@ -63,12 +63,12 @@ export default sidebar([
 						icon: "article"
 					},
 					{
-						text: "RocketMQ原理分析(上)",
+						text: "RocketMQ原理分析-1",
 						link: "RocketMQ-theory-1",
 						icon: "article"
 					},
 					{
-						text: "RocketMQ原理分析(下)",
+						text: "RocketMQ原理分析-2",
 						link: "RocketMQ-theory-2",
 						icon: "article"
 					},

@@ -1,5 +1,5 @@
 ---
-title: RocketMQ 原理分析（上）
+title: RocketMQ 原理分析-1
 icon: article
 category:
 
@@ -13,7 +13,7 @@ tag:
 
 ---
 
-# RocketMQ 原理分析（上）
+# RocketMQ 原理分析-1
 >本篇原理分析主要讲解消息原理方面
 
 ## RocketMQ 如何保证消息不丢失/保证可靠性
