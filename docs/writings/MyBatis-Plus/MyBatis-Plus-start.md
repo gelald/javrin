@@ -213,6 +213,55 @@ userMapper.update(null, updateWrapper);
     }
   }
   ```
+  
+  
+  
+- 使用分页，MyBatis-Plus 中分页对象第一个属性是当前页码，第二个属性是当前页数据量
+
+  ```java
+  //Mapper中的方法
+  <P extends IPage<T>> P selectPage(P page, @Param("ew") Wrapper<T> queryWrapper);
+  
+  @Test
+  public void testPage(){
+    //查询第2页数据，每页3条数据，所以得到的数据的索引应该是3、4、5
+    Page<User> page = new Page<>(2, 3);
+    userMapper.selectPage(page, null);
+    System.out.println("当前页数据:"+page.getRecords());
+    System.out.println("总分页数量:"+page.getPages());
+    System.out.println("总记录数量:"+page.getTotal());
+    System.out.println("是否有下一页:"+page.hasNext());
+    System.out.println("是否有上一页:"+page.hasPrevious());
+  }
+  ```
+  
+  
+  
+- 自定义分页，有时候提供的API不满足我们的需求，也可以自己写分页方法，但是要注意第一个参数必须是 IPage 类型
+
+  ```xml
+  <!--IPage<User> selectPageVo(@Param("page") IPage<User> page, @Param("age") Integer age);-->
+  <select id="selectPageVo" resultType="User">
+    select uid,user_name,age,email from t_user where age > #{age}
+  </select>
+  ```
+
+  ```java
+  //Mapper中的方法
+  IPage<User> selectPageVo(@Param("page") IPage<User> page, @Param("age") Integer age);
+  
+  @Test
+  public void testPageVo(){
+    //查询第1页数据，每页3条数据，所以得到的数据的索引应该是0、1、2
+    Page<User> page = new Page<>(1, 3);
+    userMapper.selectPageVo(page, 20);
+    System.out.println(page.getRecords());
+    System.out.println(page.getPages());
+    System.out.println(page.getTotal());
+    System.out.println(page.hasNext());
+    System.out.println(page.hasPrevious());
+  }
+  ```
 
 
 

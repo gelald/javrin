@@ -634,9 +634,15 @@ MyBatis 中的分页不需要在 SQL 语句中来编写分页的语句，是通�
 
   
 
-- 在查询中使用分页插件，只需要在获取数据前设置分页的操作就可以自动完成分页
+- 在查询中使用分页插件，只需要在获取数据前设置分页的操作就可以自动完成分页。SQL语句使用分页时需要计算当前页第一条数据在整个表中的索引，分页插件帮我们完成了这部分的操作，只需要填入当前页码即可。
 
   ```java
+  //SQL语句中分页语句 limit index,pageSize
+  //index是当前页第一条数据的索引
+  //pageSize是每一页显示多少条数据
+  //pageNum是当前页的页码
+  //index = (pageNum - 1) * pageSize
+  
   EmpMapper empMapper = sqlSession.getMapper(EmpMapper.class);
   //从第1页开始查询，每页显示4条数据
   PageHelper.startPage(1, 4);
