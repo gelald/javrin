@@ -1042,6 +1042,26 @@ possible_keys为null，key不为null的情况
     - 做`join`查询时，对任意一个列进行`group by`操作
     - 排序`order by`操作
 
+# 字符集
+
+**MySQL 8.0开始默认字符集是 `utf8mb4` ，之前版本默认字符集都是 `latin1`**
+
+UTF-8 字符集表示每个字符最多使用 4 个字节。中文占 3 个字节，其他数字、英文、符号占 1 个字节，**但是一些 emoji 符号、繁体字等需要使用 4 个字节来表示**。
+
+而**在 MySQL 中真正表示 UTF-8 字符集的字符集是 `utf8mb4`**。
+
+其中还有一个字符集是 `utf8`，这个不是真正意义上的 UTF-8 字符集，这个字符集最多使用 3 个字节来表示字符，只是囊括了常用的情况，**无法一些特殊字符、表情符号**。
+
+**强烈建议各位把字符集都修改为 utf8mb4。**
+
+
+
+这里我引用 CSDN 上名为“_陈哈哈”前辈的话：[MySQL中的 utf8 并不是真正的UTF-8编码 ! !](https://blog.csdn.net/qq_39390545/article/details/106946166)
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20221027152056.png)
+
+
+
 # 存储引擎
 
 MyISAM、InnoDB、HEAP、BOB、ARCHIVE、CSV等
