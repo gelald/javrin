@@ -67,3 +67,15 @@ select * from t t1, (select id from t where serllerid = 100 limit 100000, 20) t2
 ```
 
 可以看到由于走了索引后再回表，速度大大提升。
+
+
+
+## 建立索引规则
+
+
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20221102112736.png)
+
+
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20221102144957.png)
