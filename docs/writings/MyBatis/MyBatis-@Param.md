@@ -1,4 +1,23 @@
+---
+title: MyBatis @Param 源码学习
+icon: article
+order: 2
+category:
+
+- 干货
+- MyBatis
+- 持久层
+
+tag:
+
+- 源码
+- MyBatis
+
+---
+
 # @Param 源码解析
+
+从上一篇的学习中我们可以知道，`@Param` 注解在 MyBaits 中可以自定义参数键名，方便在 SQL 语句中根据自定义键名获取参数，并且在实际开发中我们应该多用 `@Param` 注解和对象属性的方式获取参数。
 
 接下来从 MyBatis 源码中分析 @Param 自定义键名的过程，源码分析过程：
 

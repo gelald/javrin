@@ -1,3 +1,20 @@
+---
+title: MyBatis 入门学习
+icon: article
+order: 1
+category:
+
+- 干货
+- MyBatis
+- 持久层
+
+tag:
+
+- 基础
+- MyBatis
+
+---
+
 # MyBatis 入门
 
 ## MyBatis 是什么

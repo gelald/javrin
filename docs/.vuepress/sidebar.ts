@@ -42,6 +42,27 @@ export default sidebar([
 				]
 			},
 			{
+				text: "MyBatis框架",
+				icon: "note",
+				collapsable: true,
+				prefix: "MyBatis/",
+				children: "structure"
+			},
+			{
+				text: "SpringSecurity框架",
+				icon: "note",
+				collapsable: true,
+				prefix: "SpringSecurity/",
+				children: "structure"
+			},
+			{
+				text: "MySQL",
+				icon: "note",
+				collapsable: true,
+				prefix: "MySQL/",
+				children: "structure"
+			},
+			{
 				text: "消息队列",
 				icon: "note",
 				collapsable: true,

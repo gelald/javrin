@@ -1,9 +1,26 @@
-# MyBatis-Plus 入门
+---
+title: MyBatis-Plus 学习
+icon: article
+order: 4
+category:
+
+- 干货
+- MyBatis
+- 持久层
+
+tag:
+
+- MyBatis-Plus
+
+---
+
+# MyBatis-Plus 学习
 
 ## MyBatis-Plus 是什么
 
 MyBatis-Plus 是一个增强 MyBatis 的框架，在 MyBatis 框架基础上**只做增强，不做改变**，为简化开发，**提高效率**而生。MyBatis-Plus **提供了通用的 Mapper 和 Service，提供了强大的 CRUD 功能**，可以在不编写任何 SQL 语句的情况下，快速的实现对单表的 CRUD、批量、逻辑删除、分页等操作。
 
+MyBatis-Plus 官网地址：[MyBatis-Plus](https://baomidou.com)
 
 
 ## MyBatis-Plus 常用注解
@@ -429,3 +446,6 @@ user.setSex(SexEnum.MALE);
 userMapper.insert(user);
 ```
 
+## 总结
+
+MyBatis-Plus 是对 MyBatis 框架的一次再封装，增强了 MyBatis 的功能，比如 CRUD 方面，另外还提供了许多新的功能，比如乐观锁插件、通用枚举等。这里只是简单列举了我目前常用到的功能，关于其他扩展功能和插件可以到官网了解更多。

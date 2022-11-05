@@ -1,3 +1,18 @@
+---
+title: JWT 学习
+icon: article
+order: 3
+category:
+
+- 干货
+- SpringSecurity
+
+tag:
+
+- JWT
+
+---
+
 # JWT
 
 随着移动互联网的兴起，传统基于 `Session+Cookie` 的Web网站认证方式转变成了基于 `OAuth2` 等开放授权协议的单点登录模式（SSO，Single Sign On），相应的基于服务器 `Session+Cookie` 的 `Auth` 手段也转变成 `JWT(Json Web Token)` 为代表`Token Auth`机制。

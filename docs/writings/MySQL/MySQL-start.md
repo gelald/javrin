@@ -1,3 +1,19 @@
+---
+title: MySQL 入门学习
+icon: article
+order: 1
+category:
+
+- 干货
+- 数据库
+
+tag:
+
+- 基础
+- MySQL
+
+---
+
 # 基础知识
 
 **SQL的概念**：Structured Query Language，结构化查询语言。定义了操作所有关系型数据库的规则。
