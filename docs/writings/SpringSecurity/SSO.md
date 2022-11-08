@@ -1,3 +1,20 @@
+---
+title: SSO 学习
+icon: article
+order: 2
+category:
+
+- 框架
+
+tag:
+
+- SpringSecurity
+- SSO
+- CAS
+- OAuth2
+
+---
+
 # SSO
 
 ## 概念
