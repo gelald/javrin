@@ -5,12 +5,12 @@ order: 3
 category:
 
 - 干货
-- MyBatis
 - 持久层
 
 tag:
 
-- 缓存
+- 进阶
+- 源码
 - MyBatis
 
 ---

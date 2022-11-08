@@ -1,23 +1,107 @@
 ---
-title: MyBatis @Param 源码学习
+title: MyBatis 获取参数指南
 icon: article
 order: 2
 category:
 
-- 干货
-- MyBatis
-- 持久层
+- 文章
+- 框架
 
 tag:
 
+- 基础
 - 源码
 - MyBatis
 
 ---
 
-# @Param 源码解析
+# MyBatis 获取参数指南
 
-从上一篇的学习中我们可以知道，`@Param` 注解在 MyBaits 中可以自定义参数键名，方便在 SQL 语句中根据自定义键名获取参数，并且在实际开发中我们应该多用 `@Param` 注解和对象属性的方式获取参数。
+MyBatis 是一个轻量级，性能出色的半 ORM 框架，支持定制化 SQL，SQL 和 Java 代码分开，功能边界清晰。Java 代码专注于业务、SQL 语句专注于数据操作。
+
+接下来我们学习一下 MyBatis 框架中，Java 代码如何传递参数，SQL 语句如何获取接口参数。
+
+
+
+## ${} 和 #{} 的区别
+
+在 MyBatis 中，SQL 语句获取参数一般用 ${} 和 #{} 这两种方式，这两种方式的区别在于：
+
+- ${} 使用**字符串拼接的方式**拼接 SQL 语句，容易发生 SQL 注入，**一般不用这种方式**，同时也需要频繁手动添加单引号。
+
+- #{} 使用**占位符赋值的方式**拼接 SQL 语句，有效防止 SQL 注入，当参数是字符串类型和日期类型时，**能自动添加单引号**。
+
+
+
+### SQL注入简介
+
+上面提到 ${} 方式容易引发 SQL 注入，那么 SQL 注入是什么意思呢？
+
+其实 SQL 注入是一种常见的攻击手段，攻击者在提交表单的时候额外添加一些额外的 SQL 语句，如果一些应用程序对用户输入的数据的合法性判断不严格或者没有过滤，可能会引发数据泄漏或者数据被篡改。
+
+用一个简单的例子来说明：
+
+```java
+public interface UserMapper {
+  List<User> findById(Integer id);
+  
+  int deleteById(Integer id);
+}
+```
+
+```xml
+<mapper namespace="com.example.UserMapper">
+  <select id="findById" resultType="User">
+  	select * from t_user where id = ${id}
+  </select>
+  
+  <delete id="deleteById">
+  	delete from t_user where id = ${id}
+  </delete>
+</mapper>
+```
+
+此时攻击者在表单提交的时候，id这一栏输入的是 `5 and 1=1` ，然后 SQL 语句拼接后就会变成 `select * from t_user where id = 5 and 1 = 1` ，可见 SQL 语句中的条件语句中拼接了一个恒等式，因此这个筛选条件不再有效，这个 SQL 语句执行的后果是把所有用户的数据都查询出来了，这就把系统中的数据泄漏了，攻击者就拿到了这些敏感数据。
+
+
+
+因此我们一般都会选择使用 #{} 的获取参数方式，来规避 SQL 注入的风险。
+
+
+
+## 各种数据类型参数的获取方式
+
+- 单个参数
+
+  使用 #{} 来获取，占位符中可以填写参数名。
+
+- 多个参数
+
+  MyBatis 会将多个参数存储到一个 Map 集合中，以 arg0、arg1 等为键，以具体参数为值，因此 #{} 占位符中需要填写键名进行参数访问。
+
+- Map 参数
+
+  如果不想让 MyBatis 来给参数定义键名，那么可以自己用 Map 集合给多个参数自定义键名，然后用 #{} 按照参数在 Map 中的键名来访问。比如定义了一个 Map，存储了 `("id", id), ("age", age)` 那么就可以分别通过 id 和 age 来获取对应的参数。
+
+- 实体类型参数
+
+  参与业务逻辑的参数往往是一个实体类对象，实体类对象与 Map 集合方式类似，只不过键名是具体的属性名（getXXX方法名中去掉get，把首字母小写），所以 #{} 占位符中填写属性名来进行访问。
+
+- 使用 @Param 注解
+
+  使用 @Param 注解后 MyBatis 会将这些参数放到一个 Map 集合中，以 @Param 注解中的内容作为参数的键名，简单来说就是自定义 MyBatis 中的 Map 集合中的键名，使用 #{} 使用键名来访问。
+
+
+
+### 推荐使用
+
+实际开发中，我们倡导使用**实体类**和 **@Param 注解**的方式，最大的原因还是方便访问使用。
+
+一般情况下，如果是多个参数我会用一个 DTO 来将他们组织成一个对象，在 SQL 语句中通过 #{属性名} 的方式进行获取；如果是分散地传递，那么我会用 @Param 注解手动添加一个键名，在 SQL 语句中通过 #{键名} 的方式进行获取。
+
+
+
+## @Param 源码解读
 
 接下来从 MyBatis 源码中分析 @Param 自定义键名的过程，源码分析过程：
 
@@ -25,7 +109,7 @@ SqlSession#getMapper -> MapperProxy#invoke -> MapperMethod#execute -> ParamNameR
 
 
 
-## SqlSession
+### SqlSession
 
 尽管现在开发时都不会再写下面这样的代码，但是回归最原始的方式有助于我们分析过程。
 
@@ -53,7 +137,7 @@ public T newInstance(SqlSession sqlSession) {
 
 
 
-## MapperProxy
+### MapperProxy
 
 其中 MapperProxy 就是代理 Mapper 的代理类，泛型代表具体的 Mapper 类型。
 
@@ -92,7 +176,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
 
 
-## MapperMethod
+### MapperMethod
 
 MapperMethod 是具体为 Mapper 方法执行增强的对象，增强逻辑都在这个类中实现。
 
@@ -141,7 +225,7 @@ public class MapperMethod {
 
 
 
-## ParamNameResolver
+### ParamNameResolver
 
 在 ParamNameResolver 中，构造方法负责把参数索引和 @Param 值存储，`getNamedParams` 方法负责把 @Param 值和参数值存储。
 
@@ -232,3 +316,104 @@ public class ParamNameResolver {
 |  param1  | admin |
 |  param2  |  10   |
 
+
+
+
+
+## 使用 #{} 的特殊情况
+
+前面在介绍 ${} 和 #{} 的区别的时候有说到一个点是自动添加单引号，这个特殊情况也围绕这个点来展开。
+
+
+
+### 模糊查询
+
+#### 问题引入
+
+```java
+public interface UserMapper {
+  List<User> findByUsernameLike(@Param("username") String username);
+}
+```
+
+```xml
+<select id="findByUsernameLike" resultType="User">
+	select * from t_user where username like '%#{username}%'
+</select>
+```
+
+形成的 SQL 语句：`select * from t_user where username like '%?%'`
+
+由于模糊查询需要使用 `'%查询条件%'` 的形式，有一对单引号包围着，使用 `#{}` 的话，形成的 SQL 语句中的 `?` 不再被解析成占位符，而是简单地设置成一个字符串！此时 SQL 语句中没有占位符，而我们却为 SQL 语句中的占位符赋值，所以会导致报错。
+
+
+
+#### 解决方案
+
+- 使用 `${}` 的方式，因为 `${}` 就是通过字符串拼接的方式来组装 SQL 语句的。
+
+  ```xml
+  <select id="findByUsernameLike" resultType="User">
+  	select * from t_user where username like '%${username}%'
+  </select>
+  ```
+
+  
+
+- 使用 `concat()` 方法，因为在 MySQL 中用这个方法来完成字符串拼接的。
+
+  ```xml
+  <select id="findByUsernameLike" resultType="User">
+  	select * from t_user where username like concat('%', #{username}, '%')
+  </select>
+  ```
+
+
+
+- 使用双引号来拼接，推荐使用这种方式，最方便。
+
+  ```xml
+  <select id="findByUsernameLike" resultType="User">
+  	select * from t_user where username like "%"#{username}"%"
+  </select>
+  ```
+
+
+
+### where in
+
+#### 问题引入
+
+```java
+public interface UserMapper {
+  // ids:用逗号分隔的各个用户id
+  int deleteMore(@Param("ids") String ids);
+}
+```
+
+```xml
+<delete id="deleteMore">
+	delete from t_user where id in (#{ids})
+</delete>
+```
+
+形成的 SQL 语句：`delete from t_user where id in ('?')`
+
+使用 `#{}` 后，MyBatis 解析后会在 `#{}` 两侧各加上一个单引号，这就导致 in 关键字后面不是一个数组，而是一个字符串！导致无法找到任何一条记录，这些记录无法被删除。
+
+
+
+#### 解决方案
+
+使用 `${}` 的方式，因为 MyBatis 不会在 `${}` 两侧加上单引号，实现了 in 关键字后面接数组的形式。
+
+```xml
+<delete id="deleteMore">
+	delete from t_user where id in (${ids})
+</delete>
+```
+
+
+## 总结
+
+本篇文章从源码、举例演示 MyBatis 中各种获取参数的方式与情况，如果有不对的地方还请指正，一起学习。

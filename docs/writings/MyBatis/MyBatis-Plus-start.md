@@ -5,11 +5,11 @@ order: 4
 category:
 
 - 干货
-- MyBatis
 - 持久层
 
 tag:
 
+- 基础
 - MyBatis-Plus
 
 ---

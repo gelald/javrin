@@ -5,8 +5,7 @@ order: 1
 category:
 
 - 干货
-- MyBatis
-- 持久层
+- 框架
 
 tag:
 
