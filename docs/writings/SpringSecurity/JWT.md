@@ -34,7 +34,7 @@ tag:
 
 `JWT(Json Web Token)` 有两种实现方式：`JWS(Json Web Signature)` 与 `JWE(Json Web Encryption)`
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210227182347.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210227182347.png" style="zoom:67%;" />
 
 ## JWS
 
@@ -111,12 +111,12 @@ JWT签名算法一般会有两个选择：HS256（HMACSHA256、对称算法）�
 
 ### HMAC流程
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801193743.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801193743.png" style="zoom:45%;" />
 
 Auth Server需要与Resource Server提前商定好用于签名、校验的密钥secret，并且**必须保证secret不能泄漏**，否则不安全，攻击者可以利用这个secret来伪造令牌
 
 ### RSA流程
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801193801.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801193801.png" style="zoom: 45%;" />
 
 Auth Server在生成JWT的时候使用私钥进行加密，Resource Server在校验JWT的时候使用公钥进行解密。**RSA方式更加安全**，secret需要Auth Server和Resource Server双方都保密，私钥只存在于Auth Server，只需保证私钥不被泄漏即可

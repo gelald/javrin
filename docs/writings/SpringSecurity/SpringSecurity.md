@@ -32,7 +32,7 @@ tag:
 
 ### 单块阶段
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801175433.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801175433.png" style="zoom:30%;" />
 
 由于Http请求具有无状态性，两个Http请求是互不关联的，服务器怎么识别当前用户已经登录？如何记住用户登录状态？
 
@@ -42,7 +42,7 @@ tag:
 
 ### 粘性会话阶段(Sticky Session)
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801175500.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801175500.png" style="zoom:30%;" />
 
 由于服务端做了集群，Nginx对服务端进行负载均衡
 
@@ -64,25 +64,25 @@ Nginx需要截获并记录sessionId与服务器的IP地址做关联，请求转�
 
 ### 集中会话阶段(Centralized Session)
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801175521.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801175521.png" style="zoom:30%;" />
 
 **把Session集中存储在某个地方，服务端和Nginx均无需自己存储会话状态**，可以存在数据库或缓存。服务端、Nginx、Redis都可以方便水平扩展
 
 ### 微服务阶段-Auth Service+Token
 
-![image-20210801175542818](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20210801175542818.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20210801175542818.png" alt="image-20210801175542818" style="zoom:30%;" />
 
 由一个特定的服务统一承担登录认证、会话管理、令牌颁发、校验职责
 
 ### 微服务阶段-Auth Service+网关+Token
 
-![image-20210801175557528](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20210801175557528.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20210801175557528.png" alt="image-20210801175557528" style="zoom:30%;" />
 
 认证服务职责不变，网关做统一发送令牌到认证服务校验的工作
 
 ### 微服务阶段-Auth Service+网关+JWT
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801185818.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20210801185818.png" style="zoom:30%;" />
 
 当访问流量大的时候，会对Auth Service的访问压力比较大，可能成为性能的瓶颈
 
