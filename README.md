@@ -10,6 +10,9 @@
         <a href="https://www.pnpm.cn/" target="_blank"><img src="https://img.shields.io/badge/pnpm-v7.4.1-blueviolet?logo=pnpm" alt="PNPM Version"></a>
         <a href="https://github.com/gelald/javrin/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/gelald/javrin" alt="GitHub License"></a>
     </p>
+    <a href="https://github.com/anuraghazra/github-readme-stats">
+        <img align="center" src="https://github-readme-stats.vercel.app/api?username=gelald&hide=contribs,prs&show_icons=true&title_color=6bbc8e&icon_color=6bbc8e" />
+    </a>
 </div>
 
 ## Jarvin 是什么
