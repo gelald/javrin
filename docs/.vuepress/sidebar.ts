@@ -154,6 +154,11 @@ export default sidebar([
 						text: "用 Arthas 定位 Spring Boot 接口的超时问题",
 						link: "https://mp.weixin.qq.com/s/95gg-9vO2CFQh6jE8KEz8w",
 						icon: "article"
+					},
+					{
+						text: "快速搭建一个网关服务，动态路由、鉴权看完就会",
+						link: "https://juejin.cn/post/7004756545741258765",
+						icon: "article"
 					}
 				]
 			}
