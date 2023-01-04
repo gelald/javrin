@@ -24,7 +24,7 @@ export default sidebar([
 				children: "structure"
 			},
 			{
-				text: "Spring&SpringBoot框架",
+				text: "Spring框架",
 				icon: "note",
 				collapsable: true,
 				prefix: "Spring/",
@@ -37,6 +37,11 @@ export default sidebar([
 					{
 						text: "Spring线程池的使用",
 						link: "spring-thread-pool",
+						icon: "article"
+					},
+					{
+						text: "SpringBoot开发记录",
+						link: "SpringBoot-develop",
 						icon: "article"
 					}
 				]
