@@ -65,7 +65,28 @@ export default sidebar([
 				icon: "note",
 				collapsable: true,
 				prefix: "MySQL/",
-				children: "structure"
+				children: [
+					{
+						text: "MySQL数据类型",
+						link: "MySQL-data-type",
+						icon: "article"
+					},
+					{
+						text: "MySQL查询语句执行流程",
+						link: "MySQL-DQL-process",
+						icon: "article"
+					},
+					{
+						text: "MySQL更新语句执行流程",
+						link: "MySQL-DML-process",
+						icon: "article"
+					},
+					{
+						text: "MySQL批量插入方案",
+						link: "MySQL-batch-insert",
+						icon: "article"
+					}
+				]
 			},
 			{
 				text: "消息队列",
