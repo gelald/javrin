@@ -155,6 +155,8 @@ Flush 链表中记录着修改过的数据页，后台线程会按配置的策�
 
 由于 Redo Log 记录的是 DML 操作，而不是数据页，因此空间足够的 Log Buffer 可以容纳大事务中的多个 DML 操作，并把这些操作合并，可以使得最终刷到日志文件中的数据量减少，同时也可以减少刷盘次数，减少磁盘 IO，从而提升性能。
 
+另外 Redo Log 的写入方式是顺序写，比随机写的效率更高，所以 Redo Log 使用了顺序写 + Log Buffer 这两个手段来提升效率。
+
 
 
 ## Log Buffer 刷盘机制
@@ -200,3 +202,36 @@ MySQL 更新语句执行流程比查询语句执行流程更为复杂，因为�
 最后是 MySQL 更新语句执行的整个流程图：
 
 <img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20230111115742492.png" alt="image-20230111115742492" style="zoom:75%;" />
+
+
+
+## 补充
+
+### Change Buffer
+
+Buffer Pool 中还有一块区域叫 Change Buffer，主要的作用也是提高读写效率
+
+#### 原理
+
+当需要更新一个数据页时
+
+- 如果这个数据页已经缓存在 Buffer Pool 中，那么直接对这个缓存页进行修改
+- 如果这个数据页不在 Buffer Pool 中，不需要再去磁盘中读取数据页而产生随机读磁盘 IO，直接把需要修改成的值缓存到 Change Buffer 这一块区域中。等待下次需要访问这个数据页 / 预读机制把这个数据页加载到 Buffer Pool 中时，进行 merge （合并）操作
+
+
+
+#### Change Buffer 触发 merge 的情况
+
+- 访问这个数据页
+- 后台 IO 线程定时把 Change Buffer merge 到磁盘中
+- Buffer Pool 空间不足时，为了保证热数据区的数据，把修改 merge 了腾出空间
+- 数据库正常关闭
+
+
+
+#### Change Buffer 规则
+
+如果本次操作操作了唯一索引，那么这个操作就不能使用 Change Buffer 了，因为需要保证数据的唯一性，需要把数据都读到内存中进行比对看看是否违反了唯一索引的约束，如果把数据都已经读入到内存中了，那么 Change Buffer 自然也就没有意义了，所以**唯一索引的更新不能使用 Change Buffer**
+
+其他情况下都可以正常使用 Change Buffer 来提升效率
+
