@@ -85,6 +85,11 @@ export default sidebar([
 						text: "MySQL批量插入方案",
 						link: "MySQL-batch-insert",
 						icon: "article"
+					},
+					{
+						text: "MySQL索引解析",
+						link: "MySQL-index",
+						icon: "article"
 					}
 				]
 			},
