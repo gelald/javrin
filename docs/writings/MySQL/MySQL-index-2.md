@@ -1,3 +1,21 @@
+---
+title: MySQL 索引学习2
+icon: article
+order: 2
+category:
+
+- 干货
+- 文章
+- 数据库
+
+tag:
+
+- 索引
+- MySQL
+
+
+---
+
 ## 1. MySQL 查询慢是什么体验？
 
 谢邀，利益相关。

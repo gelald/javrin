@@ -90,6 +90,11 @@ export default sidebar([
 						text: "MySQL索引解析",
 						link: "MySQL-index",
 						icon: "article"
+					},
+					{
+						text: "MySQL事务解析",
+						link: "MySQL-transaction",
+						icon: "article"
 					}
 				]
 			},
