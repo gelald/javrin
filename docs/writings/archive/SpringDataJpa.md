@@ -19,25 +19,25 @@
 
 - 接口规范方法名查询
 
-  ```java
-  public class UserRepository {
+```java
+public class UserRepository {
     //命名需要严格遵守JpaRepository规范
     List<User> findAllByNameAndAgeIn(String name, List<Integer> age);
-  }
-  ```
+}
+```
 
   ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/007S8ZIlgy1gfsrory7h9j30k80cogn9-20210312220056561.jpg)
 
 
 - JPQL
 
-  ```java
-  public class UserRepository {
+```java
+public class UserRepository {
     //命名可以随意，但是JPQL中的表是实体，字段是是属性，所以实体、属性这些对大小写是敏感的，JPQL可以自动完成分页操作，只需要传入Pageable
     @Query("select user from User where user.name like %?1% and user.age in ?2)
     Page<User> findByCondition(String name, List<Integer> age, Pageable pageable);
-  }
-  ```
+}
+```
 
   Java持久化查询语句(Java Persistence Query Language)，具有与SQL 相类似的特征，JPQL是完全面向对象的，具备继承、多态和关联等特性，是HQL的子集
 
@@ -45,37 +45,37 @@
 
 - 原生SQL
 
-  ```java
-  public class UserRepository {
+```java
+public class UserRepository {
     //命名可以随意，但是@Query中需要加上nativeQuery=true
     @Query("select * from user where name like %?1% and age in ?2 limit 100, 10, nativeQuery = true)
     Page<User> findByCondition(String name, List<Integer> age);
-  }
-  ```
+}
+```
 
 - Example、ExampleMatcher 动态条件查询
 
-  ```java
-  // ==================================== Repository ====================================
-  public interface ExampleMatcherRepository extends JpaRepository<Actor, Long> {
-    
-  }
+```java
+// ==================================== Repository ====================================
+public interface ExampleMatcherRepository extends JpaRepository<Actor, Long> {
   
-  // ====================================== Service ======================================
-  @Service
-  @Transactional
-  @Slf4j
-  public class ExampleMatcherServiceImpl implements ExampleMatcherService {
+}
+
+// ====================================== Service ======================================
+@Service
+@Transactional
+@Slf4j
+public class ExampleMatcherServiceImpl implements ExampleMatcherService {
     @Autowired
     private ExampleMatcherRepository exampleMatcherRepository;
-
+    
     @Override
     public Page<Actor> findByExampleMatcher(String actorEmailPre, String actorNamePre, Integer page, Integer pageSize) {
         //这个实体作为一个查询样例，需要查询哪些字段就设置哪些字段
         Actor actor = new Actor();
         actor.setActorEmail(actorEmailPre);
         actor.setActorName(actorNamePre);
-  
+    
         //设置每一个要查询字段的匹配规则
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withMatcher("actorEmail", ExampleMatcher.GenericPropertyMatchers.startsWith())
@@ -86,17 +86,17 @@
                 .withIgnorePaths("actorAge", "createTime");
         //构建查询样例
         Example<Actor> actorExample = Example.of(actor, matcher);
-
+    
         //指定排序和分页
         Sort sort = new Sort(Sort.Direction.ASC, "actorAge");
         PageRequest pageRequest = PageRequest.of(page < 0 ? 0 : page, pageSize, sort);
-  
+    
         Page<Actor> actorPage = exampleMatcherRepository.findAll(actorExample, pageRequest);
         log.info("分页查询第:[{}]页,pageSize:[{}],共有:[{}]数据,共有:[{}]页", page, pageSize, actorPage.getTotalElements(), actorPage.getTotalPages());
         return actorPage;
     }
-  }
-  ```
+}
+```
 
   | 方法名 | 作用      |
   |---------|---------|
@@ -112,27 +112,27 @@
   
 - Specifications 动态条件查询
 
-  ```java
-  // ============================================== Repository ==============================================
-  //需要继承JpaSpecificationExecutor接口
-  public interface SpecificationRepository extends JpaRepository<Actor, Long>, JpaSpecificationExecutor<Actor> {
+```java
+// ============================================== Repository ==============================================
+//需要继承JpaSpecificationExecutor接口
+public interface SpecificationRepository extends JpaRepository<Actor, Long>, JpaSpecificationExecutor<Actor> {
 
-  }
-  
-  // ============================================== Service ==============================================
-  @Service
-  @Transactional
-  @Slf4j
-  public class SpecificationServiceImpl implements SpecificationService {
+}
+
+// ============================================== Service ==============================================
+@Service
+@Transactional
+@Slf4j
+public class SpecificationServiceImpl implements SpecificationService {
     @Autowired
     private SpecificationRepository specificationRepository;
-
+    
     @Override
     public List<Actor> findBySpecification(Long id, Integer age, Integer page, Integer pageSize) {
         Specification<Actor> specification = (Specification<Actor>) (root, criteriaQuery, criteriaBuilder) -> {
             //查询条件的集合
             List<Predicate> list = new ArrayList<>();
-
+    
             //条件1：id字段需要大于等于指定的id
             list.add(criteriaBuilder.greaterThanOrEqualTo(root.get("id"), (id == null || id < 0) ? 0 : id));
             // 条件2：如果指定了age，则需要相等
@@ -140,13 +140,13 @@
                 // 字段需要和实体类中属性相同，而非表中字段
                 list.add(criteriaBuilder.equal(root.get("actorAge"), age));
             }
-
+    
             // 转数组
             Predicate[] predicates = new Predicate[list.size()];
             list.toArray(predicates);
             return criteriaBuilder.and(predicates);
         };
-
+    
         // 指定排序和分页
         Sort sort = new Sort(Sort.Direction.ASC, "id");
         PageRequest pageRequest = PageRequest.of(page < 0 ? 0 : page, pageSize, sort);
@@ -155,8 +155,186 @@
         List<Actor> actorListBySpecification = actorPage.getContent();
         return actorListBySpecification;
     }
-  }
-  ```
+}
+```
+  
+- 更多
+
+```java
+package com.joyouth.ts.operation.monitor;
+
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import com.joyouth.ts.operation.baseinfo.enums.TreeViewTypeEnums;
+import com.joyouth.ts.operation.inspection.entities.InspectionItem;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * @author WuYingBin
+ * Date 2023/2/24
+ */
+@SpringBootTest
+public class SpringDataJpaQueryTest {
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @Test
+    void testQuery() {
+        String inspectionItemName = "";
+        String monitorTypeId = "20001";
+        List<String> categoryIdList = CollectionUtil.newArrayList("402c7dc3ae87f33ac72d3eab07a4ebb4");
+        String nodeType = "";
+        String nodeId = "";
+
+        Specification<InspectionItem> specification = (root, criteriaQuery, criteriaBuilder) -> {
+            List<Predicate> predicateList = new ArrayList<>();
+
+            //针对表格上面的输入框查询巡视点位
+            //根据上面的信息直接查询巡视阈值明细
+            if (StrUtil.isNotBlank(inspectionItemName)) {
+                //根据巡视点位名称模糊查询巡视点位
+                String pattern = "%" + inspectionItemName + "%";
+                predicateList.add(criteriaBuilder.like(root.get("name"), pattern));
+            }
+            if (StrUtil.isNotBlank(monitorTypeId)) {
+                //根据巡视类型查询巡视点位
+                predicateList.add(criteriaBuilder.equal(root.get("monitorPointSecondaryType"), monitorTypeId));
+            }
+            if (CollectionUtil.isNotEmpty(categoryIdList)) {
+                //根据设备类别对巡视点位进行范围查询
+                predicateList.add(root.get("categoryId").in(categoryIdList));
+            }
+
+            //针对树节点查询
+            //根据树节点类型确定查询类型，根据查询类型和树节点id来查询巡视点位，再根据点位查询巡视阈值明细
+            if (nodeType != null) {
+                if (TreeViewTypeEnums.substation.getType().equals(nodeType)) {
+                    //查询变电站下所有的巡视点位
+                    predicateList.add(criteriaBuilder.equal(root.get("substationId"), nodeId));
+                } else if (TreeViewTypeEnums.area.getType().equals(nodeType) || TreeViewTypeEnums.interval.getType().equals(nodeType)) {
+                    //查询区域间隔及其子节点所有的巡视点位
+                    /*List<String> areaIdList = new ArrayList<>();
+                    Area area = this.areaService.getOne(nodeId);
+                    if (CollectionUtil.isNotEmpty(area.getChildren())) {
+                        getAreaId(area, areaIdList);
+                    }
+                    predicateList.add(root.get("areaId").in(areaIdList));*/
+                } else if (TreeViewTypeEnums.device.getType().equals(nodeType)) {
+                    //查询与设备关联的所有的巡视点位
+                    predicateList.add(criteriaBuilder.equal(root.get("deviceId"), nodeId));
+                }
+            }
+            Predicate predicate = criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
+            return criteriaQuery.select(root.get("id")).where(predicate).getRestriction();
+        };
+        Sort.Order order = new Sort.Order(Sort.Direction.DESC, "modifyTime");
+        Pageable pageable = PageRequest.of(0, 4, Sort.by(order));
+
+        /*Page<InspectionItem> inspectionItems = this.pageQuery(specification, InspectionItem.class, pageable);
+        System.out.println(inspectionItems.getTotalElements());
+        System.out.println(inspectionItems.getTotalPages());
+        System.out.println(inspectionItems.getContent());*/
+
+        List<Tuple> tuples = this.querySomeFields(specification, InspectionItem.class, "id", "name", "standard");
+        System.out.println(tuples);
+    }
+
+    /**
+     * 根据当前筛选条件进行查询，但是只查询部分字段
+     *
+     * @param specification
+     * @param domainClass
+     * @param fields
+     * @param <U>
+     * @return
+     */
+    private <U> List<Tuple> querySomeFields(Specification<U> specification, Class<U> domainClass, String... fields) {
+        CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
+
+        Root<U> root = query.from(domainClass);
+        if (specification != null) {
+            Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
+            query.where(predicate);
+        }
+
+        Path<?>[] paths = Arrays.stream(fields).map(root::get).toArray(Path<?>[]::new);
+        query.multiselect(paths);
+
+        List<Tuple> resultList = this.entityManager.createQuery(query).getResultList();
+        System.out.println(resultList);
+        return resultList;
+    }
+
+    /**
+     * 根据当前筛选条件对数据进行分页查询
+     *
+     * @param specification
+     * @param domainClass
+     * @param pageable
+     * @param <U>
+     * @return
+     */
+    private <U> Page<U> pageQuery(Specification<U> specification, Class<U> domainClass, Pageable pageable) {
+        CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
+        CriteriaQuery<U> query = criteriaBuilder.createQuery(domainClass);
+
+        Root<U> root = query.from(domainClass);
+        if (specification != null) {
+            Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
+            query.where(predicate);
+        }
+
+        List<U> resultList = this.entityManager.createQuery(query)
+                .setFirstResult((int) pageable.getOffset()).setMaxResults(pageable.getPageSize())
+                .getResultList();
+        Long count = this.countQuery(specification, domainClass);
+
+        Page<U> page = new PageImpl<>(resultList, pageable, count);
+        System.out.println(page);
+        return page;
+    }
+
+    /**
+     * 获取当前筛选条件下数据总条数，用于构造Page对象
+     *
+     * @param specification
+     * @param domainClass
+     * @param <U>
+     * @return
+     */
+    private <U> Long countQuery(Specification<U> specification, Class<U> domainClass) {
+        CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
+
+        Root<U> root = query.from(domainClass);
+        if (specification != null) {
+            Predicate predicate = specification.toPredicate(root, query, criteriaBuilder);
+            query.where(predicate);
+        }
+        query.select(criteriaBuilder.count(root));
+
+        Long count = this.entityManager.createQuery(query).getSingleResult();
+        System.out.println(count);
+        return count;
+    }
+}
+
+//https://blog.csdn.net/king_cannon_fodder/article/details/127036910
+
+```
 
 
 ### JPA主要类及结构图

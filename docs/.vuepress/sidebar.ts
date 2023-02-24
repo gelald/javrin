@@ -197,7 +197,7 @@ export default sidebar([
 						icon: "article"
 					}
 				]
-			}
+			},
 			/*{
 				text: "暂时归档的文章",
 				icon: "note",
