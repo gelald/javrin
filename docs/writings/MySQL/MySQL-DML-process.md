@@ -127,6 +127,18 @@ select * from account;
 
 
 
+### 刷脏触发
+
+MySQL 在以下场景会触发刷脏动作
+
+- **当 redo log 写满了**，先停止所有更新操作，将 checkpoint 向前推进，推进那部分日志的脏页更新到磁盘
+
+- **系统内存不够**，需要将一部分数据页淘汰，如果是干净页就直接淘汰；如果是脏页就需要全部同步到磁盘
+
+- MySQL **正常关闭** 之前，由于不能导致内存中的数据丢失，在正常关闭前也会把脏页更新到磁盘中
+
+
+
 ## Flush 链表
 
 Buffer Pool 中需要更新到磁盘中的数据是修改过的数据，Buffer Pool 中存在着预读机制加载进来的数据，全部更新同步一遍显然不合理，所以 Buffer Pool 使用了 Flush 链表来记录修改过的数据。
@@ -134,6 +146,36 @@ Buffer Pool 中需要更新到磁盘中的数据是修改过的数据，Buffer P
 Flush 链表中记录着修改过的数据页，后台线程会按配置的策略把数据进行持久化到磁盘中。
 
 <img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230110141808.png" style="zoom:60%;" />
+
+
+
+## Change Buffer
+
+Buffer Pool 中还有一块区域叫 Change Buffer，主要的作用也是提高读写效率，在更新数据时可以把更新的值缓存下来，先不进行数据更新，减少磁盘 IO 次数
+
+### 原理
+
+当需要更新一个数据页时
+
+- 如果这个数据页已经缓存在 Buffer Pool 中，那么直接对这个缓存页进行修改
+- 如果这个数据页不在 Buffer Pool 中，不需要再去磁盘中读取数据页而产生随机读磁盘 IO，直接把需要修改成的值缓存到 Change Buffer 这一块区域中。等待下次需要访问这个数据页 / 预读机制把这个数据页加载到 Buffer Pool 中时，进行 merge （合并）操作
+
+
+
+### Change Buffer 触发 merge 的情况
+
+- 访问这个数据页
+- 后台 IO 线程定时把 Change Buffer merge 到磁盘中
+- Buffer Pool 空间不足时，为了保证热数据区的数据，把修改 merge 了腾出空间
+- 数据库正常关闭
+
+
+
+### Change Buffer 规则
+
+如果本次操作操作了唯一索引，那么这个操作就不能使用 Change Buffer 了，因为需要保证数据的唯一性，需要把数据都读到内存中进行比对看看是否违反了唯一索引的约束，如果把数据都已经读入到内存中了，那么 Change Buffer 自然也就没有意义了，所以**唯一索引的更新不能使用 Change Buffer**
+
+其他情况下都可以正常使用 Change Buffer 来提升效率
 
 
 
@@ -179,6 +221,70 @@ Flush 链表中记录着修改过的数据页，后台线程会按配置的策�
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230111110506.png)
 
+
+
+## Binlog
+
+Binlog 是 MySQL Server 层维护的一个日志，以事件的形式记录了所有 DDL 和 DML 语句，主要的作用是主从复制和数据恢复
+
+- 主从复制：master 结点把它的 Binlog 传递给 slave 结点，slave 根据 master 中发生过的数据修改同步修改到自己库上
+- 数据恢复：因为 Binlog 记录了 DDL 和 DML 语句，可以通过 mysqlbinlog 工具来恢复数据
+
+
+
+Binlog 开启后会有性能上的消耗，所以默认是关闭的，如果需要打开的话需要在 MySQL 配置文件 `my.cnf` 中的`mysqld` 区加入以下配置
+
+```
+[mysqld]
+log-bin=/data/mysql-bin #日志路径
+binlog_format=MIXED
+```
+
+
+
+Binlog 相关查询命令
+
+```mysql
+-- 查看 Binlog 的开关状态、文件目录、索引文件目录等信息
+show variables like '%log_bin%';
+-- 查看 Binlog 文件信息
+show binary logs;
+```
+
+
+
+### Binlog 格式
+
+- row：记录数据被修改成什么样子。但是无法记录函数执行的结果，而且如果一条修改语句修改了大量的数据行或者 alter table 时，那么日志量会很大
+- statement：记录执行了的 SQL 语句。减少 Binlog 日志量，节省 IO，但是可能会出现同一条 SQL 语句在 master 结点和 slave 结点上结果不一致的情况
+- mixed：以上两种格式混合使用，MySQL 根据 SQL 语句自己选择最优的
+
+
+
+### Redo Log 和 Binlog 双写保证
+
+前面提到 Binlog 有主从复制和数据恢复的功能，所以在数据更新时也要把操作记录到 Binlog 上，当事务提交时就需要同时写入 Redo Log 和 Binlog，Redo Log 保证了主库的数据恢复，Binlog 保证了从库的数据同步，任何一份日志写入失败都有数据不一致的风险，如何保证这两份日志都成功写入呢？
+
+**为了解决这个问题，InnoDB 设计了更新语句两阶段提交，采用的模式类似于分布式事务中 2PC 解决方案，遵循 XA 协议**
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230225221255.png)
+
+两阶段提交的核心流程：
+
+- prepare 阶段：写入 Redo Log 并把状态设置为 prepare
+- commit 阶段：写入 Binlog 并把 Redo Log 的状态设置为 commit
+
+在整个流程中，**Binlog 充当了事务协调者的角色**，通知 InnoDB 执行 commit、rollback 指令，当第 6 步写入 Binlog 时写入失败，commit 阶段中事务就不会提交，此时 Redo Log 中 prepare 状态的数据就会被回滚
+
+
+
+当 MySQL 根据 Redo Log 进行崩溃恢复时：
+
+- 如果数据在 Redo Log 和 Binlog 都存在，那么这个事务需要进行提交
+- 如果数据只在 Redo Log 中而不在 Binlog 中，说明第二段提交没有成功，这个事务是需要回滚的
+
+
+
 至此，MySQL 更新数据中写入部分介绍完毕
 
 
@@ -192,46 +298,17 @@ MySQL 更新语句执行流程比查询语句执行流程更为复杂，因为�
   - 考虑到减少主线程时间的磁盘 IO 次数，MySQL 加入了预读机制，预读机制基于 Page 和 Extent 结构又分为线性预读与随机预读
   - 考虑到预读机制带来的内存空间压力，MySQL 使用了内存淘汰算法，定义了冷热数据区的一系列规则
 - 写入方面
-  - 考虑到尽可能减少写入、同步的数据，MySQL 使用了 Flush 链表来记录修改过的数据页
-  - 考虑到崩溃恢复导致破坏 InnoDB 的持久化的特性，MySQL 使用了 Redo Log 来记录修改操作，以便崩溃恢复
+  - 考虑到尽可能减少写入、同步的数据，MySQL 使用了 Flush 链表来记录修改过的数据页，脏页会在特定的时候进行刷脏
+  - 考虑尽可能降低每次更新时磁盘读取数据的次数，MySQL 在 Buffer Pool 中开辟了一块 Change Buffer 区域，暂时缓存修改的数值缓存下来，等待数据页进入 Buffer Pool 时进行 merge 操作
+  - 考虑到数据崩溃会导致破坏 InnoDB 的持久性，MySQL 使用了 Redo Log 来记录修改操作，以便崩溃恢复
   - 考虑到直接写磁盘文件效率低下，MySQL 又引入了一个缓存 Log Buffer 提升操作效率
-  - 最后围绕记录修改操作的全过程，提供了三种不同的刷盘策略
+  - 最后围绕记录修改操作的全过程，提供了三种不同的 Log Buffer 刷盘策略
 
 
 
 最后是 MySQL 更新语句执行的整个流程图：
 
-<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image-20230111115742492.png" alt="image-20230111115742492" style="zoom:75%;" />
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230225223319.png)
 
 
-
-## 补充
-
-### Change Buffer
-
-Buffer Pool 中还有一块区域叫 Change Buffer，主要的作用也是提高读写效率
-
-#### 原理
-
-当需要更新一个数据页时
-
-- 如果这个数据页已经缓存在 Buffer Pool 中，那么直接对这个缓存页进行修改
-- 如果这个数据页不在 Buffer Pool 中，不需要再去磁盘中读取数据页而产生随机读磁盘 IO，直接把需要修改成的值缓存到 Change Buffer 这一块区域中。等待下次需要访问这个数据页 / 预读机制把这个数据页加载到 Buffer Pool 中时，进行 merge （合并）操作
-
-
-
-#### Change Buffer 触发 merge 的情况
-
-- 访问这个数据页
-- 后台 IO 线程定时把 Change Buffer merge 到磁盘中
-- Buffer Pool 空间不足时，为了保证热数据区的数据，把修改 merge 了腾出空间
-- 数据库正常关闭
-
-
-
-#### Change Buffer 规则
-
-如果本次操作操作了唯一索引，那么这个操作就不能使用 Change Buffer 了，因为需要保证数据的唯一性，需要把数据都读到内存中进行比对看看是否违反了唯一索引的约束，如果把数据都已经读入到内存中了，那么 Change Buffer 自然也就没有意义了，所以**唯一索引的更新不能使用 Change Buffer**
-
-其他情况下都可以正常使用 Change Buffer 来提升效率
 
