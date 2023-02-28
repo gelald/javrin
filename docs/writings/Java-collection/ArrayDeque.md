@@ -1,3 +1,12 @@
+---
+title: ArrayDeque
+icon: article
+category:
+
+- Java集合
+
+---
+
 # ArrayDeque
 
 > ArrayDeque 现在已经逐渐取代 Stack 的位置，称为实现栈功能的首选集合

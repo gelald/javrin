@@ -1,4 +1,13 @@
-# LinkedHashMap & LinkedHashSet
+---
+title: LinkedHashMap 与 LinkedHashSet
+icon: article
+category:
+
+- Java集合
+
+---
+
+# LinkedHashMap 与 LinkedHashSet
 
 就像 TreeMap 与 TreeSet、HashMap 与 HashSet 一样，LinkedHashSet 和 LinkedHashMap 其实也是一回事。LinkedHashSet 和 LinkedHashMap 在 Java 里也有着相同的实现，前者仅仅是对后者做了一层包装。
 

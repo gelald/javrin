@@ -1,3 +1,12 @@
+---
+title: Java 类加载机制
+icon: article
+category:
+
+- JVM
+
+---
+
 # Java 类加载机制
 
 

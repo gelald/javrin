@@ -17,6 +17,53 @@ export default sidebar([
 		collapsable: true,
 		children: [
 			{
+				text: "Java基础",
+				icon: "note",
+				collapsable: true,
+				prefix: "Java-base/",
+				children: [
+					"object-oriented",
+					"data-and-operation",
+					"String",
+					"Object",
+					"reflection",
+					"throwable",
+					"generic",
+					"lambda-and-functional",
+					"spi"
+				]
+			},
+			{
+				text: "Java集合",
+				icon: "note",
+				collapsable: true,
+				prefix: "Java-collection/",
+				children: [
+					"summary",
+					"ArrayList",
+					"LinkedList",
+					"PriorityQueue",
+					"ArrayDeque",
+					"HashMap-and-HashSet",
+					"LinkedHashMap-and-LinkedHashSet",
+					"TreeMap-and-TreeSet",
+					"stream"
+				]
+			},
+			{
+				text: "JVM",
+				icon: "note",
+				collapsable: true,
+				prefix: "JVM/",
+				children: [
+					"class-bytecode",
+					"class-loading",
+					"runtime-memory-model",
+					"garbage-collection",
+					"jvm-remote-monitor"
+				]
+			},
+			{
 				text: "并发",
 				icon: "note",
 				collapsable: true,
@@ -72,13 +119,13 @@ export default sidebar([
 						icon: "article"
 					},
 					{
-						text: "MySQL查询语句执行流程",
-						link: "MySQL-DQL-process",
+						text: "MySQL语句执行流程-Server层",
+						link: "MySQL-process-Server",
 						icon: "article"
 					},
 					{
-						text: "MySQL更新语句执行流程",
-						link: "MySQL-DML-process",
+						text: "MySQL语句执行流程-InnoDB存储引擎层",
+						link: "MySQL-process-InnoDB",
 						icon: "article"
 					},
 					{
@@ -97,6 +144,7 @@ export default sidebar([
 						icon: "article"
 					}
 				]
+				// children: "structure"
 			},
 			{
 				text: "消息队列",
@@ -198,13 +246,13 @@ export default sidebar([
 					}
 				]
 			},
-			/*{
+			{
 				text: "暂时归档的文章",
 				icon: "note",
 				collapsable: true,
 				prefix: "archive/",
 				children: "structure"
-			}*/
+			}
 		]
 	},
 	{

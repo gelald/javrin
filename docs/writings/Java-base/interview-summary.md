@@ -1,3 +1,16 @@
+---
+title: 面试题总结
+icon: article
+category:
+
+- Java基础
+
+tag:
+
+- 面试题
+
+---
+
 ## Java 语言有哪些特点
 
 1. 面向对象（封装、继承、多态）

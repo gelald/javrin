@@ -1,3 +1,12 @@
+---
+title: Object
+icon: article
+category:
+
+- Java基础
+
+---
+
 # Object
 
 > Object 是 Java 所有类的最顶层的父类，它的地位不言而喻，有必要研究一番～

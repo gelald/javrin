@@ -1,3 +1,12 @@
+---
+title: PriorityQueue
+icon: article
+category:
+
+- Java集合
+
+---
+
 # PriorityQueue
 
 ## 概述

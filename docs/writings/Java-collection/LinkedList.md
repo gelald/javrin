@@ -1,3 +1,12 @@
+---
+title: LinkedList
+icon: article
+category:
+
+- Java集合
+
+---
+
 # LinkedList
 
 ## 概述

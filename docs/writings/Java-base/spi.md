@@ -1,4 +1,17 @@
-# SPI
+---
+title: SPI机制
+icon: article
+category:
+
+- Java基础
+
+tag:
+
+- 框架基础
+
+---
+
+# SPI机制
 
 > SPI（Service Provider Interface），是 JDK 内置的一种服务提供发现机制，可以用来启用框架扩展和替换组件，主要是被框架的开发人员使用
 

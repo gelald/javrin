@@ -1,3 +1,12 @@
+---
+title: Stream 流式处理
+icon: article
+category:
+
+- Java集合
+
+---
+
 # Stream
 
 > Stream流 是 Java8 推出的一个方便集合、数组操作的一个结构

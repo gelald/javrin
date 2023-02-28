@@ -1,3 +1,12 @@
+---
+title: ArrayList
+icon: article
+category:
+
+- Java集合
+
+---
+
 # ArrayList
 
 > 在日常的开发中，ArrayList 几乎是 List 接口中使用得最多的实现类，它的地位不言而喻

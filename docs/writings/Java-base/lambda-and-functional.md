@@ -1,3 +1,12 @@
+---
+title: Lambda 表达式与函数式编程
+icon: article
+category:
+
+- Java基础
+
+---
+
 # Lambda 表达式与函数式编程
 
 > Lambda 表达式和函数式接口都是 Java 8 的新特性，二者的有效结合形成了一个高级用法：函数式编程

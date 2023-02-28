@@ -3,7 +3,6 @@ title: JVM 远程监控
 icon: article
 category:
 
-- 干货
 - JVM
 
 tag:
