@@ -52,6 +52,6 @@ export default navbar([
     {
         text: "主题文档",
         icon: "note",
-        link: "https://vuepress-theme-hope.github.io/v2/zh/",
+        link: "https://theme-hope.vuejs.press/zh/",
     },
 ]);
