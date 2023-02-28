@@ -1,23 +1,22 @@
 ---
-title: Controller就该这么写
+title: Controller 就该这么写
 icon: article
 isOriginal: true
 category:
 
-- 干货
+- 框架
+- coding
 - 文章
-- Spring/SpringBoot
 
 tag:
 
 - SpringMVC
-- 参数校验
-- 异常处理
+- 问题解决
 - 优化
 
 ---
 
-# 一个优秀的Controller层逻辑
+# 一个优秀的 Controller 层逻辑
 
 > 说到 Controller，相信大家都不陌生，它可以很方便地对外提供数据接口。它的定位，我认为是「不可或缺的配角」，说它不可或缺是因为无论是传统的三层架构还是现在的COLA架构，Controller
 > 层依旧有一席之地，说明他的必要性；说它是配角是因为 Controller 层的代码一般是不负责具体的逻辑业务逻辑实现，但是它负责接收和响应请求

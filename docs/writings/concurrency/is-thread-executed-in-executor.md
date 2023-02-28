@@ -1,16 +1,16 @@
 ---
 title: 判断线程池中的线程是否执行完毕
 icon: article
-order: 3
+isOriginal: true
 category:
 
-- 文章
-- 问题解决
 - 并发
+- 文章
 
 tag:
 
 - 线程池
+- 问题解决
 
 ---
 

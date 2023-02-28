@@ -1,15 +1,15 @@
 ---
-title: Spring线程池的使用
+title: Spring 线程池的使用
 icon: article
 category:
 
-- 干货
-- 文章
-- Spring/SpringBoot
+- 框架
 - 并发
+- 文章
 
 tag:
 
+- Spring/SpringBoot
 - 线程池
 
 ---

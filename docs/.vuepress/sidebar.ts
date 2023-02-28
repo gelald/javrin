@@ -68,7 +68,11 @@ export default sidebar([
 				icon: "note",
 				collapsable: true,
 				prefix: "concurrency/",
-				children: "structure"
+				children: [
+					"thread-pool",
+					"serial-to-parallel",
+					"is-thread-executed-in-executor"
+				]
 			},
 			{
 				text: "Spring框架",
@@ -76,21 +80,11 @@ export default sidebar([
 				collapsable: true,
 				prefix: "Spring/",
 				children: [
-					{
-						text: "Controller就该这么写",
-						link: "pretty-controller",
-						icon: "article"
-					},
-					{
-						text: "Spring线程池的使用",
-						link: "spring-thread-pool",
-						icon: "article"
-					},
-					{
-						text: "SpringBoot开发记录",
-						link: "SpringBoot-develop",
-						icon: "article"
-					}
+					"SpringBoot-core-component",
+					"pretty-controller",
+					"Spring-thread-pool",
+					"Spring-schedule",
+					"SpringBoot-develop"
 				]
 			},
 			{
@@ -98,53 +92,33 @@ export default sidebar([
 				icon: "note",
 				collapsable: true,
 				prefix: "MyBatis/",
-				children: "structure"
+				children: [
+					"MyBatis-start",
+					"MyBatis-get-param",
+					"MyBatis-cache",
+					"MyBatis-Plus-start"
+				]
 			},
-			{
+			/*{
 				text: "SpringSecurity框架",
 				icon: "note",
 				collapsable: true,
 				prefix: "SpringSecurity/",
 				children: "structure"
-			},
+			},*/
 			{
 				text: "MySQL",
 				icon: "note",
 				collapsable: true,
 				prefix: "MySQL/",
 				children: [
-					{
-						text: "MySQL数据类型",
-						link: "MySQL-data-type",
-						icon: "article"
-					},
-					{
-						text: "MySQL语句执行流程-Server层",
-						link: "MySQL-process-Server",
-						icon: "article"
-					},
-					{
-						text: "MySQL语句执行流程-InnoDB存储引擎层",
-						link: "MySQL-process-InnoDB",
-						icon: "article"
-					},
-					{
-						text: "MySQL批量插入方案",
-						link: "MySQL-batch-insert",
-						icon: "article"
-					},
-					{
-						text: "MySQL索引解析",
-						link: "MySQL-index",
-						icon: "article"
-					},
-					{
-						text: "MySQL事务解析",
-						link: "MySQL-transaction",
-						icon: "article"
-					}
+					"MySQL-data-type",
+					"MySQL-process-Server",
+					"MySQL-process-InnoDB",
+					"MySQL-index",
+					"MySQL-transaction",
+					"MySQL-batch-insert"
 				]
-				// children: "structure"
 			},
 			{
 				text: "消息队列",
@@ -152,58 +126,46 @@ export default sidebar([
 				collapsable: true,
 				prefix: "message-queue/",
 				children: [
-					{
-						text: "RocketMQ入门",
-						link: "RocketMQ-start",
-						icon: "article"
-					},
-					{
-						text: "RocketMQ操作落地(rocketmq-client方式)",
-						link: "RocketMQ-operation-client",
-						icon: "article"
-					},
-					{
-						text: "RocketMQ操作落地(rocketmq-starter方式)",
-						link: "RocketMQ-operation-starter",
-						icon: "article"
-					},
-					{
-						text: "RocketMQ原理分析-1",
-						link: "RocketMQ-theory-1",
-						icon: "article"
-					},
-					{
-						text: "RocketMQ原理分析-2",
-						link: "RocketMQ-theory-2",
-						icon: "article"
-					},
-					{
-						text: "RocketMQ中Broker配置详解",
-						link: "RocketMQ-broker-config",
-						icon: "article"
-					}
+					"RocketMQ-start",
+					"RocketMQ-operation-client",
+					"RocketMQ-operation-starter",
+					"RocketMQ-theory-1",
+					"RocketMQ-theory-2",
+					"RocketMQ-broker-config"
 				]
 			},
 			{
-				text: "分布式理论",
+				text: "分布式相关",
 				icon: "note",
 				collapsable: true,
 				prefix: "distributed/",
-				children: "structure",
+				children: [
+					"CAP-theory",
+					"distributed-lock",
+					"distributed-transaction"
+				],
 			},
 			{
 				text: "容器技术",
 				icon: "note",
 				collapsable: true,
 				prefix: "container/",
-				children: "structure",
+				children: [
+					"docker",
+					"container-communication",
+					"modify-docker-default-storage"
+				]
 			},
 			{
 				text: "项目工具",
 				icon: "note",
 				collapsable: true,
 				prefix: "project-tools/",
-				children: "structure",
+				children: [
+					"Maven",
+					"Git",
+					"UML"
+				],
 			},
 			{
 				text: "算法",
@@ -246,13 +208,13 @@ export default sidebar([
 					}
 				]
 			},
-			{
+			/*{
 				text: "暂时归档的文章",
 				icon: "note",
 				collapsable: true,
 				prefix: "archive/",
 				children: "structure"
-			}
+			}*/
 		]
 	},
 	{

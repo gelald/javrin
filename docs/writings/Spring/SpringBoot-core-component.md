@@ -1,3 +1,16 @@
+---
+title: SpringBoot 核心组件
+icon: article
+category:
+
+- 框架
+
+tag:
+
+- Spring/SpringBoot
+
+---
+
 # SpringBoot 核心组件
 
 > SpringBoot 有四大组件：starter、autoconfigure、actuator 以及 CLI
@@ -158,4 +171,4 @@ Spring Boot CLI 是一个 Spring Boot 提供的客户端工具，主要的功能
 
 这个组件在日常开发中使用得较少，了解即可
 
-官方文档：https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-cli.html
+官方文档：[Spring Boot CLI](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-cli.html)

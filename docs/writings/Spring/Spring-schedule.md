@@ -1,3 +1,17 @@
+---
+title: Spring 定时任务
+icon: article
+category:
+
+- 框架
+- coding
+
+tag:
+
+- Spring/SpringBoot
+
+---
+
 # Spring 定时任务
 
 > 定时任务在日常开发中还是非常常见的，比方说定时发送消息、定时清除一些无效的数据等等，实现定时任务的方式很多样，本篇主要介绍一下各种实现方式及其优缺点

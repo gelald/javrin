@@ -1,17 +1,14 @@
 ---
 title: MyBatis 缓存学习
 icon: article
-order: 3
 category:
 
 - 干货
-- 持久层
 
 tag:
 
-- 进阶
-- 源码
 - MyBatis
+- 源码
 
 ---
 

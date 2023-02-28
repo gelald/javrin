@@ -1,19 +1,18 @@
 ---
 title: 由串行到并行的故事
 icon: article
-order: 2
 isOriginal: true
 category:
 
-- 干货
-- 文章
-- 问题解决
 - 并发
+- 文章
 
 tag:
 
 - 异步
 - 线程池
+- 问题解决
+- 优化
 
 ---
 

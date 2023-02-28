@@ -1,16 +1,14 @@
 ---
 title: MyBatis-Plus 学习
 icon: article
-order: 4
 category:
 
 - 干货
-- 持久层
 
 tag:
 
-- 基础
 - MyBatis-Plus
+- 源码
 
 ---
 

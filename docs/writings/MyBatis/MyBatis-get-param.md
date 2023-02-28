@@ -1,17 +1,15 @@
 ---
 title: MyBatis 获取参数指南
 icon: article
-order: 2
 category:
 
-- 文章
 - 框架
+- 文章
 
 tag:
 
-- 基础
-- 源码
 - MyBatis
+- 源码
 
 ---
 

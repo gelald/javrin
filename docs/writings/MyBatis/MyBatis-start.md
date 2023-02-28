@@ -1,15 +1,12 @@
 ---
 title: MyBatis 入门学习
 icon: article
-order: 1
 category:
 
-- 干货
 - 框架
 
 tag:
 
-- 基础
 - MyBatis
 
 ---

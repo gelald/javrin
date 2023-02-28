@@ -1,11 +1,9 @@
 ---
 title: 线程池基本概念
 icon: article
-order: 1
 isOriginal: true
 category:
 
-- 干货
 - 并发
 
 tag:

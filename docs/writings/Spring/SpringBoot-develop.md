@@ -1,12 +1,17 @@
 ---
 title: SpringBoot 开发中的一些问题总结
 icon: article
+isOriginal: true
 category:
 
-- 干货
-- 文章
-- Spring/SpringBoot
+- 框架
 - coding
+
+tag:
+
+- Spring/SpringBoot
+- 问题解决
+- 优化
 
 ---
 
