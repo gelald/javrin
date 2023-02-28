@@ -26,7 +26,7 @@ export default hopeTheme({
 
     // footer: "默认页脚",
 
-    copyright: "Copyright © 2022 gelald",
+    copyright: "Copyright © 2023 gelald",
 
     displayFooter: true,
 
