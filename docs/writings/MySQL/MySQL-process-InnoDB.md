@@ -1,5 +1,5 @@
 ---
-title: MySQL 更新语句执行流程
+title: MySQL 语句执行流程-存储引擎层
 icon: article
 order: 9
 category:
@@ -15,9 +15,19 @@ tag:
 ---
 
 
-# MySQL 更新语句流程
+# MySQL 语句执行流程-存储引擎层
 
-> 这一篇我们学习 MySQL 更新语句执行的流程，一步一步揭开 MySQL 执行更新语句的全过程
+> 上一篇学习完 SQL 语句在 Server 层流转的过程，这一篇我们学习 MySQL 语句执行流程中存储引擎层的部分，本篇学习使用的存储引擎是 InnoDB
+
+
+
+## MySQL InnoDB 存储引擎层架构
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230228103941.png)
+
+
+
+MySQL SQL 语句在 InnoDB 存储引擎层中的流转大概如上图，从行为角度分可以细分成读与写两类行为，下面针对这两个行为做分析
 
 
 
@@ -57,7 +67,7 @@ InnoDB 中数据的最小单位是页，一页数据的大小是 16 KB，所以�
 
 <img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230109102637.png" style="zoom:50%;" />
 
-其中 InnoDB 使用两种预读算法来提升 IO 的效率：线性预读和随机预读。介绍这两种预读算法前，我们先再深入一点 InnoDB 数据存储的逻辑结构图
+其中 InnoDB 使用两种预读算法来提升 IO 的效率：线性预读和随机预读。介绍这两种预读算法前，我们先了解一下 InnoDB 数据存储的逻辑结构图
 
 <img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230109110050.png" style="zoom:55%;" />
 
@@ -225,41 +235,7 @@ Buffer Pool 中还有一块区域叫 Change Buffer，主要的作用也是提高
 
 ## Binlog
 
-Binlog 是 MySQL Server 层维护的一个日志，以事件的形式记录了所有 DDL 和 DML 语句，主要的作用是主从复制和数据恢复
-
-- 主从复制：master 结点把它的 Binlog 传递给 slave 结点，slave 根据 master 中发生过的数据修改同步修改到自己库上
-- 数据恢复：因为 Binlog 记录了 DDL 和 DML 语句，可以通过 mysqlbinlog 工具来恢复数据
-
-
-
-Binlog 开启后会有性能上的消耗，所以默认是关闭的，如果需要打开的话需要在 MySQL 配置文件 `my.cnf` 中的`mysqld` 区加入以下配置
-
-```
-[mysqld]
-log-bin=/data/mysql-bin #日志路径
-binlog_format=MIXED
-```
-
-
-
-Binlog 相关查询命令
-
-```mysql
--- 查看 Binlog 的开关状态、文件目录、索引文件目录等信息
-show variables like '%log_bin%';
--- 查看 Binlog 文件信息
-show binary logs;
-```
-
-
-
-### Binlog 格式
-
-- row：记录数据被修改成什么样子。但是无法记录函数执行的结果，而且如果一条修改语句修改了大量的数据行或者 alter table 时，那么日志量会很大
-- statement：记录执行了的 SQL 语句。减少 Binlog 日志量，节省 IO，但是可能会出现同一条 SQL 语句在 master 结点和 slave 结点上结果不一致的情况
-- mixed：以上两种格式混合使用，MySQL 根据 SQL 语句自己选择最优的
-
-
+前面已经介绍过 Binlog 是 MySQL Server 层自己维护的一份二进制日志，主要的功能是主从同步与数据恢复，另外如果开启了 Binlog 的话，在事务提交时需要保证 Redo Log 和 Binlog 同时成功写入
 
 ### Redo Log 和 Binlog 双写保证
 
@@ -303,12 +279,5 @@ MySQL 更新语句执行流程比查询语句执行流程更为复杂，因为�
   - 考虑到数据崩溃会导致破坏 InnoDB 的持久性，MySQL 使用了 Redo Log 来记录修改操作，以便崩溃恢复
   - 考虑到直接写磁盘文件效率低下，MySQL 又引入了一个缓存 Log Buffer 提升操作效率
   - 最后围绕记录修改操作的全过程，提供了三种不同的 Log Buffer 刷盘策略
-
-
-
-最后是 MySQL 更新语句执行的整个流程图：
-
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230225223319.png)
-
 
 
