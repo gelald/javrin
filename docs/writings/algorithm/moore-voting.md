@@ -3,7 +3,6 @@ title: 摩尔投票法
 icon: article
 category:
 
-- 干货
 - 算法
 
 tag:

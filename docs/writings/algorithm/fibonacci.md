@@ -3,7 +3,6 @@ title: 斐波那契数列
 icon: article
 category:
 
-- 干货
 - 算法
 
 tag:

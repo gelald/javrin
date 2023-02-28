@@ -14,7 +14,7 @@ export default sidebar([
 		icon: "list",
 		prefix: "/writings/",
 		link: "/writings/",
-		collapsable: true,
+		collapsable: false,
 		children: [
 			{
 				text: "Java基础",

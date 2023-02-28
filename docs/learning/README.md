@@ -7,6 +7,8 @@ category:
 - 导航
 ---
 
+# 学习项目导读
+
 ## 为什么会有学习项目
 
 当我们学习一个新内容时，除了需要理论知识上的学习，也要进入到代码中去。
@@ -15,10 +17,10 @@ category:
 
 ## 学习项目包括
 
-- [RocketMQ-Learning](./RocketMQ-learning.md)
+- [RocketMQ-learning](./RocketMQ-learning.md)
 
-- Redis-Learning
+- Redis-learning
 
-- 并发-Learning
+- concurrency-learning
 
-- 认证-Learning
+- spring-security-learning
