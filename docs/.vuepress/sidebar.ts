@@ -159,6 +159,7 @@ export default sidebar([
 				children: [
 					"CAP-theory",
 					"distributed-lock",
+					"distributed-lock-zookeeper",
 					"distributed-transaction"
 				],
 			},
@@ -190,16 +191,8 @@ export default sidebar([
 				collapsable: true,
 				prefix: "algorithm/",
 				children: [
-					{
-						text: "斐波拉契数列",
-						link: "fibonacci",
-						icon: "article"
-					},
-					{
-						text: "摩尔投票法",
-						link: "moore-voting",
-						icon: "article"
-					}
+					"fibonacci",
+					"moore-voting"
 				],
 			},
 			{

@@ -3,12 +3,7 @@ title: CAP 理论
 icon: article
 category:
 
-- 干货
-- 分布式理论
-
-tag:
-
-- 基础
+- 分布式
 
 ---
 

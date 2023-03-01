@@ -1,4 +1,18 @@
-# ZooKeeper 分布式锁
+---
+title: 分布式锁 ZooKeeper 实现
+icon: article
+category:
+
+- 分布式
+
+tag:
+
+- 锁
+- ZooKeeper
+
+---
+
+# 分布式锁 ZooKeeper 实现
 
 ## 问题引入
 
@@ -103,15 +117,31 @@ ZooKeeper 的数据结构是树形层次结构，树下面可以不断创建节�
 @Data
 @Component
 @ConfigurationProperties(prefix = "biz.zookeeper")
-public class ZookeeperProperties {
+public class ZooKeeperProperties {
     /**
-     * Zookeeper服务器地址
+     * ZooKeeper服务器地址
      */
     private String server;
+  	/**
+     * ZooKeeper客户端与服务端会话超时时间
+  	 */
+  	private Integer sessionTimeoutMs;
+  	/**
+     * ZooKeeper客户端与服务端连接超时时间
+  	 */
+  	private Integer connectionTimeoutMs;
     /**
-     * 获取Zookeeper锁的最长等待时间
+     * 客户端获取ZooKeeper锁的最长等待时间
      */
     private Long maxWaitingTimeForLock;
+  	/**
+     * ZooKeeper客户端与服务端连接重试时间
+  	 */
+  	private Integer retryTimeMs;
+  	/**
+     * ZooKeeper客户端与服务端连接重试次数
+  	 */
+  	private Integer retryTimes;
 }
 ```
 
@@ -121,12 +151,12 @@ public class ZookeeperProperties {
 @Configuration
 public class ZookeeperConfiguration {
     @Autowired
-    private ZookeeperProperties zookeeperProperties;
+    private ZooKeeperProperties zookeeperProperties;
 
     // 注入时,指定initMethod和destroyMethod
     @Bean(initMethod = "init", destroyMethod = "destroy")
     public CuratorClientUtil curatorClientUtil() {
-        return new CuratorClientUtil(zookeeperProperties.getServer());
+        return new CuratorClientUtil(zookeeperProperties);
     }
 }
 ```
@@ -138,22 +168,22 @@ public class ZookeeperConfiguration {
 public class CuratorClientUtil {
     @Getter
     private CuratorFramework client;
-    private final String zookeeperServer;
+    private final ZooKeeperProperties zookeeperProperties;
 
-    public CuratorClientUtil(String zookeeperServer) {
-        this.zookeeperServer = zookeeperServer;
+    public CuratorClientUtil(ZooKeeperProperties zookeeperProperties) {
+        this.zookeeperProperties = zookeeperProperties;
     }
 
     /**
      * 创建CuratorFrameworkFactory并且启动
      */
     public void init() {
-        // 重试策略,等待1s,最大重试3次
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+        RetryPolicy retryPolicy = new ExponentialBackoffRetry(
+                zookeeperProperties.getRetryTimeMs(), zookeeperProperties.getRetryTimes());
         this.client = CuratorFrameworkFactory.builder()
-                .connectString(zookeeperServer)
-                .sessionTimeoutMs(5000)
-                .connectionTimeoutMs(5000)
+                .connectString(zookeeperProperties.getServer())
+                .sessionTimeoutMs(zookeeperProperties.getSessionTimeoutMs())
+                .connectionTimeoutMs(zookeeperProperties.getConnectionTimeoutMs())
                 .retryPolicy(retryPolicy)
                 .build();
         this.client.start();

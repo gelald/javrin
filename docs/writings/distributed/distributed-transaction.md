@@ -3,15 +3,12 @@ title: 分布式事务
 icon: article
 category:
 
-- 干货
-- 事务
-- 锁
-- 分布式事务
+- 分布式
 
 tag:
 
-- 基础
-- XA 协议
+- 事务
+- 锁
 - RocketMQ
 
 ---

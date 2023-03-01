@@ -3,14 +3,11 @@ title: 分布式锁
 icon: article
 category:
 
-- 干货
-- 分布式理论
+- 分布式
 
 tag:
 
-- 基础
-- Redis
-- Zookeeper
+- 锁
 
 ---
 
