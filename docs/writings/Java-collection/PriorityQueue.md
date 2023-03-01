@@ -73,7 +73,7 @@ public boolean offer(E e) {
 ```java
 private void siftUp(int k, E x) {
     while (k > 0) {
-        //parentNo = (nodeNo-1)/2 用无符号右移表示处以2
+        //parentNo = (nodeNo-1)/2 用无符号右移表示除以2
         int parent = (k - 1) >>> 1;
         Object e = queue[parent];
         if (comparator.compare(x, (E) e) >= 0)//调用比较器的比较方法
