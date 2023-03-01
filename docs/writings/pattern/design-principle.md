@@ -1,3 +1,12 @@
+---
+title: 设计原则
+icon: article
+category:
+
+- 设计模式
+
+---
+
 # 设计原则
 
 ## 开闭原则

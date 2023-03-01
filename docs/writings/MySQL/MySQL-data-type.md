@@ -1,15 +1,12 @@
 ---
 title: MySQL 数据类型
 icon: article
-order: 6
 category:
 
-- 干货
 - 数据库
 
 tag:
 
-- 数据类型
 - MySQL
 
 ---

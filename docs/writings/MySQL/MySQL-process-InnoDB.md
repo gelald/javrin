@@ -1,16 +1,15 @@
 ---
 title: MySQL 语句执行流程-存储引擎层
 icon: article
-order: 9
 category:
 
-- 干货
 - 数据库
+- 文章
 
 tag:
 
-- 原理
 - MySQL
+- 原理
 
 ---
 

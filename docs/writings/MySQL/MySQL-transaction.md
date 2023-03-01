@@ -1,18 +1,16 @@
 ---
 title: MySQL 事务解析
 icon: article
-order: 2
 category:
 
-- 干货
-- 文章
 - 数据库
+- 文章
 
 tag:
 
+- MySQL
 - 事务
 - 锁
-- MySQL
 
 ---
 

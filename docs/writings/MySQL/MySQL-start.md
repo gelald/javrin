@@ -1,15 +1,12 @@
 ---
 title: MySQL 入门学习
 icon: article
-order: 1
 category:
 
-- 干货
 - 数据库
 
 tag:
 
-- 基础
 - MySQL
 
 ---

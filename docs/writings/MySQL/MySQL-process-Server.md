@@ -1,16 +1,15 @@
 ---
 title: MySQL 语句执行流程- Server 层
 icon: article
-order: 8
 category:
 
-- 干货
 - 数据库
+- 文章
 
 tag:
 
-- 原理
 - MySQL
+- 原理
 
 ---
 
