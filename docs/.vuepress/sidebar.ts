@@ -44,6 +44,30 @@ export default sidebar([
 				]
 			},
 			{
+				text: "设计模式",
+				icon: "note",
+				collapsable: true,
+				prefix: "pattern/",
+				children: [
+					"design-principle",
+					"factory",
+					"singleton",
+					"prototype",
+					"builder",
+					"proxy",
+					"adapter",
+					"bridge",
+					"flyweight",
+					"composite",
+					"delegate",
+					"template",
+					"strategy",
+					"chain-of-responsibility",
+					"observer",
+					"design-pattern-summary"
+				]
+			},
+			{
 				text: "JVM",
 				icon: "note",
 				collapsable: true,

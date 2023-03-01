@@ -1,10 +1,8 @@
 ---
 title: MySQL 批量插入数据
 icon: article
-order: 7
 category:
 
-- 干货
 - 数据库
 - coding
 

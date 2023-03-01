@@ -1,10 +1,8 @@
 ---
 title: MySQL 分页查询优化
 icon: article
-order: 4
 category:
 
-- 干货
 - 数据库
 
 tag:

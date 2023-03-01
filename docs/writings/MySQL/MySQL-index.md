@@ -1,17 +1,15 @@
 ---
 title: MySQL 索引学习
 icon: article
-order: 2
 category:
 
-- 干货
-- 文章
 - 数据库
+- 文章
 
 tag:
 
-- 索引
 - MySQL
+- 索引
 
 ---
 

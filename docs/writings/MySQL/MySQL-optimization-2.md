@@ -1,10 +1,8 @@
 ---
 title: MySQL 优化
 icon: article
-order: 5
 category:
 
-- 干货
 - 数据库
 
 tag:
