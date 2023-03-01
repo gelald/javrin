@@ -555,7 +555,7 @@ public class MapStructAssembler implements IAssembler<UserVO, UserDTO> {
 
 ## 总结
 
-对象转换的操作无非是基于反射、AOP、CGlib、ASM在编译器和运行期进行处理，更好的思路是在编译期生成 get 、set 方法
+对象转换的操作无非是基于反射、AOP、CGlib、ASM在编译期和运行期进行处理，更好的思路是在编译期生成 get 、set 方法
 
 推荐使用 MapStruct 具有无可比拟的易用性和兼容性
 
