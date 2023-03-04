@@ -138,10 +138,10 @@ export default sidebar([
 				]
 			},
 			{
-				text: "消息队列",
+				text: "RocketMQ",
 				icon: "note",
 				collapsable: true,
-				prefix: "message-queue/",
+				prefix: "RocketMQ/",
 				children: [
 					"RocketMQ-start",
 					"RocketMQ-operation-client",

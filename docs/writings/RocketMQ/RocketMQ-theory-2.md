@@ -16,18 +16,9 @@ tag:
 # RocketMQ 原理分析-2
 >本篇原理分析主要讲解消息存储与读取方面
 
-## Broker 消息刷盘怎么实现的
+## RocketMQ 如何存储消息
 
-Broker 记录数据时会在其与磁盘之间增加一个缓存区，写入时先把数据写入到缓存，等到要刷盘的时候就一次性把缓存中的数据写入到磁盘文件中，但是无法避免在 Broker 宕机时丢失还没来得及持久化的数据。
-
-消息刷盘是指消息到达 Broker 后，写入到 CommitLog 的过程。RocketMQ 提供了两种刷盘策略
-
-- 同步刷盘：当消息到达 Broker 后，只有把消息写入到 CommitLog 日志文件中，才给生产者返回发送成功的响应。
-- 异步刷盘：当消息到达 Broker 后，就给生产者返回数据发送成功了，并启动一个异步线程去把消息写入到 CommitLog 中。
-
-## Broker 如何存储消息
-
-RocketMQ 主要的存储文件包括 CommitLog、ConsumeQueue、IndexFile 文件
+消息发送到 RocketMQ 后，为了保证消息不会丢失，RocketMQ 会把消息内容存储到磁盘文件中，主要的存储文件包括 CommitLog、ConsumeQueue、IndexFile 文件
 
 ### CommitLog
 
@@ -35,18 +26,27 @@ CommitLog 文件存储消息内容及消息总长度，其中消息总长度固�
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220903164152.png)
 
-单个文件大小默认 1G，文件名为起始偏移量，长度为 20 位，左边补零。消息**顺序**写入日志文件，当文件满了，自动写入下一个文件。顺序写可以极大提升写入效率。
+单个文件大小默认 1G，文件名为起始偏移量，长度为 20 位，左边补零。消息**顺序**写入日志文件，当文件满了，自动写入下一个文件。**其中数据顺序写可以极大提升写入效率**。
 >1G=1073741824Byte，第一个文件文件名是`00000000000000000000`，那么第二个文件文件名就是`00000000001073741824`，因为第一个文件最多存储 1G 的内容，所以第二个文件的起始偏移量就是 1073741824，以此类推。
+
+#### Broker 消息刷盘机制
+
+正如 MySQL 中的 redo log 的刷盘，为了提高效率，MySQL 在 InnoDB 和磁盘文件之间加了一个 Log Buffer。那么同理，RocketMQ 中 Broker 记录数据时也在其与磁盘之间增加一个**缓存区**，写入时先把数据写入到缓存，等到要刷盘的时候就一次性把缓存中的数据写入到磁盘文件中，但是无法避免在 Broker 宕机时丢失还没来得及持久化的数据。
+
+RocketMQ 提供了两种刷盘策略：
+
+- 同步刷盘：当消息到达 Broker 后，只有把消息写入到 CommitLog 日志文件中，才给生产者返回发送成功的响应。
+- 异步刷盘：当消息到达 Broker 后，就给生产者返回数据发送成功了，并启动一个异步线程去把消息写入到 CommitLog 中。
 
 ### ConsumeQueue
 
-ConsumeQueue 文件存储了`CommitLog 文件中的偏移量`、`消息长度`、`消息 Tag 的 hashcode 值`。可以看到 ConsumeQueue 文件不存储消息的内容，它的定位是**基于 Topic 的 CommitLog 索引文件**！
+ConsumeQueue 文件存储了`CommitLog 文件中的偏移量`、`消息长度`、`消息 Tag 的 hashcode 值`。可以看到 ConsumeQueue 文件不存储消息的内容，它的定位是 **Topic 的 CommitLog 索引**！
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220903170125.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220903170125.png" style="zoom: 45%;" />
 
 >为什么 Message Tag HashCode 的值是 8 个字节，Java 中`hashCode`方法不是返回 int 类型 (4 个字节） 的值吗？
 >
->因为在延时消息中，消息第一次投递时是投递到一个系统 Topic `SCHEDULE_TOPIC_XXXX` 下的队列，等待 `ScheduleMessageService` 服务进行二次投递，所以 Message Tag HashCode 记录了投递时间的时间戳，Java 时间戳的数据超出 int 数据类型的数据范围 (-2^32 ~ 2^32 -1)，所以这个值需要设计成 8 个字节。
+>因为在延时消息中，消息第一次投递时是投递到一个系统 Topic `SCHEDULE_TOPIC_XXXX` 下的队列，等待 `ScheduleMessageService` 服务进行二次投递，在 Message Tag HashCode 中记录的是投递时间的时间戳，而 Java 时间戳的数据超出 int 数据类型的数据范围 (-2^32 ~ 2^32 -1)，所以这个值需要设计成 8 个字节。
 
 ConsumeQueue 每一个存储单元固定是 20 个字节，一个文件能存储 30W 个单元，支持随机访问，一个文件的大小约 5M。
 
@@ -63,13 +63,16 @@ IndexFile 和消息的流转过程关系不大，主要是提供一种可以通�
 
 IndexFile 的底层存储设计为在文件系统中实现 HashMap 结构，所以它的结构是 Hash 槽与 Hash 冲突的链表结构，但是具体落地时会把每个 slot 槽挂载的 index 索引单元都存放到 indexes 区中。
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220904145130.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220904145130.png" style="zoom:50%;" />
+
 >IndexFile 文件结构
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220904145646.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220904145646.png" style="zoom:50%;" />
+
 >一个 Index 索引单元结构
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220904145524.png)
+<img src="https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220904145524.png" style="zoom:40%;" />
+
 >slot 与 index 的逻辑关系图
 
 #### 通过 key 查找消息
@@ -126,7 +129,7 @@ case ResponseCode.PULL_NOT_FOUND:
   }
 ```
 
-其中 PullRequestHoldService 会有一个线程不停检查 Message Queue 中是否有消息以及请求是否超时：
+PullRequestHoldService 会有一个线程不停检查 Message Queue 中是否有消息以及请求是否超时：
 
 ```java
 @Override
