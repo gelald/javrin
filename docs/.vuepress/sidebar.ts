@@ -138,6 +138,15 @@ export default sidebar([
 				]
 			},
 			{
+				text: "MongoDB",
+				icon: "note",
+				collapsable: true,
+				prefix: "MongoDB/",
+				children: [
+					"MongoDB-GridFS"
+				]
+			},
+			{
 				text: "RocketMQ",
 				icon: "note",
 				collapsable: true,
