@@ -99,6 +99,7 @@ export default sidebar([
 				children: [
 					"SpringBoot-core-component",
 					"pretty-controller",
+					"filter-and-interceptor",
 					"Spring-thread-pool",
 					"Spring-schedule",
 					"SpringBoot-develop"
