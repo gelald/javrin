@@ -15,8 +15,9 @@ export default sidebar([
 				collapsable: true,
 				prefix: "Java-base/",
 				children: [
-					"object-oriented",
 					"data-and-operation",
+					"object-oriented",
+					"interface-and-abstract",
 					"String",
 					"Object",
 					"reflection",
