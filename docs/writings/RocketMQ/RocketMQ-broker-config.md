@@ -121,4 +121,20 @@ messageDelayLevel =1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h
 # 消息轨迹
 traceTopicEnable=true
 msgTraceTopicName=RMQ_SYS_TRACE_TOPIC
+
+# 最大磁盘比率
+diskMaxUsedSpaceRatio=99
 ```
+
+
+
+## 问题
+
+`com.alibaba.rocketmq.client.exception.MQBrokerException: CODE: 14 DESC: service not available now, maybe disk full, CL: 0.87 CQ: 0.87 INDEX: 0.87, maybe your broker machine memory too small.`
+
+服务器磁盘空间不足，默认使用超过 75% 的磁盘空间会报此错误，需要调整每一个 broker 的配置参数
+
+加上这一行：`diskMaxUsedSpaceRatio=99` 只有使用超过 99% 的磁盘空间才报错
+
+保存后重启各个 broker
+
