@@ -31,9 +31,9 @@ public class RedisLock {
 
     public void lock(String lockName) {
         String key = LOCK_PREFIX + lockName;
-        //加锁
-        Boolean setFlag = redisTemplate.opsForValue().setIfAbsent(key, 1);
-        if (Boolean.TRUE.equals(setFlag)) {
+      	//加锁
+        Boolean lockSuccessfully = redisTemplate.opsForValue().setIfAbsent(key, value);
+        if (Boolean.TRUE.equals(lockSuccessfully)) {
             try {
                 log.info(" ************ Redis加锁成功：{} ************ ", key);
                 //设置过期时间，防止出现死锁，程序崩溃、服务器宕机都是不会释放锁的
@@ -82,8 +82,9 @@ public class RedisLock {
         String key = LOCK_PREFIX + lockName;
         String value = UUID.randomUUID().toString(true);
         try {
-            Boolean setFlag = redisTemplate.opsForValue().setIfAbsent(key, value, EXPIRE_TIME, TimeUnit.SECONDS);
-            if (Boolean.TRUE.equals(setFlag)) {
+            //加锁
+            Boolean lockSuccessfully = redisTemplate.opsForValue().setIfAbsent(key, value, EXPIRE_TIME, TimeUnit.SECONDS);
+            if (Boolean.TRUE.equals(lockSuccessfully)) {
                 log.info(" ************ Redis加锁成功：{} ************ ", key);
                 //设置过期时间，防止出现死锁，程序崩溃、服务器宕机都是不会释放锁的
                 redisTemplate.expire(key, EXPIRE_TIME, TimeUnit.SECONDS);
@@ -105,5 +106,12 @@ public class RedisLock {
 }
 ```
 
+这种做法解决了做法一的两个问题，看似能投入使用了，但是同样存在问题：
 
+- **finally 代码块中的获取判断和删除操作不是原子操作，在并发的环境下也是存在问题的**
+- **锁的过期时间及其重要，只要业务没有执行完成，但是锁过期了，那么问题就大了**
+
+
+
+## Redission 分布式锁的引入
 
