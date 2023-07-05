@@ -8,17 +8,22 @@ category:
 tag:
 
 - SpringMVC
+- 拦截器
 
 ---
 
 
 # Spring 中的拦截器与过滤器
 
-> 在 SpringBoot 的 Web 项目开发中，如果想实现拦截、过滤的功能，大概会有三种做法：Filter 过滤器、Interceptor 拦截器、AOP 切面编程，而我们今天要讨论的是 Filter 与 Interceptor 它们之间的区别。
+> 在 SpringBoot 的 Web 项目开发中，如果想实现拦截、过滤的功能，大概会有三种做法：Filter 过滤器、Interceptor 拦截器、AOP 切面编程，而我们今天要讨论的是 Filter 与 Interceptor 的做法及它们之间的区别。
 
 ## Filter 过滤器
 
-其实 Filter 是 Servlet 中用于拦截请求、过滤请求的一个接口，在以前，我们通常会使用 Filter 来拦截请求设置请求的字符集、判断用户是否登陆、校验权限等等。其工作原理和核心配置文件 `web.xml`  息息相关，在配置文件中我们会配置过滤器的名称，以及它过滤的 URL 规则，配置好后，符合过滤规则的请求就会先来到过滤器这里执行 Filter 中的逻辑，以及判断是否能进行下一步的流转。虽然使用原生的 Servlet 开发的时代大概率已经过去，但是 Servlet 却是 Web 开发基础中的基础，所以 Filter 接口也是能用于 SpringBoot 项目的。
+Filter 是 Servlet 中用于拦截请求、过滤请求的一个接口。在以前，我们通常会使用 Filter 来拦截请求设置请求的字符集、判断用户是否登陆、校验权限等等。
+
+其工作原理和核心配置文件 `web.xml`  息息相关，在配置文件中我们会配置过滤器的名称，以及它过滤的 URL 规则。配置好后，符合过滤规则的请求就会先来到过滤器这里执行 Filter 中的逻辑，以及判断是否能进行下一步的流转。
+
+虽然使用原生的 Servlet 开发的时代大概率已经过去，但是 Servlet 却是 Web 开发基础中的基础，所以 Filter 接口也是能适用于 SpringBoot 项目的。
 
 
 
@@ -27,7 +32,7 @@ tag:
 ```java
 public interface Filter {
 
-  	//Web容器（如Tomcat）在初始化这个Filter时调用，一般用于初始化一些资源
+  	//Servlet容器（如Tomcat）在初始化这个Filter时调用，一般用于初始化一些资源
     public default void init(FilterConfig filterConfig) throws ServletException {}
 
   	//这个方法是具体执行过滤器逻辑的方法
@@ -35,7 +40,7 @@ public interface Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException;
 
-  	//Web容器（如Tomcat）在关闭前会销毁Filter，一般用于资源的释放
+  	//Servlet容器（如Tomcat）在关闭前会销毁Filter，一般用于资源的释放
     public default void destroy() {}
 }
 ```
@@ -153,7 +158,7 @@ SpringBoot 项目中添加 Filter 的步骤主要包括 Filter 定义与注册�
 - 方式一，SpringBoot 在启动时，`ServletComponentScanRegistrar` 类实现了 `ImportBeanDefinitionRegistrar` 接口，负责把 `@ServletComponentScan` 中的包路径传递给 `ServletComponentRegisteringPostProcessor` 类，`ServletComponentRegisteringPostProcessor` 实现了 `BeanFactoryPostProcessor` 接口，在调用 `postProcessBeanFactory()` 方法时，使用 `WebServletHandler` 、`WebFilterHandler`、`WebListenerHandler` 一个个对比，符合条件就调用 `doHandle()` 方法来把 Filter 作为 `FilterRegistrationBean` 类型的 Bean 注册到 Spring IoC 容器中。
 - 方式二和方式三差异不大
   - 相同点，无论是 `FilterRegistrationBean` 还是 `DelegatingFilterProxyRegistrationBean`，他们都是实现了 `ServletContextInitializer` 接口的，在调用 `onStartup()` 方法时，抽象基类 `AbstractFilterRegistrationBean` 会调用 `addRegistration()` 方法，这个方法就是根据两个子类中返回的 Filter ，添加到 Spring IoC 容器中。
-  - 不同点，`DelegatingFilterProxyRegistrationBean` 通过传入的 targetBeanName 名字,在 Spring IoC 容器中查找该 Fillter 类型的 Bean，并通过 `DelegatingFilterProxy` 生成基于这个 Bean 的代理 Filter 对象；而 `FilterRegistrationBean`  则是直接设置一个 Filter ，因此这个 Filter 可以由 Spring IoC 容器管理，也可不用管理。如果一个 Filter 被声明为一个 Bean，而不通过 `DelegatingFilterProxyRegistrationBean` 添加到 Spring IoC 容器中，那么这个过滤器是无法添加过滤规则的，全局适用。
+  - 不同点，`DelegatingFilterProxyRegistrationBean` 通过传入的 targetBeanName 名字,在 Spring IoC 容器中查找该 Fillter 类型的 Bean，并通过 `DelegatingFilterProxy` 生成基于这个 Bean 的代理 Filter 对象；而 `FilterRegistrationBean`  则是直接设置一个 Filter ，因此这个 Filter 可以由 Spring IoC 容器管理，也可不用管理。**如果一个 Filter 被声明为一个 Bean，而不通过 `DelegatingFilterProxyRegistrationBean` 添加到 Spring IoC 容器中，那么这个过滤器是无法添加过滤规则的，全局适用。**
 
 
 
@@ -263,15 +268,19 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
 
 虽然两者名字上、功能上都颇为相似，但他们还是有部分区别的：
 
-1. Filter 是 Servlet 的内容，依赖于 Web 容器，不依赖于 Spring 容器，SpringBoot 保留了 Filter 的功能；HandlerInterceptor 是 Spring 中的内容，依赖于 Spring 容器，与其他普通的 Bean 一样被 Spring 容器管理
+- 从执行顺序上看：
 
-2. Filter 主要是对进入到核心组件 `DispathcerServlet` 前的请求进行拦截过滤，只有通过过滤的请求才能来到 `DispatcherServlet`；HandlerInterceptor 主要对来到 `DispatcherServlet` 的请求在执行 Controller 逻辑前、逻辑后、渲染结束后三个阶段做拦截，有 AOP 的意味。两者执行顺序如下：
+  ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230705105632.png)
 
-   `Filter#doFilter()` -> `DispatcherServlet#doDispatch()` -> `HandlerInterceptor#preHandle()` -> `Controller#接口方法()` -> `HandlerInterceptor#postHandle()` -> `HandlerInterceptor#afterCompletion()`
+  Filter 是 Servlet 容器接收到请求后，但是在调用 Servlet 被调用执行前执行的；而 Interceptor 是 Servlet 被调用后，在请求到达 Controller 前执行的
+
+- 从拦截粒度来看：Filter 只能对 request、response 进行拦截；Interceptor 不仅可以对 request、response 进行操作，也可以对 handler、modelAndView 进行操作，具备了对 SpringMVC 组件的操作能力
+
+- 从依赖从属来看：Filter 依赖于 Servlet 容器；而 Interceptor 不依赖于 Servlet，依赖于 Spring 框架
 
 
 
-综上所述，在基于 SpringBoot 的项目开发中，如果有需要对请求拦截处理的场景，**优先选择 HandlerInterceptor**。
+综上所述，在基于 SpringBoot 的项目开发中，如果有需要对请求拦截处理的场景，Filter 和 HandlerInterceptor两者之间，**优先选择 HandlerInterceptor**
 
 
 
