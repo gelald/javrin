@@ -64,9 +64,11 @@ export default hopeTheme({
             // 启用上角标
             sup: true,
             // 启用txt语法
-            tex: true,
+            katex: true,
             // 使用相对路径时不检查
-            linkCheck: false
+            checkLinks: {
+                status: "never"
+            }
         }
     }
 });

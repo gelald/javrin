@@ -7,12 +7,12 @@ export default sidebar([
 		icon: "list",
 		prefix: "/writings/",
 		link: "/writings/",
-		collapsable: false,
+		collapsible: false,
 		children: [
 			{
 				text: "Java基础",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "Java-base/",
 				children: [
 					"data-and-operation",
@@ -30,7 +30,7 @@ export default sidebar([
 			{
 				text: "Java集合",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "Java-collection/",
 				children: [
 					"summary",
@@ -47,7 +47,7 @@ export default sidebar([
 			{
 				text: "设计模式",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "pattern/",
 				children: [
 					"design-principle",
@@ -71,7 +71,7 @@ export default sidebar([
 			{
 				text: "JVM",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "JVM/",
 				children: [
 					"class-bytecode",
@@ -84,7 +84,7 @@ export default sidebar([
 			{
 				text: "并发",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "concurrency/",
 				children: [
 					"thread-pool",
@@ -95,7 +95,7 @@ export default sidebar([
 			{
 				text: "Spring框架",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "Spring/",
 				children: [
 					"SpringBoot-core-component",
@@ -109,7 +109,7 @@ export default sidebar([
 			{
 				text: "MyBatis框架",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "MyBatis/",
 				children: [
 					"MyBatis-start",
@@ -121,14 +121,14 @@ export default sidebar([
 			/*{
 				text: "SpringSecurity框架",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "SpringSecurity/",
 				children: "structure"
 			},*/
 			{
 				text: "MySQL",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "MySQL/",
 				children: [
 					"MySQL-data-type",
@@ -142,7 +142,7 @@ export default sidebar([
 			{
 				text: "MongoDB",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "MongoDB/",
 				children: [
 					"MongoDB-GridFS"
@@ -151,7 +151,7 @@ export default sidebar([
 			{
 				text: "RocketMQ",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "RocketMQ/",
 				children: [
 					"RocketMQ-start",
@@ -165,7 +165,7 @@ export default sidebar([
 			{
 				text: "分布式相关",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "distributed/",
 				children: [
 					"CAP-theory",
@@ -177,7 +177,7 @@ export default sidebar([
 			{
 				text: "容器技术",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "container/",
 				children: [
 					"docker",
@@ -188,7 +188,7 @@ export default sidebar([
 			{
 				text: "项目工具",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "project-tools/",
 				children: [
 					"Maven",
@@ -199,7 +199,7 @@ export default sidebar([
 			{
 				text: "算法",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "algorithm/",
 				children: [
 					"fibonacci",
@@ -209,7 +209,7 @@ export default sidebar([
 			{
 				text: "值得学习的文章",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "outside/",
 				children: [
 					{
@@ -232,7 +232,7 @@ export default sidebar([
 			/*{
 				text: "暂时归档的文章",
 				icon: "note",
-				collapsable: true,
+				collapsible: true,
 				prefix: "archive/",
 				children: "structure"
 			}*/
