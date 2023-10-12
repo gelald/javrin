@@ -1,7 +1,7 @@
 lockfileVersion: '6.0'
 
 settings:
-  autoInstallPeers: false
+  autoInstallPeers: true
   excludeLinksFromLockfile: false
 
 devDependencies:
@@ -2213,6 +2213,8 @@ packages:
 
   /@vuepress/theme-default@2.0.0-beta.67:
     resolution: {integrity: sha512-t8wfKaf/WUAifcKTYfnpsUxTVF5C4LUSiX2DH+JTt0lB/bv4SKQstuZtLvLiV9C4q2ekjGpitaW85T4KDnshug==}
+    peerDependencies:
+      sass-loader: ^13.2.1
     peerDependenciesMeta:
       sass-loader:
         optional: true
@@ -2233,16 +2235,11 @@ packages:
       '@vuepress/utils': 2.0.0-beta.67
       '@vueuse/core': 10.5.0(vue@3.3.4)
       sass: 1.69.3
-      sass-loader: 13.3.2(sass@1.69.3)
       vue: 3.3.4
       vue-router: 4.2.5(vue@3.3.4)
     transitivePeerDependencies:
       - '@vue/composition-api'
-      - fibers
-      - node-sass
-      - sass-embedded
       - supports-color
-      - webpack
     dev: true
 
   /@vuepress/utils@2.0.0-beta.67:
@@ -4598,10 +4595,6 @@ packages:
     hasBin: true
     dev: true
 
-  /neo-async@2.6.2:
-    resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
-    dev: true
-
   /node-releases@2.0.13:
     resolution: {integrity: sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==}
     dev: true
@@ -5047,29 +5040,6 @@ packages:
 
   /safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
-    dev: true
-
-  /sass-loader@13.3.2(sass@1.69.3):
-    resolution: {integrity: sha512-CQbKl57kdEv+KDLquhC+gE3pXt74LEAzm+tzywcA0/aHZuub8wTErbjAoNI57rPUWRYRNC5WUnNl8eGJNbDdwg==}
-    engines: {node: '>= 14.15.0'}
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
-      sass: ^1.3.0
-      sass-embedded: '*'
-      webpack: ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-      sass-embedded:
-        optional: true
-    dependencies:
-      neo-async: 2.6.2
-      sass: 1.69.3
     dev: true
 
   /sass@1.69.3:
@@ -6249,18 +6219,15 @@ packages:
     transitivePeerDependencies:
       - '@types/node'
       - '@vue/composition-api'
-      - fibers
       - less
       - lightningcss
-      - node-sass
       - sass
-      - sass-embedded
+      - sass-loader
       - stylus
       - sugarss
       - supports-color
       - terser
       - ts-node
-      - webpack
     dev: true
 
   /vuepress@2.0.0-beta.67(@vuepress/client@2.0.0-beta.67)(vue@3.3.4):
@@ -6273,19 +6240,16 @@ packages:
       - '@types/node'
       - '@vue/composition-api'
       - '@vuepress/client'
-      - fibers
       - less
       - lightningcss
-      - node-sass
       - sass
-      - sass-embedded
+      - sass-loader
       - stylus
       - sugarss
       - supports-color
       - terser
       - ts-node
       - vue
-      - webpack
     dev: true
 
   /web-worker@1.2.0:
