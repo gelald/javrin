@@ -25,10 +25,6 @@ export default hopeTheme({
     // sidebar
     sidebar: sidebar,
 
-    // footer: "默认页脚",
-
-    copyright: "Copyright © 2023 gelald",
-
     displayFooter: true,
 
     pageInfo: ["Author", "Original", "Date", "Category", "Tag", "Word", "ReadingTime"],
@@ -45,6 +41,13 @@ export default hopeTheme({
         blog: {
             autoExcerpt: true,
         },
+
+        copyright: {
+            author: "gelald",
+            license: "MIT Licensed"
+        },
+
+        // autoCatalog: false,
 
         comment: {
             /**
