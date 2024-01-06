@@ -191,73 +191,70 @@ services:
 
 - 创建并使用，如果没有手动使用 `docker network create` 命令，需要在使用前创建
 
-  ```yaml
-  version: '3'
-  services:
-    redisinsight-local-net:
-      image: redislabs/redisinsight:latest
-      ports:
-        - 8001:8001
-      volumes:
-        - /redisinsight/db:/db
-      networks:
-        - custom-local-net-2
-  
-    redismod-local-net:
-      image: redislabs/redismod:latest
-      ports:
-        - 6379:6379
-      volumes:
-        - /redismod/data:/data
-      networks:
-        - custom-local-net-2
-  
-  
-  networks:
-    custom-local-net-2:
-      # 声明使用的网络是使用 bridge 驱动来创建的
-      driver: bridge
-      ipam:
-        # 网络配置
-        config:
-          # 分配的子网网段
-          - subnet: 172.25.64.0/18
-          # 网关地址
-            gateway: 172.25.64.1
-  
-  ```
+```yaml
+version: '3'
+services:
+  redisinsight-local-net:
+    image: redislabs/redisinsight:latest
+    ports:
+      - 8001:8001
+    volumes:
+      - /redisinsight/db:/db
+    networks:
+      - custom-local-net-2
+
+  redismod-local-net:
+    image: redislabs/redismod:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - /redismod/data:/data
+    networks:
+      - custom-local-net-2
+
+
+networks:
+  custom-local-net-2:
+    # claim that this network in base on bridge driver
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.64.0/18
+        - gateway: 172.25.64.1
+
+```
 
   
 
 - 声明并使用，如果已经手动创建了网络，在 docker-compose.yaml 文件中只需声明一下即可
 
-  ```yaml
-  version: '3'
-  services:
-    redisinsight-local-net:
-      image: redislabs/redisinsight:latest
-      ports:
-        - 8001:8001
-      volumes:
-        - /redisinsight/db:/db
-      networks:
-        - custom-local-net
-  
-    redismod-local-net:
-      image: redislabs/redismod:latest
-      ports:
-        - 6379:6379
-      volumes:
-        - /redismod/data:/data
-      networks:
-        - custom-local-net
-  
-  
-  networks:
-    custom-local-net:
-    	# 声明这个网络是外部定义的
-      external: true
-  ```
+```yaml
+version: '3'
+services:
+  redisinsight-local-net:
+    image: redislabs/redisinsight:latest
+    ports:
+      - 8001:8001
+    volumes:
+      - /redisinsight/db:/db
+    networks:
+      - custom-local-net
+
+  redismod-local-net:
+    image: redislabs/redismod:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - /redismod/data:/data
+    networks:
+      - custom-local-net
+
+
+networks:
+  custom-local-net:
+    # claim that this network is defined outside
+    external: true
+```
 
 
 
