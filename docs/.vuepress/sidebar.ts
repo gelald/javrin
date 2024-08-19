@@ -1,4 +1,3 @@
-// @ts-ignore
 import {sidebar} from "vuepress-theme-hope";
 
 export default sidebar([
@@ -6,13 +5,13 @@ export default sidebar([
 	{
 		text: "博客文章",
 		icon: "list",
-		prefix: "/writings/",
-		link: "/writings/",
+		prefix: "writings/",
+		link: "writings/",
 		collapsible: false,
 		children: [
 			{
 				text: "Java基础",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "Java-base/",
 				children: [
@@ -30,7 +29,7 @@ export default sidebar([
 			},
 			{
 				text: "Java集合",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "Java-collection/",
 				children: [
@@ -47,7 +46,7 @@ export default sidebar([
 			},
 			{
 				text: "设计模式",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "pattern/",
 				children: [
@@ -71,7 +70,7 @@ export default sidebar([
 			},
 			{
 				text: "JVM",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "JVM/",
 				children: [
@@ -84,7 +83,7 @@ export default sidebar([
 			},
 			{
 				text: "并发",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "concurrency/",
 				children: [
@@ -95,7 +94,7 @@ export default sidebar([
 			},
 			{
 				text: "Spring框架",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "Spring/",
 				children: [
@@ -109,7 +108,7 @@ export default sidebar([
 			},
 			{
 				text: "MyBatis框架",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "MyBatis/",
 				children: [
@@ -121,14 +120,14 @@ export default sidebar([
 			},
 			/*{
 				text: "SpringSecurity框架",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "SpringSecurity/",
 				children: "structure"
 			},*/
 			{
 				text: "MySQL",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "MySQL/",
 				children: [
@@ -142,7 +141,7 @@ export default sidebar([
 			},
 			{
 				text: "MongoDB",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "MongoDB/",
 				children: [
@@ -151,7 +150,7 @@ export default sidebar([
 			},
 			{
 				text: "RocketMQ",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "RocketMQ/",
 				children: [
@@ -165,7 +164,7 @@ export default sidebar([
 			},
 			{
 				text: "分布式相关",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "distributed/",
 				children: [
@@ -177,7 +176,7 @@ export default sidebar([
 			},
 			{
 				text: "容器技术",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "container/",
 				children: [
@@ -188,7 +187,7 @@ export default sidebar([
 			},
 			{
 				text: "项目工具",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "project-tools/",
 				children: [
@@ -199,7 +198,7 @@ export default sidebar([
 			},
 			{
 				text: "算法",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "algorithm/",
 				children: [
@@ -209,30 +208,30 @@ export default sidebar([
 			},
 			{
 				text: "值得学习的文章",
-				icon: "note",
+				icon: "layer-group",
 				collapsible: true,
 				prefix: "outside/",
 				children: [
 					{
 						text: "权限系统就该这么设计",
 						link: "https://mp.weixin.qq.com/s/ED9eqxUTbWVS39ayiXCjoQ",
-						icon: "article"
+						icon: "newspaper"
 					},
 					{
 						text: "用 Arthas 定位 Spring Boot 接口的超时问题",
 						link: "https://mp.weixin.qq.com/s/95gg-9vO2CFQh6jE8KEz8w",
-						icon: "article"
+						icon: "newspaper"
 					},
 					{
 						text: "快速搭建一个网关服务，动态路由、鉴权看完就会",
 						link: "https://juejin.cn/post/7004756545741258765",
-						icon: "article"
+						icon: "newspaper"
 					}
 				]
 			},
 			/*{
 				text: "暂时归档的文章",
-				icon: "note",
+				icon: "bookmark",
 				collapsible: true,
 				prefix: "archive/",
 				children: "structure"

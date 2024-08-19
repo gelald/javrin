@@ -1,4 +1,3 @@
-// @ts-ignore
 import {hopeTheme} from "vuepress-theme-hope";
 import navbar from "./navbar";
 import sidebar from "./sidebar";
@@ -11,13 +10,13 @@ export default hopeTheme({
         url: "https://github.com/gelald"
     },
 
-    iconAssets: "iconfont",
+    iconAssets: "fontawesome-with-brands",
 
     logo: "/logo.svg",
 
     repo: "gelald/javrin",
 
-    docsDir: "demo/src",
+    docsDir: "docs",
 
     // navbar
     navbar: navbar,
@@ -29,18 +28,7 @@ export default hopeTheme({
 
     pageInfo: ["Author", "Original", "Date", "Category", "Tag", "Word", "ReadingTime"],
 
-    blog: {
-        description: "一个Java后台开发者",
-        // intro: "/intro.html",
-        medias: {
-            GitHub: "https://github.com/gelald"
-        }
-    },
-
     plugins: {
-        blog: {
-            autoExcerpt: true,
-        },
 
         copyright: {
             author: "gelald",
@@ -68,11 +56,7 @@ export default hopeTheme({
             // 启用上角标
             sup: true,
             // 启用txt语法
-            katex: true,
-            // 使用相对路径时不检查
-            checkLinks: {
-                status: "never"
-            }
+            katex: true
         }
     }
 });

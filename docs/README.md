@@ -8,12 +8,14 @@ tagline: 「Jarvin」是一个 Java 后端的知识库，希望能帮助你😎
 copyright: false
 footer: MIT Licensed | Copyright © 2022-present gelald
 actions:
-  - text: 开始阅读 💡
-    link: /writings/
+  - text: 开始阅读
+    icon: lightbulb
+    link: ./writings/
     type: primary
 
-  - text: 学习项目 💻
-    link: /learning/
+  - text: 学习项目
+    icon: computer
+    link: ./learning/
 ---
 
 ## Jarvin 是什么
