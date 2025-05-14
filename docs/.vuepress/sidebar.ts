@@ -103,6 +103,7 @@ export default sidebar([
 					"filter-and-interceptor",
 					"Spring-thread-pool",
 					"Spring-schedule",
+					"dynamic-schedule",
 					"SpringBoot-develop"
 				]
 			},

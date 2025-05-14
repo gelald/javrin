@@ -10,7 +10,7 @@ export default hopeTheme({
         url: "https://github.com/gelald"
     },
 
-    iconAssets: "fontawesome-with-brands",
+    iconAssets: "fontawesome",
 
     logo: "/logo.svg",
 

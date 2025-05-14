@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "docs:build": "vuepress-vite build docs",
-    "docs:clean-dev": "vuepress-vite dev docs --clean-cache",
+    "docs:clean-dev": "vuepress-vite dev docs --clean-cache --port=9900",
     "docs:dev": "vuepress-vite dev docs --port=9900",
     "docs:update-package": "pnpm dlx vp-update"
   },
