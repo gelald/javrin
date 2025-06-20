@@ -11,7 +11,7 @@ export default sidebar([
 		children: [
 			{
 				text: "Java基础",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "Java-base/",
 				children: [
