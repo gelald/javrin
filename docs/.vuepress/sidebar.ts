@@ -29,7 +29,7 @@ export default sidebar([
 			},
 			{
 				text: "Java集合",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "Java-collection/",
 				children: [
@@ -46,7 +46,7 @@ export default sidebar([
 			},
 			{
 				text: "设计模式",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "pattern/",
 				children: [
@@ -70,7 +70,7 @@ export default sidebar([
 			},
 			{
 				text: "JVM",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "JVM/",
 				children: [
@@ -83,7 +83,7 @@ export default sidebar([
 			},
 			{
 				text: "并发",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "concurrency/",
 				children: [
@@ -94,7 +94,7 @@ export default sidebar([
 			},
 			{
 				text: "Spring框架",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "Spring/",
 				children: [
@@ -109,7 +109,7 @@ export default sidebar([
 			},
 			{
 				text: "MyBatis框架",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "MyBatis/",
 				children: [
@@ -121,14 +121,14 @@ export default sidebar([
 			},
 			/*{
 				text: "SpringSecurity框架",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "SpringSecurity/",
 				children: "structure"
 			},*/
 			{
 				text: "MySQL",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "MySQL/",
 				children: [
@@ -142,7 +142,7 @@ export default sidebar([
 			},
 			{
 				text: "MongoDB",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "MongoDB/",
 				children: [
@@ -151,7 +151,7 @@ export default sidebar([
 			},
 			{
 				text: "RocketMQ",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "RocketMQ/",
 				children: [
@@ -165,7 +165,7 @@ export default sidebar([
 			},
 			{
 				text: "分布式相关",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "distributed/",
 				children: [
@@ -177,7 +177,7 @@ export default sidebar([
 			},
 			{
 				text: "容器技术",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "container/",
 				children: [
@@ -188,7 +188,7 @@ export default sidebar([
 			},
 			{
 				text: "项目工具",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "project-tools/",
 				children: [
@@ -199,7 +199,7 @@ export default sidebar([
 			},
 			{
 				text: "算法",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "algorithm/",
 				children: [
@@ -232,7 +232,7 @@ export default sidebar([
 			},
 			/*{
 				text: "暂时归档的文章",
-				icon: "bookmark",
+				icon: "book",
 				collapsible: true,
 				prefix: "archive/",
 				children: "structure"
