@@ -126,6 +126,44 @@ maven使用一个命令完成对项目的编译、测试、打包、安装、发
   </dependencyManagement>
   ```
 
+#### Lombok的处理
+
+[lombok 官方文档](https://projectlombok.org/setup/maven) 明确表示了 lombok 依赖的 scope 需要指定 `provided`，这样 lombok 插件只会在编译期起效，最终的运行不会依赖 lombok 
+```xml
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.38</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-maven-plugin</artifactId>
+              <version>${spring.boot.version}</version>
+              <configuration>
+                  <excludes>
+                      <!--排除一些开发工具，减小打包后的体积-->
+                      <!--开发工具：spring-boot-devtools、lombok、spring-boot-configuration-processor-->
+                      <exclude>
+                          <groupId>org.projectlombok</groupId>
+                          <artifactId>lombok</artifactId>
+                      </exclude>
+                      <exclude>
+                          <groupId>org.springframework.boot</groupId>
+                          <artifactId>spring-boot-configuration-processor</artifactId>
+                      </exclude>
+                  </excludes>
+              </configuration>
+          </plugin>
+      </plugins>
+  </build>
+```
+
 #### systemPath
 
 用于指向一个jar包的磁盘路径
