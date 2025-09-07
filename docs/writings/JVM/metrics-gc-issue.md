@@ -109,14 +109,14 @@ public class MetricsComponent {
 		        log.info("[refreshVersionForMetrics] version: {}, count: {}", version, count);
 
             // 根据标签组合生成一个唯一的Key
-            String gaugeKey = String.format("%s-%s", "0", CharSequenceUtil.isBlank(version) ? "Null" : version);
+            String gaugeKey = String.format("%s-%s", "0", version);
             
             // 获取或创建对应的AtomicLong
             AtomicLong gaugeCount = gaugeMap.computeIfAbsent(gaugeKey, k -> {
                 AtomicLong newLong = new AtomicLong(0);
                 // 注册Gauge，并始终引用这个newLong
                 Gauge.builder("app_version_metrics", newLong, AtomicLong::get)
-                      .tags(Tags.of("Code", "0", "Version", CharSequenceUtil.isBlank(version) ? "Null" : version))
+                      .tags(Tags.of("Code", "0", "Version", version))
                       .register(meterRegistry);
                 return newLong;
             });
