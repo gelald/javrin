@@ -78,7 +78,8 @@ export default sidebar([
 					"class-loading",
 					"runtime-memory-model",
 					"garbage-collection",
-					"jvm-remote-monitor"
+					"jvm-remote-monitor",
+                    "metrics-gc-issue"
 				]
 			},
 			{

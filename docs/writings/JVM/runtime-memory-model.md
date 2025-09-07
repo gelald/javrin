@@ -1,6 +1,6 @@
 ---
 title: Java 运行时内存模型
-icon: article
+icon: note-sticky
 category:
 
 - JVM

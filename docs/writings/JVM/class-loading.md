@@ -1,6 +1,6 @@
 ---
 title: Java 类加载机制
-icon: article
+icon: note-sticky
 category:
 
 - JVM

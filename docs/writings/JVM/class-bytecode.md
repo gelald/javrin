@@ -1,6 +1,6 @@
 ---
 title: Java 类字节码详解
-icon: article
+icon: note-sticky
 category:
 
 - JVM

@@ -1,6 +1,6 @@
 ---
 title: JVM 远程监控
-icon: article
+icon: note-sticky
 category:
 
 - JVM

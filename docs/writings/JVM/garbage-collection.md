@@ -1,6 +1,6 @@
 ---
 title: 垃圾回收基础
-icon: article
+icon: note-sticky
 category:
 
 - JVM
