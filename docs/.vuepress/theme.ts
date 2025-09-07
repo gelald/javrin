@@ -10,8 +10,6 @@ export default hopeTheme({
         url: "https://github.com/gelald"
     },
 
-    iconAssets: "fontawesome",
-
     logo: "/logo.svg",
 
     repo: "gelald/javrin",
@@ -27,6 +25,11 @@ export default hopeTheme({
     displayFooter: true,
 
     pageInfo: ["Author", "Original", "Date", "Category", "Tag", "Word", "ReadingTime"],
+
+    markdown: {
+        sub: true,
+        sup: true
+    },
 
     plugins: {
 
@@ -50,13 +53,8 @@ export default hopeTheme({
             reactionsEnabled: true
         },
 
-        mdEnhance: {
-            // 启用下角标功能
-            sub: true,
-            // 启用上角标
-            sup: true,
-            // 启用txt语法
-            katex: true
+        icon: {
+            assets: "fontawesome"
         }
     }
 });
