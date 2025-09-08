@@ -75,9 +75,11 @@ meterRegistry.gauge("app_version_metrics", Tags.of("Code", "0", "Version", versi
 
 ### ⚠️ 主要原因分析
 
-我们翻阅官方文档，其中有这么一段：![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/PixPin_2025-09-08_11-02-47.png)
+我们翻阅官方文档，其中有这么一段：
 
-| 使用方有责任保留对使用仪表测量的状态对象的强参考，一旦被测定的对象被取消引用并被垃圾回收，Micrometer 就会开始报告仪表的 NaN 或无任何数据
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/PixPin_2025-09-08_11-02-47.png)
+
+> 使用方有责任保留对使用仪表测量的状态对象的强参考，一旦被测定的对象被取消引用并被垃圾回收，Micrometer 就会开始报告仪表的 NaN 或无任何数据
 
 所以必须要保证注册到 Micrometer 的对象是**被强引用**的
 
@@ -112,7 +114,7 @@ metrics 中 `count`值在 Prometheus 中偶尔显示为 `NaN`，通常与 Microm
 
 如果注册后需要修改值，应该用一个全局变量/成员变量来注册，后续对这个变量修改，就能同步把值更新到 metrics 中
 
-### 💻 修改后代码：
+### 💻 修改后代码
 
 ```java
 public class MetricsComponent {
