@@ -156,13 +156,13 @@ public class MetricsComponent {
 }
 ```
 
-# 总结
+## 总结
 
 看似简单的“统计上报”逻辑，实则隐含对**对象生命周期**的强依赖。如果对 Micrometer 的工作机制理解不深，极易因“局部变量默认释放”的惯性思维，触发 GC 导致的指标失效
 
 内存管理的蝴蝶效应，OOM 与 metrics 异常绝非孤立事件。内存压力下 GC 的“不可控回收”，会通过“对象销毁→状态丢失→指标异常”的链条，将资源问题传导至监控体系。这印证了一个关键认知：**任何长期运行的服务，“内存与资源管理”都需前置考量**，不能因功能“非核心”而放松稳定性要求。
 
-# 参考链接
+### 参考链接
 
 - [micrometer 官方文档](https://docs.micrometer.io/micrometer/reference/concepts/gauges.html)
 
