@@ -177,6 +177,15 @@ export default sidebar([
 				],
 			},
 			{
+				text: "系统监控",
+				icon: "book",
+				collapsible: true,
+				prefix: "System-Monitoring/",
+				children: [
+					"metrics-core"
+				],
+			},
+			{
 				text: "容器技术",
 				icon: "book",
 				collapsible: true,
