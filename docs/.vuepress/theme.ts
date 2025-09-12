@@ -28,7 +28,8 @@ export default hopeTheme({
 
     markdown: {
         sub: true,
-        sup: true
+        sup: true,
+        mermaid: true
     },
 
     plugins: {

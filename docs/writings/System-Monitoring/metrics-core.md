@@ -1,13 +1,10 @@
 ---
 title: Metrics 核心概念
 icon: note-sticky
-category:
-
-- 系统监控
+category: 系统监控
 
 tag:
-
-- 监控
+  - 监控
 
 ---
 
@@ -18,9 +15,9 @@ tag:
 - 定义：系统运行时的**可量化数据点**，如 CPU 使用率、请求延迟、错误次数等
 - 作用：**量化系统状态**，为性能分析和故障排查提供依据，重启会丢失
 - 分类
-    - ​Gauge（仪表盘）​​：捕捉​​瞬时值​​（如实时在线人数、JVM 内存使用率）。
-    - ​​Counter（计数器）​​：统计​​累计增量​​（如接口总请求量、错误请求数）。
-    - ​​Timer（计时器）​​：记录​​事件耗时分布​​（如接口响应时间、数据库查询耗时）。
+    - `Gauge（仪表盘）`：捕捉瞬时值（如实时在线人数、JVM 内存使用率）。
+    - `Counter（计数器）`：统计累计增量（如接口总请求量、错误请求数）。
+    - `Timer（计时器）`：记录事件耗时分布（如接口响应时间、数据库查询耗时）。
 
 ## Gauge
 
@@ -126,9 +123,9 @@ graph LR
     C --> D[Grafana 可视化 / Alertmanager 告警]
 ```
 
-- 指标生成：ava 应用通过 Micrometer API 埋点（如 Gauge.builder()记录 JVM 内存、Counter.increment()统计订单数），将业务/系统状态转化为 Metrics 对象
-- 指标暴露：Micrometer 将所有注册的 Metrics 封装为 ​​Prometheus 格式的文本数据​​（如 # TYPE jvm_memory_used gauge\njvm_memory_used 12345678），并通过 HTTP 端点（如 Spring Boot Actuator 的 `/actuator/prometheus`）对外暴露
-- 指标采集：Prometheus 定时（如每 15 秒）向应用的 Metrics 端点发起 HTTP 请求，拉取最新指标并存储到时序数据库
-- 指标展示：Grafana 通过 Prometheus 数据源配置，编写 PromQL 查询语句，生成实时监控大盘（如 CPU 使用率趋势图、接口响应时间分布）
-- 指标告警：Alertmanager 基于 Prometheus 的告警规则（如“内存使用率 > 80% 持续 1 分钟”），触发邮件/短信/钉钉通知
+- `指标生成`：ava 应用通过 Micrometer API 埋点（如 Gauge.builder()记录 JVM 内存、Counter.increment()统计订单数），将业务/系统状态转化为 Metrics 对象
+- `指标暴露`：Micrometer 将所有注册的 Metrics 封装为 Prometheus 格式的文本数据（如 # TYPE jvm_memory_used gauge\njvm_memory_used 12345678），并通过 HTTP 端点（如 Spring Boot Actuator 的 `/actuator/prometheus`）对外暴露
+- `指标采集`：Prometheus 定时（如每 15 秒）向应用的 Metrics 端点发起 HTTP 请求，拉取最新指标并存储到时序数据库
+- `指标展示`：Grafana 通过 Prometheus 数据源配置，编写 PromQL 查询语句，生成实时监控大盘（如 CPU 使用率趋势图、接口响应时间分布）
+- `指标告警`：Alertmanager 基于 Prometheus 的告警规则（如“内存使用率 > 80% 持续 1 分钟”），触发邮件/短信/钉钉通知
 
