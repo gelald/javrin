@@ -5,3 +5,4 @@ docs/.vuepress/dist
 .idea
 *.iml
 .DS_Store
+docs/.vitepress/cache

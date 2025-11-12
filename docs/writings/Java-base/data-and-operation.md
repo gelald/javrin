@@ -1,10 +1,7 @@
 ---
 title: 数据与运算
 icon: article
-category:
-
-- Java基础
-
+category: Java基础
 ---
 
 # 数据与运算

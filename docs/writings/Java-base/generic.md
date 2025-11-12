@@ -1,14 +1,9 @@
 ---
 title: 泛型机制
 icon: article
-category:
-
-- Java基础
-
+category: Java基础
 tag:
-
-- 框架基础
-
+  - 框架基础
 ---
 
 # 泛型机制
