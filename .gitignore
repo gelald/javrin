@@ -6,3 +6,4 @@ docs/.vuepress/dist
 *.iml
 .DS_Store
 docs/.vitepress/cache
+docs/.vitepress/dist
