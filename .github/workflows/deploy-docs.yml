@@ -38,7 +38,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 22.20.0
-          cache: pmpm
+          cache: pnpm
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
