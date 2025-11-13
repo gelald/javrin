@@ -88,7 +88,7 @@ MyBatis 核心配置文件有一些重点需要关注的属性标签，简单了
 
 - 使用 @Param 注解
 
-  MyBatis 会将这些参数放到 Map 集合中，以 @Param 注解中的内容作为参数的键名，简单来说就是自定义 MyBatis 中的 Map 集合中的键名，使用 #{} 使用键名来访问。其中 @Param 自定义参数键名的原理：[MyBatis-@Param原理解析](./MyBatis-@Param.md)
+  MyBatis 会将这些参数放到 Map 集合中，以 @Param 注解中的内容作为参数的键名，简单来说就是自定义 MyBatis 中的 Map 集合中的键名，使用 #{} 使用键名来访问。其中 @Param 自定义参数键名的原理：[MyBatis-@Param原理解析](./MyBatis-get-param.md)
 
 **实际开发中应该以实体类型和@Param方式为主。**
 

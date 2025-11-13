@@ -22,7 +22,7 @@ tag:
 
 - 生产者发送消息时主要依靠**发送确认**来确保消息可靠性的。同步异步发送都可以获取到发送状态，通过这个发送状态来判断本次消息是否成功发送。另外，发送消息时还可以指定一个超时时间，如果超出这个超时时间可以再次发送。
 - 消费者消费消息时也存在一个**消费确认机制**，当消费者消费消息成功或失败都会给 Broker 返回消费状态，消费成功则结束本次流程；消费失败 Broker 则会重新发送消息。如果停电、宕机 Broker 都不会认为消费成功，也会继续重新投递。
-- Broker 存储阶段保证消息不丢失的手段就是**把消息记录到 CommitLog 中**，保证消息不会丢失。关于消息刷盘在下篇会进一步剖析：[RocketMQ 原理分析（下）](/docs/writings/RocketMQ/RocketMQ-theory-2.md)
+- Broker 存储阶段保证消息不丢失的手段就是**把消息记录到 CommitLog 中**，保证消息不会丢失。关于消息刷盘在下篇会进一步剖析：[RocketMQ 原理分析（下）](./RocketMQ-theory-2.md)
 
 关于保证成功记录到 CommitLog 有两种方式：
   - 同步刷盘，生产者把消息发送到 Broker 后，只有 Broker 成功地把消息写入到 CommitLog 后，才能给生产者返回发送成功的 ACK。这种方式可靠性更高，但是牺牲了效率。
@@ -56,7 +56,7 @@ RocketMQ 不保证消息不重复，如果要严格确保不重复，需要在�
 
 RocketMQ 的顺序消息包含两个层面，有顺序地生产消息以及有顺序地消费消息。有些业务场景下必须保证顺序，比如订单的生成、付款、发货，这个顺序是必须保证的。
 
-RocketMQ 顺序消息可以分为全局有序以及分区有序，全局有序与分区有序的区别与落地在这篇文章中也适当介绍了：[RocketMQ 操作落地 (rocketmq-client 方式)](/docs/writings/RocketMQ/RocketMQ-operation-client.md)。
+RocketMQ 顺序消息可以分为全局有序以及分区有序，全局有序与分区有序的区别与落地在这篇文章中也适当介绍了：[RocketMQ 操作落地 (rocketmq-client 方式)](./RocketMQ-operation-client.md)。
 
 全局有序消息
 
