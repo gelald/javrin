@@ -8,13 +8,14 @@ export default defineConfig({
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         nav: [
-            {text: '首页', link: '/'},
-            {text: '笔记', link: '/writings'}
+            {text: "首页", link: "/"},
+            {text: "笔记", link: "/writings"},
+            {text: "vitepress文档", link: "https://vitepress.dev/reference/site-config"}
         ],
 
         sidebar: [
             {
-                text: '学习笔记',
+                text: "学习笔记",
                 items: [
                     {
                         text: "Java基础",
@@ -108,6 +109,14 @@ export default defineConfig({
                             {text: "基于 Nacos 实现 SpringBoot 动态定时任务调度", link: "/dynamic-schedule"},
                             {text: "SpringBoot 开发中的一些问题总结", link: "/SpringBoot-develop"}
                         ],
+                    },
+                    {
+                        text: "Spring Security",
+                        collapsed: true,
+                        base: "/writings/SpringSecurity",
+                        items: [
+                            {text: "SpringSecurity 核心组件", link: "/Spring-Security-core-component"}
+                        ]
                     },
                     {
                         text: "MyBatis框架",
@@ -206,15 +215,15 @@ export default defineConfig({
                 ]
             },
             {
-                text: '学习项目',
+                text: "学习项目",
                 items: [
-                    {text: 'RocketMQ学习', link: '/learning/RocketMQ-learning'}
+                    {text: "RocketMQ学习", link: "/learning/RocketMQ-learning"}
                 ]
             }
         ],
 
         socialLinks: [
-            {icon: 'github', link: 'https://github.com/gelald/javrin'}
+            {icon: "github", link: "https://github.com/gelald/javrin"}
         ]
     }
 })
