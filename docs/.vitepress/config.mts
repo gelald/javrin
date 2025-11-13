@@ -224,6 +224,14 @@ export default defineConfig({
 
         socialLinks: [
             {icon: "github", link: "https://github.com/gelald/javrin"}
-        ]
-    }
+        ],
+
+        // 页面大纲设置
+        outline: {
+            level: [2, 4],
+            label: "页面导航"
+        }
+    },
+    // 开启最后更新时间
+    lastUpdated: true
 })
