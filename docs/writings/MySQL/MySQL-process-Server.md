@@ -234,7 +234,7 @@ binlog_format=MIXED
 
 Binlog 相关查询命令
 
-```mysql
+```sql
 -- 查看 Binlog 的开关状态、文件目录、索引文件目录等信息
 show variables like '%log_bin%';
 -- 查看 Binlog 文件信息

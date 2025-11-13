@@ -1818,7 +1818,7 @@ JSP定义Java代码的方式
 
     - 格式：
 
-      ```jsp
+      ```javascript
       <c:choose> switch
         <c:when test="布尔表达式">xxx</c:when> case
         <c:when test="布尔表达式">xxx</c:when> case
@@ -1832,7 +1832,7 @@ JSP定义Java代码的方式
 
     - 普通for格式：
 
-      ```jsp
+      ```javascript
       <c:forEach begin="1" end="10" var="i" step="1" varStatus="s">
       	xxx
         ${s.index} 容器中元素的索引，从0开始
@@ -1842,7 +1842,7 @@ JSP定义Java代码的方式
 
     - foreach格式：
 
-      ```jsp
+      ```javascript
       <c:forEach item="${list}" var="str" varStatus="s">
       	
       </c:forEach>

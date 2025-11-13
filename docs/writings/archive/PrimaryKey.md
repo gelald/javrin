@@ -354,7 +354,7 @@ public class SnowflakeIdWorker {
 
 对单点数据库进行优化，改造成主从模式集群，两个MySQL实例都单独生产自增id、
 
-```mysql
+```sql
 -- MySQL Master
 set @@auto_increment_offset = 1;		-- 起始值
 set @@auto_increment_increment = 2;		-- 步长
@@ -382,7 +382,7 @@ set @@auto_increment_increment = 2;		-- 步长
 
 **号段模式可以理解成从数据库批量地获取自增**，每次从数据库取出一个号段范围，例如 (1,1000] 代表1000个ID，具体的业务服务将本号段，生成1~1000的自增ID并加载到内存
 
-```mysql
+```sql
 CREATE TABLE id_generator (
   `id` int(10) NOT NULL,
   `max_id` bigint(20) NOT NULL COMMENT '当前最大的可用id',
@@ -396,7 +396,7 @@ CREATE TABLE id_generator (
 - 每一类业务单独使用一批id
 - 当使用完一批id后，再次向数据库申请新号段，对max_id字段做一次update操作，新的号段范围是(max_id, max_id+step]
 
-```mysql
+```sql
 update id_generator set max_id = (max_id+step), version = (version+1) where version =  {version} and biz_type = XX
 ```
 

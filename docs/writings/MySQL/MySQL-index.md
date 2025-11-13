@@ -269,7 +269,7 @@ InnoDB 主键索引和普通索引的结构，以及查询数据的检索路线�
 
 - 查看状态
 
-  ```mysql
+  ```sql
   select @@optimizer_switch;
   
   -- 结果
@@ -280,7 +280,7 @@ InnoDB 主键索引和普通索引的结构，以及查询数据的检索路线�
 
 - 切换开关
 
-  ```mysql
+  ```sql
   set optimizer_switch="index_condition_pushdown=off";
   set optimizer_switch="index_condition_pushdown=on";
   ```
@@ -291,7 +291,7 @@ InnoDB 主键索引和普通索引的结构，以及查询数据的检索路线�
 
 建表语句
 
-```mysql
+```sql
 CREATE TABLE `t_user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `user_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '用户名',
@@ -309,7 +309,7 @@ CREATE TABLE `t_user` (
 
 - 使用组合索引中，第一列进行了模糊查询
 
-  ```mysql
+  ```sql
   EXPLAIN SELECT * FROM `t_user` WHERE user_name like 'Shannon%' AND full_name = 'xiao ming' And age = 20;
   ```
 
@@ -331,7 +331,7 @@ CREATE TABLE `t_user` (
 
 - 使用了组合索引中的第一列和第三列
 
-  ```mysql
+  ```sql
   EXPLAIN SELECT * FROM `t_user` WHERE user_name = 'Shannon Henry' AND age = 20;
   ```
 

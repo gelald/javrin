@@ -26,7 +26,7 @@ tag:
 
 有些时候我们会尽可能地去建一些组合索引，能有效提升查询的效率，我们希望出现这两种情况：
 
-索引下推：如果查询条件包含在了组合索引中，比如存在组合索引（a,b)，查询到满足 a 的记录后会直接在索引内部判断 b 是否满足，减少回表次数。
+索引下推：如果查询条件包含在了组合索引中，比如存在组合索引(a,b)，查询到满足 a 的记录后会直接在索引内部判断 b 是否满足，减少回表次数。
 
 覆盖索引：如果查询的列恰好包含在组合索引中，就无需回表。
 
@@ -61,7 +61,7 @@ t 表中包含 100w 条数据，现在按每页 20 条数据分页查询 serller
 
 普通做法：`limit M, N`
 
-```mysql
+```sql
 select * from t where serllerid = 100 limit 100000, 20;
 
 !-- 20 rows in set(90 sec)
@@ -73,7 +73,7 @@ select * from t where serllerid = 100 limit 100000, 20;
 
 优化做法：先查询翻页中需要的 N 条数据的主键，再根据 id 回表查询所需要的N条数据。查询 N 条数据的主键在索引中完成的，所以速度更快。
 
-```mysql
+```sql
 select * from t t1, (select id from t where serllerid = 100 limit 100000, 20) t2 where t1.id = t2.id;
 !-- 20 rows in set(4.25 sec)
 ```

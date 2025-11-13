@@ -187,13 +187,13 @@ update 操作产生的 undo log 格式大致如下：
 
 查看事务隔离级别：
 
-```mysql
+```sql
 SELECT @@TRANSACTION_ISOLATION;
 ```
 
 设置事务隔离级别：
 
-```mysql
+```sql
 SET [ SESSION | GLOBAL ] TRANSACTION ISOLATION LEVEL {READ UNCOMMITTED | READ COMMITTED | REPEATABLE READ | SERIALIZABLE };
 ```
 
@@ -260,7 +260,7 @@ MVCC 的实现依赖于 undo log 的版本链和 ReadView，**通过维护一行
 
 - MyISAM 只支持表锁
 
-  ```mysql
+  ```sql
   lock table xxx write;
   lock table xxx read;
   unlock table;
@@ -270,7 +270,7 @@ MVCC 的实现依赖于 undo log 的版本链和 ReadView，**通过维护一行
 
 - InnoDB：既支持表锁，也支持行锁。锁粒度越小，并发性能越高。
 
-  ```mysql
+  ```sql
   select xxx from xxx lock in share mode; -- 共享锁
   select xxx from xxx for update; -- 锁住整个表，如果使用到索引就只锁当前记录
   
@@ -285,7 +285,7 @@ MVCC 的实现依赖于 undo log 的版本链和 ReadView，**通过维护一行
 
   当一个事务给数据加上共享锁后，自己事务和其他事务都不能对锁定的数据进行修改，但是其他事务可以读取到被锁定的数据，并且其他事务也能继续给这些数据加共享锁，当事务提交时，共享锁自动释放
 
-  ```mysql
+  ```sql
   select * from xxxtable where xxx lock in share mode;
   ```
 
@@ -295,7 +295,7 @@ MVCC 的实现依赖于 undo log 的版本链和 ReadView，**通过维护一行
 
   当一个事务给数据加上排他锁后，其他事务就不能再给这些数据加共享锁、排他锁，只有获取了排他锁的事务才可以对数据进行读写，直到这个事务提交释放排他锁
 
-  ```mysql
+  ```sql
   -- insert、delete、update语句自动加上排他锁
   
   -- select语句可以手动加上排他锁
@@ -330,7 +330,7 @@ MVCC 的实现依赖于 undo log 的版本链和 ReadView，**通过维护一行
 
   使用**聚簇索引或者唯一索引**做等值查询，精准匹配到的某一条记录时会使用记录锁
 
-  ```mysql
+  ```sql
   select * from user where id = 4 for update;
   ```
 
@@ -348,7 +348,7 @@ MVCC 的实现依赖于 undo log 的版本链和 ReadView，**通过维护一行
 
   范围查询时，定位到一段范围内的索引记录时会使用间隙锁
 
-  ```mysql
+  ```sql
   select * from emp where empid > 40 for update;
   ```
 
@@ -387,7 +387,7 @@ MVCC 的实现依赖于 undo log 的版本链和 ReadView，**通过维护一行
 
   在事务 1 中执行：
 
-  ```mysql
+  ```sql
   -- 根据非唯一索引列锁住某条记录
   select * from user where age = 13 for update;
   -- 或者根据非唯一索引列update某条记录
@@ -396,7 +396,7 @@ MVCC 的实现依赖于 undo log 的版本链和 ReadView，**通过维护一行
 
   以上无论哪一句执行后，在事务 2 中执行这条语句都会被阻塞
 
-  ```mysql
+  ```sql
   insert into user values(7, 15, '小张');
   ```
 

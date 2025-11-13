@@ -28,7 +28,7 @@ tag:
 
 ### 数据库版本
 
-```mysql
+```sql
 mysql> select version();
 +-----------+
 | version() |
@@ -42,7 +42,7 @@ mysql> select version();
 
 ### 数据库表结构
 
-```mysql
+```sql
 CREATE TABLE `batch_maintain` (
   `maintain_id` int(11) NOT NULL AUTO_INCREMENT,
   `maintain_num` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '保养工单编号',
