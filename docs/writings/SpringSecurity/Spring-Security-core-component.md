@@ -1,5 +1,5 @@
 ---
-title: SpringSecurity 学习
+title: SpringSecurity 核心组件
 icon: article
 order: 1
 category: SpringSecurity
@@ -9,6 +9,8 @@ tag:
 ---
 
 # Spring Security 核心组件
+
+> 以下 Spring Security 的版本是 6.1.0
 
 ## UserDetails
 
@@ -50,7 +52,7 @@ public interface UserDetails extends Serializable {
 }
 ```
 
-## UserDetailsService
+### UserDetailsService
 
 `UserDetailsService` 是 Spring Security 提供的查询 `UserDetails` 的规范，里面只有一个方法：`loadUserByUsername`，其中这个 Username 不一定真的对应我们自定义用户的 username，它可以是任意的用户唯一标识，比如在以手机号码为主体的认证系统中，这个 username 就可以是用户的手机号码
 
@@ -61,9 +63,15 @@ public interface UserDetailsService {
 }
 ```
 
+在实际开发中，我们需要实现这个接口，来完成用户数据的查询并封装成 `UserDetails` 格式返回
+
 ## Authentication
 
-`Authentication` 是一个动态的认证上下文对象，回答了“请求主体是谁？是否通过认证？拥有哪些权限？”的问题。这是它和 `UserDetails` 最本质的区别，一个是用户数据模型，而它是 Spring Security 中实际流动和使用的核心对象。在认证阶段，认证前它仅封装了用户提交的登录凭证（比如用户名和密码）；认证成功后它会被再次填充为一个包含用户信息的对象，来证明这个用户已经通过了认证。在授权阶段，其中 `authorization` 属性是授权决策的直接数据来源。
+`Authentication` 是一个动态的认证上下文对象，回答了“请求主体是谁？是否通过认证？拥有哪些权限？”的问题。这是它和 `UserDetails` 最本质的区别，一个是用户数据模型，而它是 Spring Security 中实际流动和使用的核心对象。
+
+在认证阶段，认证前它仅封装了用户提交的登录凭证（比如用户名和密码）；认证成功后它会被再次填充为一个包含用户信息的对象，来证明这个用户已经通过了认证。
+
+在授权阶段，其中 `authorization` 属性是授权决策的直接数据来源。
 
 ```java
 public interface Authentication extends Principal, Serializable {
@@ -98,7 +106,9 @@ public interface Authentication extends Principal, Serializable {
 
 ## SecurityContext
 
-`SecurityContext` 是安全上下文，在用户通过认证后，认证信息会被包含在 `Authentication` 对象中，而 `Authentication` 会存储到 `SecurityContext` 上下文中
+`SecurityContext` 翻译为安全上下文，在用户通过认证后，认证信息会被包含在 `Authentication` 对象中，而 `Authentication` 会存储到 `SecurityContext` 上下文中。
+
+简单理解为：**存放认证信息的容器**
 
 ```java
 public interface SecurityContext extends Serializable {
@@ -110,7 +120,9 @@ public interface SecurityContext extends Serializable {
 
 ## SecurityContextHolder
 
-`SecurityContextHolder` 从名字中不难看出他是用于获取 `SecurityContext` 的组件，但是细看源码，它并不直接负责存储，而是提供存储的策略，实际的存储工作由不同的 `SecurityContextHolderStrategy` 来实现。`SecurityContextHolder` 会调用当前使用的 `SecurityContextHolderStrategy` 来获取或修改 `SecurityContext`。有 3 种存储策略：
+`SecurityContextHolder` 从名字中不难看出他是用于获取 `SecurityContext` 的组件，但是细看源码，它并不直接负责存储，而是提供存储的策略，实际的存储工作由不同的 `SecurityContextHolderStrategy` 来实现。
+
+`SecurityContextHolder` 会调用当前使用的 `SecurityContextHolderStrategy` 来获取或修改 `SecurityContext`。有 3 种存储策略：
 
 - `MODE_THREADLOCAL`：底层使用 `ThreadLocal` 来实现存储，`SecurityContext` 存储在当前线程中（默认存储策略）
 - `MODE_INHERITABLETHREADLOCAL`：底层使用 `InheritableThreadLocal` 来实现存储，在 `MODE_THREADLOCAL` 基础上，可以在开启的子线程中获取 `SecurityContext`
@@ -125,11 +137,11 @@ public interface SecurityContext extends Serializable {
 
 ```java
 public class SecurityContextHolder {
-	  public static final String SYSTEM_PROPERTY = "spring.security.strategy";
-
-	  private static String strategyName = System.getProperty(SYSTEM_PROPERTY);
-
-	  private static SecurityContextHolderStrategy strategy;
+    public static final String SYSTEM_PROPERTY = "spring.security.strategy";
+    
+    private static String strategyName = System.getProperty(SYSTEM_PROPERTY);
+    
+    private static SecurityContextHolderStrategy strategy;
 
   	private static void initializeStrategy() {
 		if (MODE_PRE_INITIALIZED.equals(strategyName)) {
@@ -141,7 +153,7 @@ public class SecurityContextHolder {
 			// Set default
 			strategyName = MODE_THREADLOCAL;
 		}
-    // 按官方提供的存储策略初始化
+        // 按官方提供的存储策略初始化
 		if (strategyName.equals(MODE_THREADLOCAL)) {
 			strategy = new ThreadLocalSecurityContextHolderStrategy();
 			return;
@@ -156,7 +168,7 @@ public class SecurityContextHolder {
 		}
 		// Try to load a custom strategy
 		try {
-      // 关键：按类名加载你的自定义 SecurityContextHolderStrategy
+            // 关键：按类名加载你的自定义 SecurityContextHolderStrategy
 			Class<?> clazz = Class.forName(strategyName);
 			Constructor<?> customStrategy = clazz.getConstructor();
 			strategy = (SecurityContextHolderStrategy) customStrategy.newInstance();
@@ -170,7 +182,7 @@ public class SecurityContextHolder {
 
 ## AuthenticationProvider
 
-`AuthenticationProvider` 是实际负责认证工作的组件，也是实现 `Authentication` 认证前后数据变更的组件。
+`AuthenticationProvider` 是实际负责认证工作的核心组件，前面提到过：`Authentication` 中的数据会在认证前后产生变化，就是 `AuthenticationProvider` 来实现的。
 
 ```java
 public interface AuthenticationProvider {
@@ -293,7 +305,9 @@ public interface AuthenticationProvider {
 
 ## AuthenticationManager
 
-`AuthenticationManager` 接口的结构和 `AuthenticationProvider` 结构很类似，都是有一个 `authenticate` 方法，但是它们扮演的角色却大不相同，核心功能是指派之前提到的 `supports` 方法是 `true` 的 `AuthenticationProvider` 来执行真正的认证工作
+`AuthenticationManager` 接口的结构和 `AuthenticationProvider` 结构很类似，都是有一个 `authenticate` 方法，但是它们扮演的角色却大不相同。
+
+核心功能是指派之前提到的 `supports` 方法是 `true` 的 `AuthenticationProvider` 来执行真正的认证工作
 
 ```java
 public interface AuthenticationManager {
@@ -335,7 +349,33 @@ public interface AuthenticationManager {
     }
 ```
 
-## UsernamePasswordAuthenticationFilter
+## DefaultSecurityFilterChain
+
+Spring Security 对 Servlet 应用增加是基于 Servlet Filter 实现的，常见的包括处理 csrf 的过滤器、校验权限的过滤器、处理登录的过滤器等等，它们通常会被组织成一个 FilterChain 的形式来工作，我们可以理解为一个 FilterChain 包含了多个相同模块但不同功能的 Filter。比如 Spring Security 提供的 FilterChain 就叫 `DefaultSecurityFilterChain`，我们引入了 Spring Security 的依赖并启动应用后，控制台会输出这一段信息：
+
+```txt
+2023-06-14T08:55:22.321-03:00  INFO 76975 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [
+org.springframework.security.web.session.DisableEncodeUrlFilter@404db674,
+org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@50f097b5,
+org.springframework.security.web.context.SecurityContextHolderFilter@6fc6deb7,
+org.springframework.security.web.header.HeaderWriterFilter@6f76c2cc,
+org.springframework.security.web.csrf.CsrfFilter@c29fe36,
+org.springframework.security.web.authentication.logout.LogoutFilter@ef60710,
+org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@7c2dfa2,
+org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@4397a639,
+org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@7add838c,
+org.springframework.security.web.authentication.www.BasicAuthenticationFilter@5cc9d3d0,
+org.springframework.security.web.savedrequest.RequestCacheAwareFilter@7da39774,
+org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@32b0876c,
+org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3662bdff,
+org.springframework.security.web.access.ExceptionTranslationFilter@77681ce4,
+org.springframework.security.web.access.intercept.AuthorizationFilter@169268a7]
+```
+
+可以看到这个 FilterChain 里面包含的多个 Filter，一旦看见这些 Filter，说明 Spring Security 已经成功接管了项目的认证授权模块
+
+
+### UsernamePasswordAuthenticationFilter
 
 `UsernamePasswordAuthenticationFilter` 是 Spring Security 过滤器链上关于认证的过滤器，它是发起认证流程的起点，所有的组件都将由它来组织并发起工作
 
@@ -377,40 +417,66 @@ public interface AuthenticationManager {
 ```java
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
         Authentication authResult) throws IOException, ServletException {
-      SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
-      context.setAuthentication(authResult);
-      this.securityContextHolderStrategy.setContext(context);
-      this.securityContextRepository.saveContext(context, request, response);
-      if (this.logger.isDebugEnabled()) {
-        this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
-      }
-      this.rememberMeServices.loginSuccess(request, response, authResult);
-      if (this.eventPublisher != null) {
-        this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
-      }
-      this.successHandler.onAuthenticationSuccess(request, response, authResult);
+        
+        // 这里使用 SecurityContextHolderStrategy 来创建 SecurityContext 
+        SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
+        // 为 SecurityContext 存储 Authentication 对象
+        context.setAuthentication(authResult);
+        // 更新 SecurityContext 到 SecurityContextHolder 中，方便后续使用
+        this.securityContextHolderStrategy.setContext(context);
+
+        this.securityContextRepository.saveContext(context, request, response);
+        if (this.logger.isDebugEnabled()) {
+            this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
+        }
+        this.rememberMeServices.loginSuccess(request, response, authResult);
+        if (this.eventPublisher != null) {
+            this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
+        }
+        this.successHandler.onAuthenticationSuccess(request, response, authResult);
     }
 
 
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
         AuthenticationException failed) throws IOException, ServletException {
-      this.securityContextHolderStrategy.clearContext();
-      this.logger.trace("Failed to process authentication request", failed);
-      this.logger.trace("Cleared SecurityContextHolder");
-      this.logger.trace("Handling authentication failure");
-      this.rememberMeServices.loginFail(request, response);
-      this.failureHandler.onAuthenticationFailure(request, response, failed);
+        
+        // 认证失败先清除 SecurityContext
+        this.securityContextHolderStrategy.clearContext();
+
+        this.logger.trace("Failed to process authentication request", failed);
+        this.logger.trace("Cleared SecurityContextHolder");
+        this.logger.trace("Handling authentication failure");
+        this.rememberMeServices.loginFail(request, response);
+        this.failureHandler.onAuthenticationFailure(request, response, failed);
     }
 ```
 
+最后看 `attemptAuthentication` 方法，核心的工作依然是调用 `AuthenticationManager` 进而去委派实际的 `AuthenticationProvider` 来完成实际的认证工作
 
-## Spring Security 整体认证流程
+```java
+	@Override
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException {
+        // ...
+        
+        // 参数处理
+		String username = obtainUsername(request);
+		username = (username != null) ? username.trim() : "";
+		String password = obtainPassword(request);
+		password = (password != null) ? password : "";
+		
+		// 把用户名密码封装到 Authentication 中
+		UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
+		// 这里主要把 IP地址、sessionId 信息添加到 Authentication 中
+        setDetails(request, authRequest);
+		
+		// 调用 AuthenticationManager 来完成认证
+		return this.getAuthenticationManager().authenticate(authRequest);
+	}
 
-Spring Security 对 Servlet 应用增加是基于 Servlet Filter 实现的，常见的包括处理 csrf 的过滤器、校验权限的过滤器、处理登录的过滤器等等，它们通常会被组织成一个 FilterChain 的形式来工作，我们可以理解为一个 FilterChain 包含了多个相同模块但不同功能的 Filter。比如 Spring Security 提供的 FilterChain 就叫 `DefaultSecurityFilterChain`，我们引入了 Spring Security 的依赖并启动应用后，控制台会输出这一段信息：
-
-```txt
-INFO 11620 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@30f929ff, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@49d4a2cf, org.springframework.security.web.context.SecurityContextHolderFilter@3d7d72f2, org.springframework.security.web.header.HeaderWriterFilter@54ebacdc, org.springframework.security.web.authentication.logout.LogoutFilter@5d237827, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@6114ed6f, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@34b63def, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4d92e9da, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@fed510f, org.springframework.security.web.access.ExceptionTranslationFilter@7d39c9c, org.springframework.security.web.access.intercept.AuthorizationFilter@269bf9e6]
 ```
 
-可以看到这个 FilterChain 里面包含的多个 Filter，一旦看见这些 Filter，说明 Spring Security 已经成功接管了项目的认证授权模块
+## Spring Security 完整认证流程
 
+
+![Spring Security 认证流程](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image.png)
