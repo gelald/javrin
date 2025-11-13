@@ -90,7 +90,7 @@ export default defineConfig({
                         base: "/writings/concurrency",
                         items: [
                             {text: "线程池", link: "/thread-pool"},
-                            {text: "串行改并行", link: "/serial-to-parallel"},
+                            {text: "由串行到并行的故事", link: "/serial-to-parallel"},
                             {text: "任务是否在线程池中执行", link: "/is-thread-executed-in-executor"}
                         ],
                     },
@@ -100,12 +100,12 @@ export default defineConfig({
                         base: "/writings/Spring",
                         items: [
                             {text: "SpringBoot核心组件", link: "/SpringBoot-core-component"},
-                            {text: "漂亮的Controller", link: "/pretty-controller"},
+                            {text: "Controller就该这么写", link: "/pretty-controller"},
                             {text: "过滤器和拦截器", link: "/filter-and-interceptor"},
                             {text: "Spring线程池", link: "/Spring-thread-pool"},
                             {text: "Spring定时任务", link: "/Spring-schedule"},
-                            {text: "动态定时任务", link: "/dynamic-schedule"},
-                            {text: "SpringBoot开发", link: "/SpringBoot-develop"}
+                            {text: "基于 Nacos 实现 SpringBoot 动态定时任务调度", link: "/dynamic-schedule"},
+                            {text: "SpringBoot 开发中的一些问题总结", link: "/SpringBoot-develop"}
                         ],
                     },
                     {
@@ -125,19 +125,11 @@ export default defineConfig({
                         base: "/writings/MySQL",
                         items: [
                             {text: "MySQL数据类型", link: "/MySQL-data-type"},
-                            {text: "MySQL服务器处理过程", link: "/MySQL-process-Server"},
-                            {text: "MySQL InnoDB处理过程", link: "/MySQL-process-InnoDB"},
+                            {text: "MySQL Server层处理过程", link: "/MySQL-process-Server"},
+                            {text: "MySQL 存储引擎层处理过程", link: "/MySQL-process-InnoDB"},
                             {text: "MySQL索引", link: "/MySQL-index"},
                             {text: "MySQL事务", link: "/MySQL-transaction"},
                             {text: "MySQL批量插入", link: "/MySQL-batch-insert"}
-                        ],
-                    },
-                    {
-                        text: "MongoDB",
-                        collapsed: true,
-                        base: "/writings/MongoDB",
-                        items: [
-                            {text: "MongoDB GridFS", link: "/MongoDB-GridFS"}
                         ],
                     },
                     {
@@ -146,8 +138,8 @@ export default defineConfig({
                         base: "/writings/RocketMQ",
                         items: [
                             {text: "RocketMQ入门", link: "/RocketMQ-start"},
-                            {text: "RocketMQ客户端操作", link: "/RocketMQ-operation-client"},
-                            {text: "RocketMQ Starter操作", link: "/RocketMQ-operation-starter"},
+                            {text: "RocketMQ 操作落地 (rocketmq-client 方式)", link: "/RocketMQ-operation-client"},
+                            {text: "RocketMQ 操作落地 (rocketmq-starter 方式)", link: "/RocketMQ-operation-starter"},
                             {text: "RocketMQ理论(1)", link: "/RocketMQ-theory-1"},
                             {text: "RocketMQ理论(2)", link: "/RocketMQ-theory-2"},
                             {text: "RocketMQ Broker配置", link: "/RocketMQ-broker-config"}
@@ -177,8 +169,8 @@ export default defineConfig({
                         collapsed: true,
                         base: "/writings/container",
                         items: [
-                            {text: "Docker", link: "/docker"},
-                            {text: "容器通信", link: "/container-communication"},
+                            {text: "Docker基础知识", link: "/docker"},
+                            {text: "Docker容器通信", link: "/container-communication"},
                             {text: "修改Docker默认存储", link: "/modify-docker-default-storage"}
                         ],
                     },
@@ -204,7 +196,6 @@ export default defineConfig({
                     {
                         text: "值得学习的文章",
                         collapsed: true,
-                        base: "/writings/outside",
                         items: [
                             {text: "权限系统就该这么设计", link: "https://mp.weixin.qq.com/s/ED9eqxUTbWVS39ayiXCjoQ"},
                             {text: "用 Arthas 定位 Spring Boot 接口的超时问题", link: "https://mp.weixin.qq.com/s/95gg-9vO2CFQh6jE8KEz8w"},
