@@ -478,5 +478,10 @@ org.springframework.security.web.access.intercept.AuthorizationFilter@169268a7]
 
 ## Spring Security 完整认证流程
 
+![AuthenticationManager工作流程](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/daoauthenticationprovider.png)
 
-![Spring Security 认证流程](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/image.png)
+1. `UsernamePasswordAuthenticationFilter` 把用户名和密码封装成 `UsernamePasswordAuthenticationToken`, 并传递给 `AuthenticationManager`，它由 `ProviderManager` 实现。
+2. `ProviderManager` 会遍历所有 `AuthenticationProvider`，最后发现 `DaoAuthenticationProvider` 符合 `support` 方法返回 `true` 的要求，由 `DaoAuthenticationProvider` 来完成认证的工作。
+3. `DaoAuthenticationProvider` 调用 `UserDetailsService` 去查询用户信息并封装成 `UserDetails`。
+4. `DaoAuthenticationProvider` 使用 `PasswordEncoder` 来验证上一步查询到的 `UserDetails` 上的密码。
+5. 当认证成功时，返回的 `Authentication` 同样是 `UsernamePasswordAuthenticationToken` 类型，并且其中 `principal` 是由配置的 `UserDetailsService` 返回的 `UserDetails`。最终，返回的 `UsernamePasswordAuthenticationToken` 被 `UsernamePasswordAuthenticationFilter` 通过 `SecurityContext` 最终储存在 `SecurityContextHolder` 上。
