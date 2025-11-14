@@ -2,10 +2,21 @@ import {defineConfig} from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-    title: "My Awesome Project",
-    description: "A VitePress Site",
+    title: "Javrin",
+    description: "「Javrin」是我的学习笔记 希望能帮助你😎",
     base: "/javrin",
+    // 生成的url不带.html后缀
+    cleanUrls: true,
+    head: [
+        ["link", { rel: "icon", href: "/javrin/favicon.ico" }]
+    ],
     themeConfig: {
+        logo: '/javrin/favicon.svg',
+        // 开启全文搜索
+        search: {
+            provider: "local"
+        },
+
         // https://vitepress.dev/reference/default-theme-config
         nav: [
             {text: "首页", link: "/"},
@@ -233,5 +244,10 @@ export default defineConfig({
         }
     },
     // 开启最后更新时间
-    lastUpdated: true
+    lastUpdated: true,
+
+    markdown: {
+        // 数学公式支持，仍有问题需要修复
+        math: false
+    }
 })

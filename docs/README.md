@@ -3,8 +3,8 @@ home: true
 icon: home
 title: 主页
 heroImage: https://jarvin-image.oss-cn-guangzhou.aliyuncs.com/logo.svg
-heroText: Jarvin
-tagline: 「Jarvin」是一个 Java 后端的知识库，希望能帮助你😎
+heroText: Javrin
+tagline: 「Javrin」是一个 Java 后端的知识库，希望能帮助你😎
 copyright: false
 footer: MIT Licensed | Copyright © 2022-present gelald
 actions:
@@ -18,9 +18,9 @@ actions:
     link: ./learning/
 ---
 
-## Jarvin 是什么
+## Javrin 是什么
 
-Jarvin 是一个知识库，包括了博客文章与学习项目两部分。
+Javrin 是一个知识库，包括了博客文章与学习项目两部分。
 
 博客文章是我自学 Java 后端以来所有笔记整合，内容包括 Java 基础、Java 并发编程、Java 虚拟机、MySQL、Redis、SpringBoot、SpringCloud 等核心知识点；
 
@@ -52,7 +52,7 @@ Jarvin 是一个知识库，包括了博客文章与学习项目两部分。
 
 - 邮箱：yb.ng@foxmail.com
 
-- 微信：加微信请备注 Jarvin
+- 微信：加微信请备注 Javrin
 
 <img alt="微信二维码" src="https://jarvin-image.oss-cn-guangzhou.aliyuncs.com/qrcode.jpg" width="300" height="390"/>
 

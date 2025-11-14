@@ -5,7 +5,7 @@
         </a>
     </p>
     <p>
-        <a href="https://gelald.github.io/javrin/" target="_blank"><img src="https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E9%98%85%E8%AF%BB-jarvin-yellowgreen" alt="Read Online"></a>
+        <a href="https://gelald.github.io/javrin/" target="_blank"><img src="https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E9%98%85%E8%AF%BB-javrin-yellowgreen" alt="Read Online"></a>
         <a href="https://github.com/gelald/javrin/commits/main"><img src="https://img.shields.io/github/last-commit/gelald/javrin" alt="GitHub Last Commit"></a>
         <a href="https://github.com/gelald/javrin/actions/workflows/deploy-docs.yml"><image src="https://github.com/gelald/javrin/actions/workflows/deploy-docs.yml/badge.svg" alt="GitHub Action"></a>
         <a href="https://www.pnpm.cn/" target="_blank"><img src="https://img.shields.io/badge/pnpm-v10.20.0-blueviolet?logo=pnpm" alt="PNPM Version"></a>
@@ -13,9 +13,9 @@
     </p>
 </div>
 
-## Jarvin 是什么
+## Javrin 是什么
 
-Jarvin 是一个知识库，包括了博客文章与学习项目两部分。
+Javrin 是一个知识库，包括了博客文章与学习项目两部分。
 
 博客文章是我自学 Java 后端以来所有笔记整合，内容包括 Java 基础、Java 并发编程、Java 虚拟机、MySQL、Redis、SpringBoot、SpringCloud 等核心知识点；
 
@@ -27,7 +27,7 @@ Jarvin 是一个知识库，包括了博客文章与学习项目两部分。
 
 如果你已经进入工作阶段并希望自己的技术深度能更进一步，Javrin 的内容囊括了入门到进阶，也能给你提供帮助。
 
-阅读链接 👉：[Jarvin](https://gelald.github.io/javrin/)
+阅读链接 👉：[Javrin](https://gelald.github.io/javrin/)
 
 ## 站在巨人的肩膀上
 
@@ -49,6 +49,6 @@ Jarvin 是一个知识库，包括了博客文章与学习项目两部分。
 
 - 邮箱：yb.ng@foxmail.com
 
-- 微信：加微信请备注 Jarvin
+- 微信：加微信请备注 Javrin
 
 <img alt="微信二维码" src="https://jarvin-image.oss-cn-guangzhou.aliyuncs.com/qrcode.jpg" width="300" height="390"/>
