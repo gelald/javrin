@@ -11,7 +11,7 @@ export default defineConfig({
         ["link", { rel: "icon", href: "/javrin/favicon.ico" }]
     ],
     themeConfig: {
-        logo: '/javrin/favicon.svg',
+        logo: '/logo.svg',
         // 开启全文搜索
         search: {
             provider: "local"
