@@ -247,7 +247,6 @@ export default defineConfig({
     lastUpdated: true,
 
     markdown: {
-        // 数学公式支持，仍有问题需要修复
-        math: false
+        math: true
     }
 })
