@@ -102,6 +102,7 @@ export default defineConfig({
                         collapsed: true,
                         base: "/writings/concurrency",
                         items: [
+                            {text: "sleep和wait的区别", link: "/difference-between-sleep-and-wait"},
                             {text: "线程池", link: "/thread-pool"},
                             {text: "由串行到并行的故事", link: "/serial-to-parallel"},
                             {text: "任务是否在线程池中执行", link: "/is-thread-executed-in-executor"}
