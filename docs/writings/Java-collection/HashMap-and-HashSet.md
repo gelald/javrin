@@ -10,47 +10,14 @@ category:
 # HashMap 与 HashSet
 
 
-
 ## 概述
 
 把 HashSet 和 HashMap 放在一起讲解，是因为二者在 Java 里有着相同的实现，前者仅仅是对后者做了一层包装，也就是说 HashSet 里面有一个 HashMap，体现了适配器模式。所以这里重点讲解 HashMap
 
 
-
-## 底层实现
-
-HashMap 底层是一个链表数组。
-
-HashMap 跟 TreeMap 不同，这个集合不保证元素的顺序，因为插入元素时会对元素进行哈希，数组下标由哈希值决定，所以元素顺序会被打散。
-
-其中哈希方法可能会产生哈希冲突，HashMap采用的是链地址法解决冲突，就是相同哈希值的元素使用一个链表连接起来。
-
-```java
-transient Node<K,V>[] table;
-
-static class Node<K,V> implements Map.Entry<K,V> {
-    // 记录元素的哈希值
-    final int hash;
-    final K key;
-    V value;
-    Node<K,V> next;
-    ...
-}
-```
-
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220315105253.png)
-
-
-
-从这个结构可以看出，如果找到合适的哈希方法，那么插入元素和获取元素的操作都可以在常数时间内完成；但是如果需要对 HashMap 进行遍历，就需要遍历整个 table 及其后面的冲突链
-
-有两个参数可以影响 HashMap 的性能：初始容量（inital capacity）16和负载系数（load factor）0.75。初始容量指定了初始 `table` 的大小，负载系数用来指定自动扩容的临界值。当 `entry` 的数量超过 `capacity*load_factor` 时，容器将自动扩容并重新哈希。对于插入元素较多的场景，将初始容量设大可以减少重新哈希的次数。
-
-将对象放入到 HashMap 或 HashSet 中时，有两个方法需要特别关心：`hashCode()` 和 `equals()`。**`hashCode()` 方法决定了对象会被放到哪个 `bucket` 里，当多个对象的哈希值冲突时，`equals()` 方法决定了这些对象是否是“同一个对象”**。所以，如果要将自定义的对象放入到 `HashMap` 或 `HashSet` 中的键时，需要重写 `hashCode()` 和 `equals()` 方法。
-
-
-
 ## 计算哈希值
+
+HashMap 的重点之一是计算元素的哈希值确定存储的位置，尽管底层数据结构在不同的 JDK 版本中存在差异，但是哈希数组是不变的结构，在学习底层结构前先学习 HashMap 是如何计算哈希值的。
 
 使用存入的 key 调用 hashCode 方法，可以得到一个哈希值，但是这个哈希值一般比较大，所以需要使用一定的手段把这个大的哈希值落入到数组索引范围内。
 
@@ -74,9 +41,9 @@ static class Node<K,V> implements Map.Entry<K,V> {
 
    > 假设 table 长度为16
    >
-   > hash值240(11110000)和144(10010000)不一样，但是和15(00001111)的与运算是一样的
+   > hash值240(11110000)和144(10010000)不一样，但是和15(00001111)的与运算是一样的，同样都是0
 
-3. 可以把哈希值高16位和低16位先进行**异或运算**，再进行**与运算**，这样可以更有效避免哈希冲突
+3. 因为int类型用4个字节存储，可以把哈希值高16位和低16位先进行**异或运算**，再进行**与运算**，这样可以更有效避免哈希冲突，因为高16位也参与了运算
 
    > HashMap 的做法
    >
@@ -95,13 +62,46 @@ static class Node<K,V> implements Map.Entry<K,V> {
    // ...
    ```
 
-
-
 ### 哈希冲突的解决方式
 
-HashMap 解决哈希冲突的方式是在数组上维护一个链表，把哈希冲突的节点都组成一条链
+哈希函数存在一定的哈希碰撞的几率，HashMap采用的是链地址法解决冲突，在数组上维护一个链表，把哈希冲突的节点（哈希值相同的节点）都组成一条链
 
 此外，解决哈希冲突的方法还有开放定址法、重新 hash 等
+
+
+## 底层实现
+
+### JDK1.8之前
+
+在 JDK 1.8 之前 HashMap 底层是**数组加链表的结合**。相同哈希值的元素统一放在数组相同的索引下标下，并使用链表来存储多个元素
+
+### JDK1.8之后
+
+在 JDK 1.8 以后，HashMap 底层结构迎来了优化，假如此时有大量相同索引下标的元素，会导致链表变长，使得查询元素的效率下降。因此 HashMap 针对这种情况做了一定的调整：当链表长度大于阈值（默认是8）时，会优先调用 `treeifyBin()` 方法，然后再判断当前数组长度是否大于最小树化阈值（默认是64），小于阈值，则先调用 `resize()` 方法数组扩容；大于等于阈值，则把链表转换位红黑树结构（一种高效的查询树结构）。
+
+```java
+transient Node<K,V>[] table;
+
+static class Node<K,V> implements Map.Entry<K,V> {
+    // 记录元素的哈希值
+    final int hash;
+    final K key;
+    V value;
+    Node<K,V> next;
+    ...
+}
+```
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220315105253.png)
+
+
+
+从这个结构可以看出，如果找到合适的哈希方法，那么插入元素和获取元素的操作都可以在常数时间内完成；但是如果需要对 HashMap 进行遍历，就需要遍历整个 table 及其后面的冲突链
+
+有两个参数可以影响 HashMap 的性能：初始容量（inital capacity）16和负载系数（load factor）0.75。初始容量指定了初始 `table` 的大小，负载系数用来指定自动扩容的临界值。当 `entry` 的数量超过 `capacity*load_factor` 时，容器将自动扩容并重新哈希。对于插入元素较多的场景，将初始容量设大可以减少重新哈希的次数。负载因子用于控制数组存放的元素的疏密程度，如果负载因子太大，HashMap越不轻易扩容，数组中存放的元素会更多，链表的长度也会增加，降低查询元素的效率；如果负载因子太小，HashMap容易触发扩容，那么存放的数据会很分散，数组的使用率会变低。
+
+将对象放入到 HashMap 或 HashSet 中时，有两个方法需要特别关心：`hashCode()` 和 `equals()`。**`hashCode()` 方法决定了对象会被放到哪个 `bucket` 里，当多个对象的哈希值冲突时，`equals()` 方法决定了这些对象是否是“同一个对象”**。所以，如果要将自定义的对象放入到 `HashMap` 或 `HashSet` 中的键时，需要重写 `hashCode()` 和 `equals()` 方法。
+
 
 
 
@@ -111,7 +111,9 @@ HashMap 解决哈希冲突的方式是在数组上维护一个链表，把哈希
 
 ```java
 static final int tableSizeFor(int cap) {
+    // 防止cap本来就是2的幂次方，比如16，我们希望函数返回16而不是32
     int n = cap - 1;
+    // 保证n的最高位的1之后所有位都变成1
     n |= n >>> 1;
     n |= n >>> 2;
     n |= n >>> 4;
@@ -121,8 +123,18 @@ static final int tableSizeFor(int cap) {
 }
 ```
 
-如果初始化时不传入容量，那么初始化 HashMap 的动作会发生在第一次放入元素的时候
+> 例如：
+> 假设 cap = 13 → n = 12（二进制 1100）
+> 
+> n |= n >>> 1 → 1100 | 0110 = 1110
+> 
+> n |= n >>> 2 → 1110 | 0011 = 1111
+> 
+> 后续操作不会改变结果（因为已经是全 1）
+> 
+> 最终 n = 15 → n + 1 = 16，即大于等于 13 的最小 2 的幂。 
 
+`tableSizeFor()` 方法通过不断地右移+或运算，保证初始容量向上取整为大于或等于该值地最小2的幂次方
 
 
 ## 容量方面
@@ -164,13 +176,12 @@ static final int tableSizeFor(int cap) {
   }
   ```
 
-  
 
-### 扩容
+## 扩容
 
 当 HashMap 第一次初始化数组或数组容量超出阈值（数组长度 * 负载因子）时会触发扩容动作
 
-和 ArrayList 不同，HashMap 的扩容不是简单的数组复制，需要重新计算哈希确定索引，所以开发时一定要避免频繁扩容的发生
+和 ArrayList 不同，HashMap 的扩容不是简单的数组复制，需要重新计算哈希确定索引，所以**开发时一定要避免频繁扩容的发生**
 
 ```java
 final Node<K,V>[] resize() {
@@ -186,7 +197,7 @@ final Node<K,V>[] resize() {
         }
         else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY && oldCap >= DEFAULT_INITIAL_CAPACITY) {
             // 扩容为当前容量的2倍
-            // 负载因子也需要随着扩容*2
+            // 扩容阈值也需要随着扩容*2
             newThr = oldThr << 1; // double threshold
         }
     }
@@ -194,10 +205,15 @@ final Node<K,V>[] resize() {
         newCap = oldThr;
     else {               // zero initial threshold signifies using defaults
         // 上面两个条件都不满足说明这里是第一次初始化table
+        // 换言之是使用无参构造来创建HashMap
+
+        // 初始化容量是16
         newCap = DEFAULT_INITIAL_CAPACITY;
+        // 初始化的阈值是0.75*16 = 12，超过12个元素，会触发扩容
         newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
     }
     if (newThr == 0) {
+        // 初始化时指定了容量和负载因子，这里重新计算阈值
         float ft = (float)newCap * loadFactor;
         newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
                   (int)ft : Integer.MAX_VALUE);
@@ -220,6 +236,7 @@ final Node<K,V>[] resize() {
                 }
                 else if (e instanceof TreeNode) {
                     // 红黑树节点迁移逻辑
+                    // 将红黑树拆分成2棵子树，如果子树节点数小于等于 UNTREEIFY_THRESHOLD（默认为 6），则将子树转换为链表；如果大于，则保留红黑树结构
                     ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
                 }
                 else { // preserve order
@@ -263,7 +280,7 @@ final Node<K,V>[] resize() {
 }
 ```
 
-#### (e.hash & oldCap) == 0
+### (e.hash & oldCap) == 0
 
 计算的关键是这一行，决定扩容链表元素的索引
 
@@ -288,7 +305,7 @@ final Node<K,V>[] resize() {
   00001010			   00001010
   
   
-可以看到两个元素的索引在扩容前后是否改变是由hash值第4位决定的
+可以看到两个元素的索引在扩容前后是否改变是由hash值第5位决定的（对应容量的那一位）
 21的二进制第4位是1，所以扩容后索引改变了
 42的二进制第4位是0，所以扩容后索引不变
 
@@ -298,7 +315,7 @@ final Node<K,V>[] resize() {
 
 ```
 
-那么使用例子验证后，能够证明(e.hash & oldCap) == 0的效果，就是判断元素索引是否需要改变
+那么使用例子验证后，能够证明(e.hash & oldCap) == 0的效果，就是判断元素索引是否需要改变。如果(e.hash & oldCap) == 0，那么新索引会等于旧索引，放到loHead链表中；否则新索引=旧索引+oldCap，放到hiHead链表中
 
 在代码中体现扩容是否需要改变索引的地方是：扩容链表元素时，HashMap维护了两个链表
 
@@ -309,25 +326,24 @@ Node<K,V> loHead = null, loTail = null;
 Node<K,V> hiHead = null, hiTail = null;
 ```
 
-
-
 ## 添加元素
+
+### JDK1.8的做法
 
 HashMap 添加元素大致会分为以下几步
 
 1. 根据键计算哈希值
 2. 检查数组是否需要进行初始化
-
 3. 添加元素，添加元素有三种情况
 
    - 数组
      - 如果该位置上没有元素，那么新建一个Node并放入数组
-     - 如果该位置上有元素且哈希值相同，那么用新的元素替换原有元素，并返回原有元素
+     - 如果该位置上有元素且**哈希值和key都相同**，那么用新的元素替换原有元素，并返回原有元素
 
    - 如果数组中这个位置有元素，并且和元素的哈希值不同，则需要往后迭代链表
-     - 如果链表上有元素哈希值和需要添加元素哈希值相同，那就替换，并返回原有元素
-     - 如果链表上没有元素哈希值和待添加元素哈希值相同，那就往后插入一个Node，并且需要关心链表长度
-       - 如果链表长度达到了转为红黑树的阈值（8），那么就需要进行链表转红黑树的操作
+     - 如果链表上有元素哈希值和需要添加元素**哈希值和key都相同**，那就替换，并返回原有元素
+     - 如果链表上没有元素哈希值和待添加元素哈希值相同，那就尾插法插入一个Node，并且需要关心链表长度
+       - 如果链表长度达到了转为红黑树的阈值（默认值是8），那么就需要进行链表转红黑树的操作
 
    - 红黑树，按照红黑树的插入元素逻辑进行
 
@@ -363,6 +379,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
             e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
         }
         else {
+            // 不是红黑树说明是普通链表
             // 如果key不同，使用尾插法的方式往下存储
             for (int binCount = 0; ; ++binCount) {
                 if ((e = p.next) == null) {
@@ -370,12 +387,14 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
                     if (binCount >= TREEIFY_THRESHOLD - 1) {
                         // 如果一条链上的元素数量大于树化的阈值，那么就需要把链表转成红黑树
                         // 阈值是8
+                        // 只有当数组长度大于或者等于 64 的情况下，才会执行转换红黑树操作，以减少搜索时间。否则，就是只是对数组扩容。
                         treeifyBin(tab, hash);
                     }
                     break;
                 }
                 if (e.hash == hash &&
                     ((k = e.key) == key || (key != null && key.equals(k))))
+                    // 如果两个Node的key相同，跳出循环
                     break;
                 p = e;
             }
@@ -400,7 +419,36 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
 }
 ```
 
+### JDK1.7的做法
 
+对于 put 方法的分析如下：
+- 如果定位到的数组位置没有元素 就直接插入。
+- 如果定位到的数组位置有元素，遍历以这个元素为头结点的链表，依次和插入的 key 比较，如果 key 相同就直接覆盖，不同就采用头插法插入元素。
+
+```java
+public V put(K key, V value) {
+    if (table == EMPTY_TABLE) {
+        inflateTable(threshold);
+    }
+    if (key == null)
+        return putForNullKey(value);
+    int hash = hash(key);
+    int i = indexFor(hash, table.length);
+    for (Entry<K,V> e = table[i]; e != null; e = e.next) { // 先遍历
+        Object k;
+        if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
+            V oldValue = e.value;
+            e.value = value;
+            e.recordAccess(this);
+            return oldValue;
+        }
+    }
+
+    modCount++;
+    addEntry(hash, key, value, i);  // 再插入
+    return null;
+}
+```
 
 ## 获取元素
 
@@ -421,15 +469,18 @@ final Node<K,V> getNode(int hash, Object key) {
     // 计算索引值的公式：(长度-1) & hash
     if ((tab = table) != null && (n = tab.length) > 0 &&
         (first = tab[(n - 1) & hash]) != null) {
-        // 数组
+        // 根据索引检查数组元素
         if (first.hash == hash && // always check first node
             ((k = first.key) == key || (key != null && key.equals(k))))
+            // 对比key，如果数组元素是待查找元素，则返回
             return first;
         if ((e = first.next) != null) {
-            // 红黑树
+            // 数组元素不符合并且数组存在链表
+            // 判断是否红黑树
             if (first instanceof TreeNode)
+                // 如果是红黑树，那就按照红黑树的方式寻找
                 return ((TreeNode<K,V>)first).getTreeNode(hash, key);
-            // 链表
+            // 如果是普通链表，则按照普通链表的方式寻找
             do {
                 if (e.hash == hash &&
                     ((k = e.key) == key || (key != null && key.equals(k))))
@@ -440,8 +491,6 @@ final Node<K,V> getNode(int hash, Object key) {
     return null;
 }
 ```
-
-
 
 ## 删除元素
 
@@ -508,7 +557,6 @@ final Node<K,V> removeNode(int hash, Object key, Object value,
 ```
 
 
-
 ## 遍历 HashMap
 
 遍历 HashMap 总体上会有两个方式，遍历 keySet 和 遍历 entrySet
@@ -531,7 +579,6 @@ for (Integer key : map.keySet()) {
   System.out.println(map.get(key));
 }
 ```
-
 
 
 ## HashSet
@@ -557,3 +604,7 @@ public class HashSet<E> {
 }
 ```
 
+
+## 参考
+
+[HashMap 源码分析](https://javaguide.cn/java/collection/hashmap-source-code.html)
