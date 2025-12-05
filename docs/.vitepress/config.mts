@@ -56,6 +56,7 @@ export default defineConfig({
                             {text: "PriorityQueue", link: "/PriorityQueue"},
                             {text: "ArrayDeque", link: "/ArrayDeque"},
                             {text: "HashMap和HashSet", link: "/HashMap-and-HashSet"},
+                            {text: "ConcurrentHashMap", link: "/ConcurrentHashMap"},
                             {text: "LinkedHashMap和LinkedHashSet", link: "/LinkedHashMap-and-LinkedHashSet"},
                             {text: "TreeMap和TreeSet", link: "/TreeMap-and-TreeSet"},
                             {text: "Stream", link: "/stream"}
