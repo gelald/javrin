@@ -2,7 +2,6 @@
 title: ConcurrentHashMap
 icon: article
 category: Java集合
-
 ---
 
 # ConcurrentHashMap 介绍
@@ -26,22 +25,9 @@ HashMap 的 `put()`、`resize()` 方法都没有任何同步措施，比如 `syn
 - `ConcurrentHashMap`：采用更精细化的锁控制，JDK1.7使用分段锁，JDK1.8使用 CAS + `synchronized`
 
 
-## JDK 1.7 ConcurrentHashMap
-
-### 底层结构
-
-在 JDK1.7 中，ConcurrentHashMap 的存储结构是由 Segment + 数组 + 链表的结构。Segment 可以理解为一个 HashMap 的结构，Segment 一旦初始化后就无法扩容，默认容量是 16，对应支持最多 16 个线程并发访问
-
-### 初始化
-
-### 扩容
-
-### put
-
-### get
-
-
 ## JDK 1.8 ConcurrentHashMap
+
+> 在 JDK 1.8 中，ConcurrentHashMap 在保证线程安全的情况下，通过**无锁化**、**细颗粒度锁**、**多线程协作**，最大化并发性能
 
 ### 底层结构
 
@@ -341,4 +327,101 @@ put 操作流程：
     }
 ```
 
-## 总结
+## JDK 1.7 ConcurrentHashMap
+
+> 对于 JDK 1.7 的 ConcurrentHashMap，我们重点关注和 JDK 1.8 的区别
+
+### 核心机制
+
+| 机制 | JDK 1.7 实现要点 |
+| ---- | --------------- |
+| 底层结构 | Segment数组 (分段锁) <br> 每个 Segment 是 HashEntry数组 + 链表的结构 |
+| 初始化 | 构造时一次性创建所有 Segment数组，对于 HashEntry数组则是懒加载 (第一次put时初始化) |
+| put | 1. 根据哈希确定用哪一个 Segemnt <br> 2. Segment 内部使用 ReentrantLock 进行加锁 <br> 3. 在 Segment 内部像 HashMap 一样 put |
+| get | 无锁操作，依赖 volatile 保证 HashEntry.val/next 的数据可见性 |
+| 扩容 | 每个 Segment 独立扩容 <br> 只锁当前 Segment，不影响其他 Segment |
+| 保证并发性能 | Segment 代表一个 HashMap，用 16 个（默认）ReentrantLock 保护 16 个独立的小 HashMap，实现并发 |
+
+
+### 底层结构对比
+
+| 对比维度 | JDK 1.7 | JDK 1.8 |
+| ------- | -------- | ------- |
+| 结构 | 底层结构 Segment[] + HashEntry[] | 底层结构是 Node[] |
+| 内存开销 | 每个 Segment 有 ReentrantLock、table 字段，内存开销大 | 省去 Segment 结构，不单独维护 ReentrantLock，更轻量化 |
+
+
+### 锁粒度对比
+
+| 对比维度 | JDK 1.7 | JDK 1.8 |
+| ------- | -------- | ------- |
+| 锁单位 | 加锁时会锁住一整个 Segment | 加锁时锁住单个哈希桶 |
+| 并发度 | 因为加锁会锁住 Segment，所以并发度 = Segment | 因为加锁只锁住一个哈希桶 <br> 所以理论并发度 = 哈希桶数量 |
+| 锁竞争 | 因为 Segment 内存开销较大，Segment 数量不会太多 <br> 并且 Segment[] 也不会扩容，所以锁的竞争会更多 | ConcurrentHashMap 会扩容 <br> 因此哈希桶会变多，锁竞争更少 |
+
+
+### 扩容机制
+
+| 对比维度 | JDK 1.7 | JDK 1.8 |
+| ------- | -------- | ------- |
+| 扩容单位 | 每个 Segment 独立扩容 | 整个 table 扩容 |
+| 扩容效率 | 扩容只能一个线程完成 <br> 当 Segment 较大时扩容速度会下降 | 充分利用多核 CPU 多线程协作扩容 <br> 大表扩容时，参与的线程越多扩容越快 | 
+
+
+## 关键面试问题
+
+### ConcurrentHashMap 如何保证线程安全
+
+ConcurrentHashMap 保证线程安全在以下各个方面：
+
+- 初始化：通过 CAS 修改 `sizeCtl` 和双重检查 `table` 的方式**保证只有一个线程能进入初始化工作**，其他线程调用 `yield()` 自旋等待
+- put 操作：
+    - 空哈希桶：CAS 无锁插入
+    - 有数据的哈希桶：使用 `synchronized` 只锁住哈希桶第一个元素，锁粒度更精细
+    - 遇到扩容：跳转新表，下一轮循环在新表插入
+- get 操作：读操作不加锁，依赖 `volatile` 字段（`val`, `next`）和 `tabAt()`（volatile 读）保证可见性
+- 扩容操作：多线程协作，**通过 `ForwardingNode` 确保读写操作在新旧表中切换**
+
+
+### 为什么 ConcurrentHashMap 的读操作不需要加锁
+
+- `Node` 的 `val` 和 `next` 字段都使用 `volatile` 修饰，所有修改能**保证可见性**
+- 获取元素时使用 `tabAt()` 方法，底层通过 `UnSafe` 类的 `getReferenceVolatile` 实现，**以 volatile 语义保证读取元素操作的可见性**
+- 遇上扩容并且哈希桶正在被迁移时，当前节点会变成 `ForwardingNode`，自动跳转新表查找元素
+
+
+### ConcurrentHashMap 扩容时，为什么get/put操作都不阻塞
+
+- get 操作：查询元素时碰上 `ForwardingNode` (hash=-1)，会调用 `find()` 自动去新表查询
+- put 操作：
+    - 如果正在扩容但是当前哈希桶还没迁移，那么在旧表中完成插入数据，后续旧表会被迁移到新表
+    - 如果正在扩容但是当前哈希桶正在迁移，会因为获取哈希桶头锁而短暂等待，但是拿到锁后会发现当前节点已经变成 `ForwardingNode`， 会跳转到新表来继续完成插入数据
+    - 如果扩容已经完成了，由于 `table` 被 `volatile` 修饰，那么直接在新表中插入数据
+
+
+### sizeCtl 的作用
+
+sizeCtl 其实蕴含了一些状态机思维
+
+- `sizeCtl > 0`：在构造阶段，它代表了初始容量；在初始化完成后，它代表了扩容阈值
+- `sizeCtl = -1`：表示正在初始化
+- `sizeCtl < -1`：表示正在扩容，低16位是参与扩容的线程数
+
+通过 volatile 修饰和 CAS 操作，实现了 `sizeCtl` 的无锁化转换
+
+
+### ConcurrentHashMap 在 JDK 1.8 和 JDK 1.7 中的对比
+
+从以下几个维度分析他们的差异：
+- 存储结构：
+- 锁颗粒度：
+- 扩容机制：
+
+
+### ConcurrentHashMap 在 JDK 1.8 中放弃 Segment 的原因
+
+主要有以下几个核心原因：
+- 锁颗粒度太粗，Segment
+- 内存开销太大：
+- 大表扩容效率不高：
+- JVM 优化
