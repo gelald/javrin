@@ -1,10 +1,7 @@
 ---
 title: HashMap
 icon: article
-category:
-
-- Java集合
-
+category: Java集合
 ---
 
 # HashMap
