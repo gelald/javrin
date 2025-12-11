@@ -10,11 +10,13 @@ category: Java集合
 
 HashMap 是最常用的 Map 集合之一，JDK1.8 之后其底层的数组+链表/红黑树的结构使得读写效率都非常高，然而它并不是一个线程安全的集合，如果不加以同步控制，在并发的环境下，可能会导致 HashMap 存在线程安全问题。
 
+
 ### HashMap 线程不安全
 
 HashMap 的 `put()`、`resize()` 方法都没有任何同步措施，比如 `synchronized` 或 CAS 机制，当多个线程同时操作同一个 HashMap 时，这些操作不是原子性的，容易出现竞态条件。
 
-如果两个线程 A、B 同时写入不同的数据，当发生不同数据hash冲突时，他们可能会同时读取对应索引的bucket的头节点，各自创建新节点并返回，最终会导致节点**数据覆盖**的问题。并且 size 属性的更新也并非原子操作（写入数据后采用 `++size` 的方式更新）
+如果两个线程 A、B 同时写入不同的数据，当发生不同数据 hash 冲突时，他们可能会同时读取对应索引的哈希桶头节点，各自创建新节点并返回，最终会导致节点**数据覆盖**的问题。并且 size 属性的更新也并非原子操作（写入数据后采用 `++size` 的方式更新）
+
 
 ### 线程安全的替代方案
 
@@ -22,24 +24,26 @@ HashMap 的 `put()`、`resize()` 方法都没有任何同步措施，比如 `syn
 
 - `HashTable`：所有方法都使用 `synchronized` 修饰，使用全局锁，性能不高
 - `Collections.synchronizedMap(new HashMap<>())`：把 HashMap 包装为 SynchronizedMap，所有方法的逻辑都被 `synchronized` 代码块包裹，与 HashTable 类似，也是使用全局锁，性能不高
-- `ConcurrentHashMap`：采用更精细化的锁控制，JDK1.7使用分段锁，JDK1.8使用 CAS + `synchronized`
+- `ConcurrentHashMap`：采用更精细化的锁控制，JDK 1.7 使用**分段锁**，JDK 1.8 使用 **CAS + `synchronized`**
 
 
 ## JDK 1.8 ConcurrentHashMap
 
 > 在 JDK 1.8 中，ConcurrentHashMap 在保证线程安全的情况下，通过**无锁化**、**细颗粒度锁**、**多线程协作**，最大化并发性能
 
+
 ### 底层结构
 
-在 JDK1.8 中，ConcurrentHashMap 的存储结构是由 Node数组 + 链表/红黑树 组成，当 hash 冲突链表达到一定长度后，链表会转换为红黑树，与 HashMap 类似
+在 JDK 1.8 中，ConcurrentHashMap 的存储结构是由 Node数组 + 链表/红黑树 组成，当 hash 冲突链表达到一定长度后，链表会转换为红黑树，与 HashMap 类似
+
 
 ### 初始化
 
-- ConcurrentHashMap 的初始化是一个懒加载的行为，构造时只记录容量，首次写操作才初始化 table，避免无用开销
-- sizeCtl 被 volatile 修饰，使得对它的修改能让其他线程及时感知到
-- 用 CAS 的方式来修改 sizeCtl，其他线程感知到 sizeCtl 小于 0 就执行 yield 让出 CPU 并进行自旋等待，保证只有一个线程能进行初始化
-- 经过 CAS 后进行多一次的 table 检查，双重检查避免重复初始化
-- ConcurrentHashMap 使用 CAS 和 volatile 实现了无锁初始化，避免了直接使用 synchronized 的性能损耗
+- ConcurrentHashMap 的初始化是一个懒加载的行为，构造时只记录容量，首次写操作才初始化 `table`，避免无用开销
+- `sizeCtl` 被 `volatile` 修饰，使得对它的修改能让其他线程及时感知到
+- 用 CAS 的方式来修改 `sizeCtl`，其他线程感知到 `sizeCtl` 小于 0 就执行 `yield()` 让出 CPU 并进行自旋等待，保证只有一个线程能进行初始化
+- 经过 CAS 后进行多一次的 `table` 检查，双重检查避免重复初始化
+- ConcurrentHashMap 使用 CAS 和 `volatile` 实现了无锁初始化，避免了直接使用 `synchronized` 的性能损耗
 
 > 关于 yield() 的介绍👉: [yield学习](../concurrency/yield.md)
 
@@ -90,11 +94,11 @@ HashMap 的 `put()`、`resize()` 方法都没有任何同步措施，比如 `syn
 
 和 HashMap 一样，当哈希桶过于拥挤时，查询效率会从 O(1) 退化成 O(n) (链表变长) 或者 O(log n) (红黑树)，尽管链表超过一定阈值后也会转换成红黑树来提升查询效率，但是哈希桶扩容也是能大大提升查询效率的。
 
-当元素数量 > threshold 时，ConcurrentHashMap 会把底层数组的容量扩容为原来的 2 倍，让元素重新分布，降低冲突。
+当元素数量 > sizeCtl(初始化完成后，它作为扩容阈值) 时，ConcurrentHashMap 会把底层数组的容量扩容为原来的 2 倍，让元素重新分布，降低冲突。
 
 - 触发时机：
     - `put()` 成功插入一个元素后，调用 `addCount()` 检查是否需要扩容，检查元素数量是否超过阈值 `sizeCtl`
-    - 在迁移一个哈希桶之前，会把哈希桶的头节点转换为特殊节点 `ForwardingNode` (hash = -1)
+    - 在哈希桶完成迁移之后，哈希桶的头节点会转换为特殊节点 `ForwardingNode` (hash = -1)
 
 - 扩容期间的读写操作，写操作加锁或CAS，读操作依靠 `volatile` 保证可见性
     - 扩容期间读操作：读取数据的过程完全不加锁，靠 `volatile` 和 `ForwardingNode` 保证线程安全
@@ -110,6 +114,7 @@ HashMap 的 `put()`、`resize()` 方法都没有任何同步措施，比如 `syn
     - 把 `table` 指向 `nextTable` 并清空 `nextTable`
     - 重新计算新的 `sizeCtl` = 负载因子（默认是0.75） * 新容量
 
+
 #### 迁移逻辑
 
 ```java
@@ -122,9 +127,9 @@ private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
     for (int i = 0, bound = 0;;) {
         Node<K,V> f = tabAt(tab, i);
         if (f == null)
-            advance = casTabAt(tab, i, null, fwd); // 直接设为 ForwardingNode
+            advance = casTabAt(tab, i, null, fwd); // 桶为空，直接 CAS 设置为 ForwardingNode
         else if ((fh = f.hash) == MOVED)
-            continue; // 已迁移
+            continue; // 已经是 ForwardingNode，跳过
         else {
             synchronized (f) { // 对哈希桶头加锁，保证迁移和写操作互斥
                 if (tabAt(tab, i) == f) { // 双重检查
@@ -140,6 +145,7 @@ private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
     }
 }
 ```
+
 
 #### 其他线程协助迁移逻辑
 
@@ -167,6 +173,7 @@ final Node<K,V>[] helpTransfer(Node<K,V>[] tab, Node<K,V> f) {
     return table;
 }
 ```
+
 
 #### 检查是否需要扩容的逻辑
 
@@ -290,14 +297,14 @@ put 操作流程：
 
 ```
 
+
 ### get
 
-- ConcurrentHashMap 中有一些特殊的 hash 值，-1代表正在扩容，-2代表红黑树的根节点，碰上这两种情况时需要特殊处理
+- ConcurrentHashMap 中有一些特殊的 hash 值，-1 代表正在扩容，-2 代表红黑树的根节点，碰上这两种情况时需要特殊处理
 - `get()` 方法读取数据不需要加锁
     - 底层的 table 用 `volatile` 修饰，一旦扩容完成，就能立刻读取到新 table
     - 获取元素时，使用的 `tabAt` 方法底层使用 `UnSafe` 的 `getReferenceVolatile` 实现，以 `volatile` 语义保证读取数组元素的可见性
-    - Node 的 key 和 hash 都用 `final` 修饰，元素的 hash 不可变
-
+    - Node 的 val 和 next 都用 `volatile` 修饰，保证数据的修改对其他线程可见
 
 
 ```java
@@ -327,9 +334,11 @@ put 操作流程：
     }
 ```
 
+
 ## JDK 1.7 ConcurrentHashMap
 
 > 对于 JDK 1.7 的 ConcurrentHashMap，我们重点关注和 JDK 1.8 的区别
+
 
 ### 核心机制
 
@@ -369,6 +378,7 @@ put 操作流程：
 
 
 ## 关键面试问题
+
 
 ### ConcurrentHashMap 如何保证线程安全
 
@@ -413,15 +423,14 @@ sizeCtl 其实蕴含了一些状态机思维
 ### ConcurrentHashMap 在 JDK 1.8 和 JDK 1.7 中的对比
 
 从以下几个维度分析他们的差异：
-- 存储结构：
-- 锁颗粒度：
-- 扩容机制：
+- 存储结构：JDK 1.7 中 ConcurrentHashMap 的结构是 Segment 数组 + HashEntry 数组 + 链表的结构，每一个 Segment 相当于一个 HashMap；JDK 1.8 中 ConcurrentHashMap 是 Node 数组 + 链表/红黑树的结构
+- 锁颗粒度：JDK 1.7 中 ConcurrentHashMap 在插入数据时会锁住整个 Segment，相当于锁住单个 HashMap，对于同一个 Segment 的修改操作都要阻塞等待；JDK 1.8 中 ConcurrentHashMap 在插入/扩容时会锁住单个 Node（哈希桶第一个元素），其他哈希桶可以正常操作，锁颗粒度更小
+- 扩容机制：JDK 1.7 中 ConcurrentHashMap 每一个 Segment 独立扩容；JDK 1.8 中 ConcurrentHashMap 全表扩容，但是可以多线程协作
 
 
 ### ConcurrentHashMap 在 JDK 1.8 中放弃 Segment 的原因
 
 主要有以下几个核心原因：
-- 锁颗粒度太粗，Segment
-- 内存开销太大：
-- 大表扩容效率不高：
-- JVM 优化
+- 锁颗粒度太粗，JDK 1.7 中对整个 Segment 加锁，默认只有 16 个 Segment，并发度不高；JDK 1.8 对单个哈希桶加锁，颗粒度更小
+- 内存开销太大：JDK 1.7 中 Segment 数组即使没有用到，都要初始化，并且 Segment 中各自维护 ReentrantLock 和 table 字段
+- 大表扩容效率不高：Segment 内部扩容无法充分利用多线程协作的能力，当 Segment 变大，扩容、迁移的效率会下降
