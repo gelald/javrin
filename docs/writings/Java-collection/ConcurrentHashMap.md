@@ -36,6 +36,7 @@ HashMap 的 `put()`、`resize()` 方法都没有任何同步措施，比如 `syn
 
 在 JDK 1.8 中，ConcurrentHashMap 的存储结构是由 Node数组 + 链表/红黑树 组成，当 hash 冲突链表达到一定长度后，链表会转换为红黑树，与 HashMap 类似
 
+![JDK 1.8 ConcurrentHashMap 底层结构](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/drawio%20%281%29.svg)
 
 ### 初始化
 
@@ -353,6 +354,8 @@ put 操作流程：
 
 
 ### 底层结构对比
+
+![JDK 1.7 ConcurrentHashMap 底层结构](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/drawio%20%282%29.svg)
 
 | 对比维度 | JDK 1.7 | JDK 1.8 |
 | ------- | -------- | ------- |
