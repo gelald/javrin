@@ -172,3 +172,316 @@ public class UserService {
 1. ThreadLocal 最好作为 `private static final` 字段，在整个应用的生命周期中只有一个实例；尽量不要在方法内使用 `new ThreadLocal()` 的方式创建，虽然 key 是弱引用可以被 GC，但是 value 如果没有被主动 remove 的话，容易一直累积在内存中导致内存溢出
 2. 在使用完成 ThreadLocal 后，主动调用 remove 来清理，因为清理机制容易有滞后性，尽可能使用完后就清理
 
+
+## ThreadLocalMap 中的 Hash
+
+### Hash 算法
+
+和 HashMap 类似，ThreadLocalMap 也需要一定的哈希算法来让元素落入到合适的数组索引上
+
+```java
+    // i 是数组索引，key 是存入的 ThreadLocal，len 是 ThreadLocalMap 的数组长度
+    int i = key.threadLocalHashCode & (len-1);
+```
+
+可以看到 ThreadLocalMap 也是使用 hash & (数组长度 - 1) 这种算法来计算索引值，这一点和 HashMap 一致，重点看 `threadLocalHashCode`
+
+```java
+public class ThreadLocal<T> {
+    private final int threadLocalHashCode = nextHashCode();
+
+    private static AtomicInteger nextHashCode = new AtomicInteger();
+
+    private static final int HASH_INCREMENT = 0x61c88647;
+
+    private static int nextHashCode() {
+        return nextHashCode.getAndAdd(HASH_INCREMENT);
+    }
+}
+```
+
+- 每个 ThreadLocal 实例在创建时，都会分配一个**唯一、递增的哈希码**，其中 `nextHashCode` 属性使用的是 AtomicInteger 原子类，所以可以保证多个线程获取哈希码时是线程安全的
+- `HASH_INCREMENT = 0x61c88647` 是一个**斐波那契乘数**（黄金比例 0.618 的整数近似），这个值能让数据在长度满足 2 的次幂的数组中排列更加均匀，减少冲突
+
+测试一下假设按照默认的 ThreadLocalMap 的数组长度（16），每一轮的元素索引：
+
+```java
+public class MapIndexTest {
+    // ThreadLocalMap 中定义的递增值，斐波那契乘数
+    private static final int HASH_INCREMENT = 0x61c88647;
+    public static void main(String[] args) {
+        // ThreadLocalMap 的长度是 16，计算每一个数据的索引
+        AtomicInteger nextHashCode = new AtomicInteger();
+        for (int i = 0; i < 16; i++) {
+            // 按照 hash & (length - 1) 的方式计算索引
+            int index = nextHashCode.getAndAdd(HASH_INCREMENT) & 15;
+            System.out.println("本轮索引值: " + index);
+        }
+    }
+}
+```
+
+![ThreadLocalMap 索引测试结果](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/thread-local-index-test.png)
+
+可以看到每一轮的索引值分布都很平均
+
+
+### Hash 冲突
+
+尽管通过 `HASH_INCREMENT` 让元素尽可能均匀分布来避免哈希冲突，但是无法保证完全没有冲突，ThreadLocalMap 解决冲突的方法是**线性探测法**
+
+当发生哈希冲突时，寻找下一个索引，采取的方式就是直接 +1 往后寻找，如果超出数组长度，回到数组第一位继续寻找合适的位置
+
+```java
+    private static int nextIndex(int i, int len) {
+        return ((i + 1 < len) ? i + 1 : 0);
+    }
+```
+
+在往后探测的过程中，如果找到一些失效的条目，会直接清理并使用这个位置
+
+```java
+private void set(ThreadLocal<?> key, Object value) {
+
+    ...
+
+    for (Entry e = tab[i];
+            e != null;
+            // 往后遍历 寻找合适索引
+            e = tab[i = nextIndex(i, len)]) {
+        // 如果键相同，则更新值
+        if (e.refersTo(key)) {
+            e.value = value;
+            return;
+        }
+
+        // 如果元素是一个无效引用，那么清理并插入新值
+        if (e.refersTo(null)) {
+            replaceStaleEntry(key, value, i);
+            return;
+        }
+    }
+
+    ...
+}
+```
+
+
+## ThreadLocal 读取数据
+
+- 首先拿到当前线程的 ThreadLocalMap
+- 从 map 中根据 ThreadLocal 来获取元素
+- 理想情况下，ThreadLocal 计算出来的第一个索引值就能获取到目标数据
+- **如果发生了哈希冲突（第一个索引值的key和需要查询的数据的key不一致），那么就要往后寻找（线性探测法）**
+- 往后探测的过程中，如果发现某个位置的元素已经失效，也去把它清理掉，直到最终找到目标元素
+
+```java
+    public T get() {
+        // 获取当前线程
+        Thread t = Thread.currentThread();
+        // 获取线程的 ThreadLocalMap
+        ThreadLocalMap map = getMap(t);
+        if (map != null) {
+            ThreadLocalMap.Entry e = map.getEntry(this);
+            if (e != null) {
+                @SuppressWarnings("unchecked")
+                T result = (T)e.value;
+                return result;
+            }
+        }
+        // 如果Map还没初始化，那么在这里执行初始化
+        return setInitialValue();
+    }
+
+    private Entry getEntry(ThreadLocal<?> key) {
+        // 通过哈希计算确定第一个索引值
+        int i = key.threadLocalHashCode & (table.length - 1);
+        Entry e = table[i];
+        if (e != null && e.refersTo(key))
+            // 第一个索引值的数据的key和传入的key相等
+            return e;
+        else
+            // 有哈希冲突，需要使用线性探测的方式往后寻找
+            // 开始往后寻找不是null的元素，直到匹配上key
+            return getEntryAfterMiss(key, i, e);
+    }
+
+    private Entry getEntryAfterMiss(ThreadLocal<?> key, int i, Entry e) {
+        Entry[] tab = table;
+        int len = tab.length;
+
+        // 核心条件：数组元素不是null，所以清理失效元素时不能仅仅把它置为null
+        while (e != null) {
+            if (e.refersTo(key))
+                return e;
+            if (e.refersTo(null))
+                // 发现key指向了null，证明他是失效的，把他清理
+                expungeStaleEntry(i);
+            else
+                // 如果没有匹配上，往后寻找新的索引
+                i = nextIndex(i, len);
+            e = tab[i];
+        }
+        return null;
+    }
+```
+
+
+## ThreadLocal 写入数据
+
+
+
+
+## ThreadLocalMap 扩容
+
+- ThreadLocalMap 扩容阈值是 `len * 2 / 3`，当数组元素数量超过这个阈值，会触发扩容避免更多的哈希冲突
+- 扩容时会先清理所有无效条目，避免无效条目持续占用内存
+- 清理无效条目后，如果元素数量仍然超过 `threshold - threshold / 4` 这个数值，那么触发真正的扩容逻辑
+- 扩容逻辑：
+    - 数组长度直接扩容为原来的 2 倍
+    - 对旧数组所有元素重新计算新数组中的索引值
+    - 如果有冲突，那么也使用线性探测的方式寻找下一个合适的索引
+
+```java
+private void rehash() {
+    // 清理所有过期的条目
+    expungeStaleEntries();
+
+    // 如果清理后，满足条件了就可以不用扩容
+    // 无法满足的话，就需要执行扩容逻辑
+    if (size >= threshold - threshold / 4)
+        resize();
+}
+
+/**
+ * Double the capacity of the table.
+ */
+private void resize() {
+    Entry[] oldTab = table;
+    int oldLen = oldTab.length;
+    // 直接扩容为原来的2倍
+    int newLen = oldLen * 2;
+    Entry[] newTab = new Entry[newLen];
+    int count = 0;
+
+    for (Entry e : oldTab) {
+        if (e != null) {
+            ThreadLocal<?> k = e.get();
+            if (k == null) {
+                e.value = null; // Help the GC
+            } else {
+                // 重新计算索引位置
+                int h = k.threadLocalHashCode & (newLen - 1);
+                while (newTab[h] != null)
+                    // 哈希冲突时线性探测新索引
+                    h = nextIndex(h, newLen);
+                newTab[h] = e;
+                count++;
+            }
+        }
+    }
+
+    setThreshold(newLen);
+    size = count;
+    table = newTab;
+}
+
+/**
+ * Expunge all stale entries in the table.
+ */
+private void expungeStaleEntries() {
+    Entry[] tab = table;
+    int len = tab.length;
+    for (int j = 0; j < len; j++) {
+        Entry e = tab[j];
+        // Entry虽然不是null，但是key已经指向null了（弱引用被GC了）
+        if (e != null && e.refersTo(null))
+            // 探测式清理
+            expungeStaleEntry(j);
+    }
+}
+```
+
+
+## ThreadLocalMap 探测式清理
+
+上面提到清理无效条目中的探测式清理，其实他不是简单的直接把数组某一位设置为 null，因为线性探测法还要保证有哈希冲突的元素，在获取时能正确寻回
+
+比如元素A、B、C，经过哈希计算，出现了一些哈希冲突，A -> 0，B -> 0，C -> 1，此时 B 和 C 都无法满足，需要线性探测往后寻找可用的索引:
+- A -> 0 （正常写入）
+- B -> 1 （发现 0 这一位已经有元素了，往后寻找）
+- C -> 2 （因为 B 元素已经占据了 1 这个位置，只能往后寻找）
+
+假设此时 B 元素被移除，并假设直接让数组的 1 号索引指向 null，那么在获取 C 元素时，通过哈希计算得到的索引是 1，最终会得到 null 并返回，出现了数据不一致的情况
+
+因为线性探测法一旦遇到 null，就会停止，所以 null 是一个中断的信号，直接设置 null 会中断线性探测
+
+---
+
+所以 ThreadLocalMap 的清理机制也是高度配合线性探测这个解决哈希冲突的方法的，分两步走
+- 清理当前位置的元素
+- 向后检测，迁移那些当时因为这个位置有冲突的元素
+
+这样才能保证之前有冲突的元素后面还能找回
+
+```java
+private int expungeStaleEntry(int staleSlot) {
+    Entry[] tab = table;
+    int len = tab.length;
+
+    // 移除过期条目，把value指向null，并把数组这个位置清空
+    tab[staleSlot].value = null;
+    tab[staleSlot] = null;
+    size--;
+
+    // 向后遍历直到遇到中断信号（null）
+    // 可能某个元素当时插入时碰到了哈希冲突，现在这个位置空置出来了，可以把他迁移过来
+    Entry e;
+    int i;
+    for (i = nextIndex(staleSlot, len);
+            (e = tab[i]) != null;
+            i = nextIndex(i, len)) {
+        ThreadLocal<?> k = e.get();
+        // 如果下一个位置的条目的键已经是null了，那么也清空它
+        if (k == null) {
+            e.value = null;
+            tab[i] = null;
+            size--;
+        } else {
+            // 用下一个索引元素的键的哈希值计算出索引
+            int h = k.threadLocalHashCode & (len - 1);
+            // 如果计算出来本该存入的索引位置和他当前位于的位置不匹配，那么就要往前迁移
+            if (h != i) {
+                // 清空当前位置
+                tab[i] = null;
+
+                while (tab[h] != null)
+                    // 避免这种情况：它本应放入索引0，因为多次冲突，最终放入了5
+                    // 现在把4清空出来，但是0~3依旧有元素（简单理解），需要继续寻找下一个可用的索引直到找到了4
+                    h = nextIndex(h, len);
+                // 迁移到应该往前迁移的位置
+                tab[h] = e;
+            }
+        }
+    }
+    return i;
+}
+```
+
+
+
+
+## 关键面试题
+
+
+### 为什么 ThreadLocalMap 不采用链表或者红黑树来解决哈希冲突
+
+因为 ThreadLocalMap 是线程私有的，读写频率虽然较高，但是总条目大概率比较有限，如果数据量不大的情况下维护链表或者红黑树成本太高，并且短路径线性探测法的性能优于指针跳转
+
+
+### 为什么 HashMap / ConcurrentHashMap 不采用开放定址法来解决哈希冲突
+
+- 开放定址法要求删除元素不能直接设置null，否则无法查回一开始有哈希冲突而被放到其他索引的元素，HashMap / ConcurrentHashMap 作为通用容器，必须支持高效删除
+- 开放定址法的扩容成本太高了，扩容时要对所有元素重新计算索引，而链地址法则每个桶只需要拆分成高低位两个新桶即可，很多元素位置不变，全量 hash 对于 HashMap 来说成本太高
+- 开放定址法不需要考虑并发控制，探测路径跨越多个槽位；链地址法天然支持 CAS 操作 / 锁桶头 这种加锁操作
+
