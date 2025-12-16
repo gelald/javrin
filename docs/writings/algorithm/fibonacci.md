@@ -61,7 +61,7 @@ public int fibonacci(int n, Map<Integer, Integer> cache) {
   if (n < 2) {
     return n;
   }
-  if (cache.containKey(n)) {
+  if (cache.containsKey(n)) {
     return cache.get(n);
   }
   int result = fibonacci(n - 1, cache) + fibonacci(n - 2, cache);
