@@ -561,6 +561,98 @@ private void expungeStaleEntries() {
 ```
 
 
+## ThreadLocal 失效场景
+
+
+### 父子线程场景
+
+对于父子线程的场景，ThreadLocal 无法满足，在子线程中获取父线程的 ThreadLocal 值时，会获取失败
+
+```java
+public class FailedScenarios {
+    public static void main(String[] args) throws InterruptedException {
+        ThreadLocal<String> parentValue = new ThreadLocal<>();
+        parentValue.set("测试父子线程 ThreadLocal 表现");
+
+        System.out.println("父线程中的值: " + parentValue.get());
+
+        Thread thread = new Thread(() -> {
+            try {
+                TimeUnit.MILLISECONDS.sleep(350);
+                System.out.println("子线程中的值: " + parentValue.get());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        thread.start();
+        thread.join();
+
+        System.out.println("结束");
+    }
+}
+```
+
+得到了以下结果：
+
+```
+父线程中的值: 测试父子线程 ThreadLocal 表现
+子线程中的值: null
+结束
+```
+
+可以看到子线程的确无法获取父线程的 ThreadLocal，原因是：父线程中的 `threadlLocals` 这个 ThreadLocalMap 没有传递给子线程，这也是 ThreadLocal 可以实现线程隔离的根本原因
+
+如果要解决这个问题，需要引入 ThreadLocal 的子类 InheritableThreadLocal，原理是 Thread 初始化时会检查父线程的 `inheritableThreadLocals`，并初始化自己的 `inheritableThreadLocals`，后面使用 `getMap()` 的过程中就用 `inheritableThreadLocals` 代替原来的 `threadLocals`
+
+```java
+public class Thread implements Runnbale {
+    /* ThreadLocal values pertaining to this thread. This map is maintained
+     * by the ThreadLocal class. */
+    ThreadLocal.ThreadLocalMap threadLocals = null;
+
+    /*
+     * InheritableThreadLocal values pertaining to this thread. This map is
+     * maintained by the InheritableThreadLocal class.
+     */
+    ThreadLocal.ThreadLocalMap inheritableThreadLocals = null;
+
+    private Thread(ThreadGroup g, Runnable target, String name, long stackSize, AccessControlContext acc,
+                   boolean inheritThreadLocals) {
+        ...
+        // 如果需要继承父线程的ThreadLocal，那么就创建一个ThreadLocalMap记录父线程的ThreadLocal
+        if (inheritThreadLocals && parent.inheritableThreadLocals != null)
+            this.inheritableThreadLocals = ThreadLocal.createInheritedMap(parent.inheritableThreadLocals);
+        ...
+    }
+}
+
+```
+
+把上面代码中的 ThreadLocal 的实现类修改成 InheritableThreadLocal 后，子线程就能正确获取值
+
+
+### 线程池场景
+
+JDK 默认没有支持线程池场景下 ThreadLocal 值传递的功能，因此阿里巴巴开源了一套工具 **TransmittableThreadLocal** 来实现该功能
+
+使用这个功能需要引入新的依赖
+
+```xml
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>transmittable-thread-local</artifactId>
+    <version>${ttl.version}</version>
+</dependency>
+```
+
+阿里巴巴无法改动 JDK 的源码，因此他内部通过**装饰器模式**在原有的功能上做增强，以此来实现线程池场景下的 ThreadLocal 值传递。
+
+TTL 改造的地方有两处：
+- 实现自定义的 Thread ，在 `run()` 方法内部做 ThreadLocal 变量的赋值操作
+- 基于 线程池 进行装饰，在 `execute()` 方法中，不提交 JDK 内部的 Thread ，而是提交自定义的 Thread
+
+
 ## 关键面试题
 
 
@@ -592,3 +684,8 @@ private void expungeStaleEntries() {
 
 - `expungeStaleEntry()` 会从传入的索引开始，向后清理连续非 null 的区域中的所有无效条目
 - `replaceStaleEntry()` 会向前扫描冲突区域的起点，向后扫描直到碰到 null 值，清理这一段冲突区域中所有无效条目；并且会把新 entry 插入到更靠近理想的哈希位置中，提升后续操作的效率
+
+
+## 参考链接
+
+![ThreadLocal 详解](https://javaguide.cn/java/concurrent/threadlocal.html)
