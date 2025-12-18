@@ -104,7 +104,7 @@ public class NonAtomicIssue {
 
 ## 保证可见性原理
 
-- 写操作：JMM（Java 多线程内存模型）中规定：当线程 A 对一个 volatile 变量修改时，把该线程本地内存中的共享变量最新值刷新(flush)到主内存
+- 写操作：JMM（Java 并发内存模型）中规定：当线程 A 对一个 volatile 变量修改时，把该线程本地内存中的共享变量最新值刷新(flush)到主内存
 - 读操作：JMM中规定：使当前线程本地内存中的共享变量的缓存失效(invalidate)，后续的读取必须从主内存中加载
 
 写操作 `flush`、读操作 `invalidate` 保证了一个线程对 volatile 变量的修改对其他线程的可见性，这也是 happens-before 的底层支撑
