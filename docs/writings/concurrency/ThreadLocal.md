@@ -668,6 +668,12 @@ TTL 改造的地方有两处：
 - 开放定址法不需要考虑并发控制，探测路径跨越多个槽位；链地址法天然支持 CAS 操作 / 锁桶头 这种加锁操作
 
 
+### ThreadLocalMap 中 Entry 的 Key 为什么要设计成弱引用(WeakReference)
+
+- 因为线程可能复用，可能长时间存活，弱引用是为了当 ThreadLocal 不再被业务代码引用时，能被 GC 回收，避免 key 长期驻留内存导致 value 无法被回收
+- 当然 value 仍然有可能泄漏，ThreadLocal 的被动清理机制不可靠，需要主动调用 `remove()` 来主动清理不再使用的 value
+
+
 ### `ThreadLocal.set()` 方法内部如何避免内存泄漏
 
 - 线性探测时，如果遇到 key 已经指向 null 的无效 entry，执行 `replaceStaleEntry()` 向后扫描整个冲突集，清理所有无效条目后再将新 entry 插入到最优的位置（减少未来探测长度）
