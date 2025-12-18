@@ -329,8 +329,78 @@ private void set(ThreadLocal<?> key, Object value) {
 
 ## ThreadLocal 写入数据
 
+- 和 `get()` 方法一样，首先要拿到当前线程的 ThreadLocalMap
+- 如果 map 还没初始化就初始化
+- 如果 map 已经初始化，调用 ThreadLocalMap 的 `set()` 方法
+    - 根据哈希值计算索引
+    - 线性探测，从计算出来的第一个索引开始往后找合适的插入位置
+    - 如果找到相同的 key，直接更新数据
+    - 如果找到元素的 key 指向 null，调用 `replaceStaleEntry()` 执行清理 + 插入
+    - 如果找到了 null 的位置，说明是空槽位，直接插入
+    - 检查是否需要清理数据或者扩容
+
+```java
+    public void set(T value) {
+        // 获取当前线程的 ThreadLocalMap
+        Thread t = Thread.currentThread();
+        ThreadLocalMap map = getMap(t);
+        if (map != null) {
+            // 调用 map 的 set 方法
+            map.set(this, value);
+        } else {
+            // map 还没初始化需要先初始化
+            createMap(t, value);
+        }
+    }
 
 
+    private void set(ThreadLocal<?> key, Object value) {
+
+        Entry[] tab = table;
+        int len = tab.length;
+
+        // 根据哈希计算索引值
+        int i = key.threadLocalHashCode & (len-1);
+
+        // 开始线性探测
+        for (Entry e = tab[i];
+                // 重点条件：线性探测的元素不能是null，null会中断探测
+                e != null;
+                // 每一轮循环都往后寻找下一个索引
+                e = tab[i = nextIndex(i, len)]) {
+
+            // 如果key相同，更新值
+            if (e.refersTo(key)) {
+                e.value = value;
+                return;
+            }
+
+            // 如果key指向了null，说明已经被gc了
+            // 这里不能直接更新，要执行replaceStaleEntry
+            if (e.refersTo(null)) {
+                replaceStaleEntry(key, value, i);
+                return;
+            }
+        }
+
+        // 线性探测结束（找到了空的槽位），直接插入
+        tab[i] = new Entry(key, value);
+        int sz = ++size;
+
+        // 检查添加元素后是否需要清理或者扩容
+        if (!cleanSomeSlots(i, sz) && sz >= threshold)
+            rehash();
+    }
+```
+
+其中 `replaceStaleEntry()`: 这是 ThreadLocal 最精妙的设计之一，当你在 `set()` 时，探测路径上遇到一个无效条目（key指向null），不会简单覆盖，而是：
+- 清理当前冲突区域中的多个无效条目
+    - 不仅清理当前 key 指向 null 的位置
+    - 还会向前(找到冲突区域的起点) 向后(向后扫描到null为止) 扫描一段连续的非 null 空间，把里面所有 key 指向 null 的无效条目最终都清理掉
+- 把新 entry 插入到**最优位置**，这样能让新 entry 更靠近它理想的哈希位置，避免后续 `get()` / `set()` 时带来更多的线性探测导致浪费性能
+- **`replaceStaleEntry()` 不仅插入新值，还对当前冲突链做了一次局部清理，这是 ThreadLocal 在无 GC 协助下自主管理内存的核心机制**
+
+**`replaceStaleEntry()` 是 ThreadLocal 在 set 时遇到 key 为 null 的陈旧条目时触发的优化机制：它会清理当前哈希冲突区域内的多个陈旧条目，并将新值插入到更靠近理想位置的槽中，从而减少探测长度、降低内存泄漏风险**
 
 ## ThreadLocalMap 扩容
 
@@ -403,9 +473,18 @@ private void expungeStaleEntries() {
 ```
 
 
-## ThreadLocalMap 探测式清理
+## ThreadLocalMap 清理机制
 
-上面提到清理无效条目中的探测式清理，其实他不是简单的直接把数组某一位设置为 null，因为线性探测法还要保证有哈希冲突的元素，在获取时能正确寻回
+ThreadLocalMap 的清理机制从调用方式可以分为两大类：
+
+- 被动式清理（探测式清理）：`set()` / `get()` 方法调用时线性探测无效条目清理
+    - `getEntry()` 方法线性探测时遇到无效条目（key指向null），执行 `expungeStaleEntry()` 方法执行清理
+    - `set()` 方法在插入时执行线性探测，如果遇到无效条目（key指向null），执行 `replaceStaleEntry()` 方法执行清理并优化插入位置
+    - `set()` 方法在插入数据后执行 `cleanSomeSlots()` 进行启发式清理，从插入位置往后探测，如果遇到无效条目（key指向null），执行 `expungeStaleEntry()` 方法执行清理
+    - `set()` 方法在执行 `cleanSomeSlots()` 后发现仍需要扩容，执行 `expungeStaleEntries()` 方法进行全量清理，扫描所有无效条目（key指向null），执行 `expungeStaleEntry()` 方法执行清理；清理后发现空间仍然不足就会执行真正的扩容（数组长度 * 2）并重新计算所有元素的位置
+- 主动式清理：`remove()` 方法，执行 `expungeStaleEntry()` 方法精准清理某一个键对应的数据。尽管有这么多被动式清理，但是依然无法代替 `remove()` 方法，因为如果后续没有再调用 `get()` / `set()` 方法的话，泄露风险仍在，应该主动清理
+
+上面提到探测式清理的清理无效条目方法 `expungeStaleEntry()`，其实他不是简单的直接把数组某一位设置为 null，因为线性探测法还要保证有哈希冲突的元素，在获取时能正确寻回
 
 比如元素A、B、C，经过哈希计算，出现了一些哈希冲突，A -> 0，B -> 0，C -> 1，此时 B 和 C 都无法满足，需要线性探测往后寻找可用的索引:
 - A -> 0 （正常写入）
@@ -414,15 +493,15 @@ private void expungeStaleEntries() {
 
 假设此时 B 元素被移除，并假设直接让数组的 1 号索引指向 null，那么在获取 C 元素时，通过哈希计算得到的索引是 1，最终会得到 null 并返回，出现了数据不一致的情况
 
-因为线性探测法一旦遇到 null，就会停止，所以 null 是一个中断的信号，直接设置 null 会中断线性探测
+因为线性探测法一旦遇到 null，就会停止，null 是线性探测的中断信号，直接设置 null 会中断线性探测
 
 ---
 
-所以 ThreadLocalMap 的清理机制也是高度配合线性探测这个解决哈希冲突的方法的，分两步走
+所以 ThreadLocalMap 的 `expungeStaleEntry()` 清理方法也是高度配合线性探测这个解决哈希冲突的方法的，分两步走
 - 清理当前位置的元素
 - 向后检测，迁移那些当时因为这个位置有冲突的元素
 
-这样才能保证之前有冲突的元素后面还能找回
+**这样才能保证之前有冲突的元素后面还能找回**
 
 ```java
 private int expungeStaleEntry(int staleSlot) {
@@ -468,7 +547,18 @@ private int expungeStaleEntry(int staleSlot) {
 }
 ```
 
-
+```java
+// 对过期条目进行全量清理
+private void expungeStaleEntries() {
+    Entry[] tab = table;
+    int len = tab.length;
+    for (int j = 0; j < len; j++) {
+        Entry e = tab[j];
+        if (e != null && e.refersTo(null))
+            expungeStaleEntry(j);
+    }
+}
+```
 
 
 ## 关键面试题
@@ -485,3 +575,20 @@ private int expungeStaleEntry(int staleSlot) {
 - 开放定址法的扩容成本太高了，扩容时要对所有元素重新计算索引，而链地址法则每个桶只需要拆分成高低位两个新桶即可，很多元素位置不变，全量 hash 对于 HashMap 来说成本太高
 - 开放定址法不需要考虑并发控制，探测路径跨越多个槽位；链地址法天然支持 CAS 操作 / 锁桶头 这种加锁操作
 
+
+### `ThreadLocal.set()` 方法内部如何避免内存泄漏
+
+- 线性探测时，如果遇到 key 已经指向 null 的无效 entry，执行 `replaceStaleEntry()` 向后扫描整个冲突集，清理所有无效条目后再将新 entry 插入到最优的位置（减少未来探测长度）
+- 插入完成后，执行 `cleanSomeShots()` 执行启发式清理，从插入位置向后扫描所有无效 entry，把他们全都清理
+- 如果启发式清理没有清理到元素，那么会检查元素是否超出扩容阈值，执行 `expungeStaleEntries()` 扫描整个数组的所有过期 entry 并清理
+
+
+### 既然 `set()` 方法有这么多重手段避免内存泄漏，为什么仍然需要手动 `remove()`
+
+`set()` 方法的清理属于被动式清理，它依赖于下一轮的调用，假设后续没有任何操作，那么这些清理手段就不会被执行；一些过期的条目可能一直存在 map 中，一直占据内存，尤其在线程池的场景中，过期条目会永久占用内存，也就是永久泄漏；所以调用 `remove()` 主动释放资源是最可靠的方式
+
+
+### `replaceStaleEntry()` 和 `expungeStaleEntry()` 主要区别
+
+- `expungeStaleEntry()` 会从传入的索引开始，向后清理连续非 null 的区域中的所有无效条目
+- `replaceStaleEntry()` 会向前扫描冲突区域的起点，向后扫描直到碰到 null 值，清理这一段冲突区域中所有无效条目；并且会把新 entry 插入到更靠近理想的哈希位置中，提升后续操作的效率
