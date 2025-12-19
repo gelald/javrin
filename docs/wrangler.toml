@@ -1,0 +1,10 @@
+# wrangler.toml
+name = "javrin"
+compatibility_date = "2024-12-19"
+
+[pages]
+# 指向你的构建输出目录
+bucket = "docs/.vitepress/dist"
+# 如果使用自定义域名，可以在这里指定
+# zone_id = "your-zone-id"
+# custom_domain = "yourdomain.com"
