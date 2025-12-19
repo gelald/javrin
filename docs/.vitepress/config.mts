@@ -216,6 +216,7 @@ export default defineConfig({
                         base: "/writings/algorithm",
                         items: [
                             {text: "斐波那契数列", link: "/fibonacci"},
+                            {text: "动态规划", link: "/dynamic-programming"},
                             {text: "摩尔投票法", link: "/moore-voting"}
                         ],
                     },
