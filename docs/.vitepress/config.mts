@@ -4,7 +4,7 @@ import {defineConfig} from 'vitepress'
 export default defineConfig({
     title: "Javrin",
     description: "「Javrin」是我的学习笔记 希望能帮助你😎",
-    base: "/javrin",
+    // base: "/javrin",
     // 生成的url不带.html后缀
     cleanUrls: true,
     head: [
