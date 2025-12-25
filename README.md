@@ -5,9 +5,8 @@
         </a>
     </p>
     <p>
-        <a href="https://gelald.github.io/javrin/" target="_blank"><img src="https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E9%98%85%E8%AF%BB-javrin-yellowgreen" alt="Read Online"></a>
+        <a href="https://javrin-xi.vercel.app" target="_blank"><img src="https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E9%98%85%E8%AF%BB-javrin-yellowgreen" alt="Read Online"></a>
         <a href="https://github.com/gelald/javrin/commits/main"><img src="https://img.shields.io/github/last-commit/gelald/javrin" alt="GitHub Last Commit"></a>
-        <a href="https://github.com/gelald/javrin/actions/workflows/deploy-docs.yml"><image src="https://github.com/gelald/javrin/actions/workflows/deploy-docs.yml/badge.svg" alt="GitHub Action"></a>
         <a href="https://www.pnpm.cn/" target="_blank"><img src="https://img.shields.io/badge/pnpm-v10.22.0-blueviolet?logo=pnpm" alt="PNPM Version"></a>
         <a href="https://github.com/gelald/javrin/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/gelald/javrin" alt="GitHub License"></a>
     </p>

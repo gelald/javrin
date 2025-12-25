@@ -694,4 +694,4 @@ TTL 改造的地方有两处：
 
 ## 参考链接
 
-![ThreadLocal 详解](https://javaguide.cn/java/concurrent/threadlocal.html)
+[ThreadLocal 详解](https://javaguide.cn/java/concurrent/threadlocal.html)
