@@ -400,18 +400,51 @@ synchronized 同步方法的实现使用的是 `ACC_SYNCHRONIZED` 标识，这�
 - 线程 A 允许执行同步块内的代码
 
 
-## 锁升级
+## 锁升级流程
 
-锁会存在四种状态，分别是：无锁状态、偏向锁状态、轻量级锁状态、重量级锁状态；状态会随竞争激烈程度逐渐升级，升级的过程不可逆，锁升级是为了提高获取锁和释放锁的效率
+JDK1.6 之后对 synchronized 进行了优化，锁会存在四种状态，分别是：无锁状态、偏向锁状态、轻量级锁状态、重量级锁状态；状态会随竞争激烈程度逐渐升级，升级的过程不可逆，锁升级是为了提高获取锁和释放锁的效率
+
+```
+         +-------------+
+         |   无锁状态   |
+         +------+------+
+                |
+                | 第一次被 synchronized 访问
+                v
+         +-------------+
+         |   偏向锁     | ← 同一线程反复进入
+         +------+------+
+                |
+                | 有其他线程竞争（CAS 失败）
+                v
+         +-------------+
+         |  轻量级锁    | ← 线程交替执行，自旋等待
+         +------+------+
+                |
+                | 自旋超时 / 竞争激烈
+                v
+         +-------------+
+         |  重量级锁    | ← OS Mutex，线程阻塞
+         +-------------+
+```
 
 
+### 无锁
+
+状态：锁对象刚被创建，还没被用来同步控制过，没有任何同步开销
+
+Mark Word：存储 HashCode、GC 年龄，偏向锁
+
+https://www.cnblogs.com/star95/p/17542850.html
 ### 偏向锁
 
-没有竞争的情况（同一个线程反复进入）
+偏向锁是对无竞争情景的优化
 
-实现机制：
+场景：同一个线程多次进入同步块，比如单线程执行
 
-> 
+核心思想：免同步，记录线程 ID，下次获取锁时直接进入
+
+Mark Word：偏向锁标识：1
 
 ### 轻量级锁
 
@@ -428,3 +461,16 @@ Monitor 中 Owner 属性记录了当前持有锁的线程，Recursions 记录了
 - 直到释放所有获取过的 Monitor，Recursion = 0，Owner = null，这个 Monitor 可以由下一个需要的线程获取
 
 synchronized 实现可重入的本质：**通过 Monitor 的 Recursion 累加来记录**
+
+```java
+Object lock = new Object();
+
+// Thread A
+synchronized(lock) {        // monitorenter
+    synchronized(lock) {    // 再次 monitorenter → _recursions = 2
+        // do work
+    }                       // monitorexit → _recursions = 1
+}                           // monitorexit → _recursions = 0 → 释放
+
+// 整个过程只分配了一个 Monitor，通过 Recursion 来记录重入次数
+```
