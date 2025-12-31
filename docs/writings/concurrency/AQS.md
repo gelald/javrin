@@ -41,31 +41,146 @@ CLH 队列是一个链表实现的阻塞队列，AQS 通过 prev 和 next 两个
 关键设计：队列的操作都通过 CAS 的方式来保证线程安全，避免使用 `synchronized`，提升了性能
 
 
-## AQS 工作流程
+## AQS 两种模式
 
-以 `ReentrantLock` 为例，假设有一段代码需要使用锁进行保护
+### 独占模式
+
+- 一次只允许一个线程通过
+- `tryAcquire()` 方法返回 `boolean`，代表是否成功获取锁
+- 代表：`ReentrantLock`、`ReentrantReadWriteLock.WriteLock`
+
+
+### 共享模式
+
+- 资源足够的情况下，允许多个线程同时通过
+- `tryAcquireShared()` 方法返回 `int`
+    - `>=0` 代表成功，如果资源还有多的，可能会唤醒后继线程
+    - `<0` 代表失败
+- 代表：`CountDownLatch`、`ReentrantReadWriteLock.ReadLock`、`Semaphore`
+
+
+## AQS 简易实现
+
+接下来使用 AQS 来实现 synchronized 功能
 
 ```java
-ReentrantLock lock = new ReentrantLock();
-lock.lock();
-try {
+public class AQSDemo {
+    public static void main(String[] args) throws InterruptedException {
+        SimpleMutex simpleMutex = new SimpleMutex();
 
-} finally {
-    lock.unlock();
+        Thread t1 = new Thread(() -> {
+            // 线程1：获取锁并持有3秒
+            System.out.println(Thread.currentThread().getName() + " 尝试获取锁");
+            simpleMutex.lock();
+            System.out.println(Thread.currentThread().getName() + " 获取锁成功");
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                System.out.println(Thread.currentThread().getName() + " 释放锁");
+                simpleMutex.unlock();
+            }
+        }, "Thread-1");
+
+        Thread t2 = new Thread(() -> {
+            try {
+                // 确保线程1拿到锁
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // 线程2：获取锁时会进入阻塞状态，直到线程1释放锁
+            System.out.println(Thread.currentThread().getName() + " 尝试获取锁");
+            simpleMutex.lock();
+            System.out.println(Thread.currentThread().getName() + " 获取锁成功");
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                simpleMutex.unlock();
+                System.out.println(Thread.currentThread().getName() + " 释放锁");
+            }
+        }, "Thread-2");
+
+        t1.start();
+        t2.start();
+
+        t1.join();
+        t2.join();
+
+        System.out.println("主线程结束，锁状态：" + (simpleMutex.isLocked() ? "已锁" : "未锁"));
+    }
+}
+
+/**
+ * 一个基于 AQS 的简单互斥锁（不可重入）
+ */
+class SimpleMutex {
+    // 实现互斥锁的核心组件，通过 AQS 来构建同步工具
+    private static class Sync extends AbstractQueuedSynchronizer {
+        @Override
+        protected boolean tryAcquire(int arg) {
+            // 通过 CAS 的方式修改 state 值
+            // 原子地获取锁
+            if (compareAndSetState(0, 1)) {
+                // 记录当前拥有独立访问权限的线程
+                // 可重入的基础
+                setExclusiveOwnerThread(Thread.currentThread());
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected boolean tryRelease(int arg) {
+            if (getState() == 0) {
+                // 如果 state 已经是 0，说明没有成功获取锁，或者已经被释放了，抛出异常
+                throw new IllegalMonitorStateException();
+            }
+            // 清除拥有独立访问权限线程的标识
+            setExclusiveOwnerThread(null);
+            // state = 0 说明释放锁
+            setState(0);
+            return true;
+        }
+
+        @Override
+        protected boolean isHeldExclusively() {
+            // 通过 state 是否等于 1 来判断锁是否被持有
+            return getState() == 1;
+        }
+    }
+
+    private final Sync sync = new Sync();
+
+    public void lock() {
+        sync.acquire(1);
+    }
+
+    public void unlock() {
+        sync.release(1);
+    }
+
+    public boolean isLocked() {
+        return sync.isHeldExclusively();
+    }
 }
 ```
 
-### 尝试获取锁
+结果是：
 
+```
+Thread-1 尝试获取锁
+Thread-1 获取锁成功
+Thread-2 尝试获取锁
+Thread-1 释放锁
+Thread-2 获取锁成功
+Thread-2 释放锁
+主线程结束，锁状态：未锁
+```
 
-### 获取锁失败，加入CLH队列
+因为 AQS 中已经定义好 acquire 和 release 方法，并提供 tryAcquire 和 tryRelease 方法给子类实现，所以在 SimpleMutex.Sync 中只需要实现好两个 try 方法即可
 
-
-### 自旋阻塞等待
-
-
-### 释放锁时唤醒后继线程
-
-
-
-## AQS 两种方式
+AQS 负责完成阻塞排队、释放唤醒的通用操作，子类只需要实现好 “怎么样是获取/释放锁成功/失败” ，这体现了模板方法的设计模式
