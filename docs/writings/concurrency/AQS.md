@@ -7,60 +7,109 @@ category: 并发
 # AQS 学习
 
 
-## 引入
+## 为什么需要 AQS
 
-经过 synchronized 的学习，我们知道 synchronized 可以很方便地给一段共享资源的操作加上锁，对操作进行同步控制；但是 synchronized 也有一定的弊端：**不支持中断、不支持超时、不支持公平锁**
+经过 synchronized 的学习，我们知道 synchronized 可以很方便地给一段共享资源的操作加上锁，对操作进行同步控制；
 
-AQS 就是用来解决这些问题的，AQS 全称叫 AbstractQueueSynchronizer（抽象队列同步器），它把同步的通用逻辑（排队、阻塞、唤醒）封装成了一个框架，用于构建各种同步工具来解决多线程的同步问题，常见的实现有：ReentrantLock、CountDownLatch 等
+但是 synchronized 也有一定的弊端：
+
+- **不支持中断** (线程无法响应 interrupt)
+- **不支持超时** (无法进行 `tryLock(timeout)`)
+- **不支持公平锁** (无法保证 FIFO 获取)
+
+AQS 就是用来解决这些问题的，全称叫 AbstractQueueSynchronizer (抽象队列同步器)，它把同步的通用逻辑（排队、阻塞、唤醒）封装成了一个框架，用于构建各种同步工具来解决多线程的同步问题，常见的实现有：ReentrantLock、CountDownLatch 等
 
 AQS 提供了阻塞式同步器的标准实现框架，避免每个工具类重复实现复杂的线程排队和状态管理逻辑，保证了 JUC 包的一致性和可靠性。
 
 
-## AQS 核心思想
+## AQS 核心组件
 
-> AQS 的核心设计其实可以一句话概括：一个状态(state) + 一个等待队列(CLH) + 一套原子操作(CAS)
+> AQS 的设计精髓：一个状态(state) + 一个等待队列(CLH) + 一套原子操作(CAS)
 
 
-### state
+### `state` 同步状态机
 
 `state` 可以理解为锁的计数器，或者资源剩余量，用具体例子来说明：
 
-- `ReentrantLock`: `state = 0` 表示无锁，`state > 0` 表示被持有
+- `ReentrantLock`: `state = 0` 表示无锁，`state > 0` 表示被持有以及锁重入的次数
 - `CountDownLatch`: `state = 3` 表示还需要进行 3 次 `countDown()`
 
 关键设计：`state` 被 `volatile` 修饰，保证了多个线程之间的可见性
 
 
-### CLH 阻塞队列
+### CLH FIFO阻塞队列
 
-CLH 队列是一个链表实现的阻塞队列，AQS 通过 prev 和 next 两个指针来维护链表
+CLH 队列是一个双向链表实现的阻塞队列，**AQS 通过 prev 和 next 两个指针来维护链表**
 
-- 当线程获取 `state` 失败时，会被封装成一个 `Node` ，**通过 CAS 的方式加入 CLH 队列尾部**
+CLH 队列工作流程：
+
+```mermaid
+graph LR
+  A[线程尝试获取 state] -->|失败| B[创建 Node 入队]
+  B --> C{前驱是 head？}
+  C -->|是| D[再次尝试获取]
+  C -->|否| E[阻塞 park]
+  D -->|成功| F[设为新 head]
+  D -->|失败| E
+  E -->|被唤醒| C
+```
+
+高效关键：
+
+- 当线程获取 `state` 失败时，会被封装成一个 `Node` ，**通过 CAS 的方式加入 CLH 队列尾部**，避免使用 `synchronized` 而带来的开销
 - 每个线程只需要关注前驱线程，比如线程 B 阻塞时，**只等待前驱节点线程 A 唤醒** (`LockSupport.unpark`)；避免了全局通知的开销，同时天然保证 FIFO 特性
 
-关键设计：队列的操作都通过 CAS 的方式来保证线程安全，避免使用 `synchronized`，提升了性能
+
+### CAS 原子操作基石
+
+AQS 中对于 `state` 状态机的修改和线程加入 CLH 队列的操作都是使用 CAS 的方式，既安全又比 `synchronized` 高效
 
 
-## AQS 两种模式
+## AQS 独占模式与共享模式
 
-### 独占模式
+| 对比维度   | 独占模式 (Exclusive)                               | 共享模式 (Shared)                                              |
+|------------|----------------------------------------------------|----------------------------------------------------------------|
+| 语义       | 一次仅允许一个线程通过                             | 在资源足够的情况下，允许多个线程同时通过                        |
+| 核心方法   | `tryAcquire() -> boolean`                          | `tryAcquireShared() -> int`                                    |
+| 返回值含义 | `true` 表示成功                                    | `>=0` 表示成功，值表示剩余资源；`<0` 表示失败                    |
+| 唤醒行为   | 唤醒一个后继                                       | 传播式唤醒 (多个线程同时通过)                                  |
+| 代表工具   | `ReentrantLock`、`ReentrantReadWriteLock.WriteLock` | `CountDownLatch`、`ReentrantReadWriteLock.ReadLock`、`Semaphore` |
 
-- 一次只允许一个线程通过
-- `tryAcquire()` 方法返回 `boolean`，代表是否成功获取锁
-- 代表：`ReentrantLock`、`ReentrantReadWriteLock.WriteLock`
 
+## 公平锁与非公平锁
 
-### 共享模式
+先简单讲讲公平锁和非公平锁的意思：
 
-- 资源足够的情况下，允许多个线程同时通过
-- `tryAcquireShared()` 方法返回 `int`
-    - `>=0` 代表成功，如果资源还有多的，可能会唤醒后继线程
-    - `<0` 代表失败
-- 代表：`CountDownLatch`、`ReentrantReadWriteLock.ReadLock`、`Semaphore`
+- 公平锁：每个线程按照访问锁的先后顺序来获取锁，遵顼先访问先获取的规则
+- 非公平锁：每个线程都会竞争锁的获取，获取顺序是随机的，不遵循先来先得的规则
+
+ReentrantLock 中对公平锁和非公平锁都进行了实现，主要的区别在于 `tryAcquire()` 方法中，其中 `FairSync` 的实现中，在 CAS 修改 `state` 之前还先检查了一下排队线程，前面没有其他线程等待锁了，才进行 CAS 修改 `state` 来获取锁；在 `NonfairSync` 的实现中，则所有线程不管队列，直接一起抢占
+
+```java
+static final class FairSync extends Sync {
+    protected final boolean tryAcquire(int acquires) {
+        // hasQueuedPredecessors: 如果当前线程前面有已排队的线程，则返回 true；如果当前线程位于队列头部或队列为空，则返回 false。
+        if (getState() == 0 && !hasQueuedPredecessors() && compareAndSetState(0, acquires)) {
+            setExclusiveOwnerThread(Thread.currentThread());
+            return true;
+        }
+        return false;
+    }
+}
+
+static final class NonfairSync extends Sync {
+    protected final boolean tryAcquire(int acquires) {
+        if (getState() == 0 && compareAndSetState(0, acquires)) {
+            setExclusiveOwnerThread(Thread.currentThread());
+            return true;
+        }
+        return false;
+    }
+}
+```
 
 
 ## AQS 简易实现
-
 
 ### 不可重入锁
 
@@ -172,7 +221,7 @@ class SimpleMutex {
 }
 ```
 
-结果是：
+结果是：线程 2 也尝试获取锁，但是阻塞等待着线程 1 的释放
 
 ```
 Thread-1 尝试获取锁
@@ -320,6 +369,6 @@ class ReentrantMutex {
 
 ### 总结
 
-因为 AQS 中已经定义好 acquire 和 release 方法，并提供 tryAcquire 和 tryRelease 方法给子类实现，所以在具体的实现类中只需要实现好两个 try 方法即可
+因为 AQS 中已经定义好 `acquire()` 和 `release()` 方法，并提供 `tryAcquire()` 和 `tryRelease()` 方法给子类实现，所以在具体的实现类中只需要实现好两个 try 方法即可
 
-AQS 负责完成阻塞排队、释放唤醒的通用操作，子类只需要实现好 “怎么样是获取/释放锁成功/失败” ，这体现了**模板方法**的设计模式
+AQS 负责完成**阻塞排队**、**释放唤醒**的通用操作，子类只需要实现好 “怎么样是获取/释放锁成功/失败” ，这体现了**模板方法**的设计模式
