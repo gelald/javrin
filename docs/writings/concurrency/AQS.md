@@ -61,6 +61,9 @@ CLH 队列是一个链表实现的阻塞队列，AQS 通过 prev 和 next 两个
 
 ## AQS 简易实现
 
+
+### 不可重入锁
+
 接下来使用 AQS 来实现 synchronized 功能
 
 ```java
@@ -181,6 +184,142 @@ Thread-2 释放锁
 主线程结束，锁状态：未锁
 ```
 
-因为 AQS 中已经定义好 acquire 和 release 方法，并提供 tryAcquire 和 tryRelease 方法给子类实现，所以在 SimpleMutex.Sync 中只需要实现好两个 try 方法即可
+### 可重入锁
 
-AQS 负责完成阻塞排队、释放唤醒的通用操作，子类只需要实现好 “怎么样是获取/释放锁成功/失败” ，这体现了模板方法的设计模式
+在简易实现的基础上添加重入的支持，核心要点就是检查 `state` 的数量和 `exclusiveOwnerThread` 的指向
+
+```java
+public class AQSDemo {
+    public static void main(String[] args) throws InterruptedException {
+        ReentrantMutex reentrantMutex = new ReentrantMutex();
+
+        Thread t = new Thread(() -> {
+            System.out.println("线程开始");
+
+            reentrantMutex.lock();
+            System.out.println("第1次 lock，holdCount = " + reentrantMutex.getHoldCount());
+
+            reentrantMutex.lock();
+            System.out.println("第2次 lock，holdCount = " + reentrantMutex.getHoldCount());
+
+            reentrantMutex.lock();
+            System.out.println("第3次 lock，holdCount = " + reentrantMutex.getHoldCount());
+
+            // 释放三次
+            reentrantMutex.unlock();
+            System.out.println("第1次 unlock，holdCount = " + reentrantMutex.getHoldCount());
+
+            reentrantMutex.unlock();
+            System.out.println("第2次 unlock，holdCount = " + reentrantMutex.getHoldCount());
+
+            reentrantMutex.unlock();
+            System.out.println("第3次 unlock，holdCount = " + reentrantMutex.getHoldCount());
+
+            System.out.println("线程结束，锁是否释放: " + !reentrantMutex.isLocked());
+        });
+
+        t.start();
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+class ReentrantMutex {
+    private static class Sync extends AbstractQueuedSynchronizer {
+        @Override
+        protected boolean tryAcquire(int acquires) {
+            Thread current = Thread.currentThread();
+            int state = getState();
+
+            if (state == 0) {
+                // 无锁，尝试获取
+                if (compareAndSetState(0, acquires)) {
+                    setExclusiveOwnerThread(current);
+                    return true;
+                }
+            } else if (current == getExclusiveOwnerThread()) {
+                // 可重入：同一线程再次获取
+                int next = state + acquires;
+                if (next < 0) { // 溢出检查
+                    throw new Error("Maximum lock count exceeded");
+                }
+                setState(next);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected boolean tryRelease(int releases) {
+            int state = getState() - releases;
+            if (Thread.currentThread() != getExclusiveOwnerThread()) {
+                // 非持有者释放锁，抛出异常
+                throw new IllegalMonitorStateException();
+            }
+
+            boolean free = false;
+
+            if (state == 0) {
+                // 重入次数归零，真正释放
+                free = true;
+                setExclusiveOwnerThread(null);
+            }
+            // 未归零，继续更新 state
+            setState(state);
+            // 注意：AQS release() 会检查 tryRelease() 返回值是否为 true
+            return free;
+        }
+
+        @Override
+        protected boolean isHeldExclusively() {
+            return getExclusiveOwnerThread() == Thread.currentThread();
+        }
+
+        public int getHoldCount() {
+            // 如果被持有着，返回重入次数
+            // 如果没有被持有，直接返回0
+            return isHeldExclusively() ? getState() : 0;
+        }
+    }
+
+    private final Sync sync = new Sync();
+
+    public void lock() {
+        sync.acquire(1);
+    }
+
+    public void unlock() {
+        sync.release(1);
+    }
+
+    public boolean isLocked() {
+        return sync.isHeldExclusively();
+    }
+
+    public int getHoldCount() {
+        return sync.getHoldCount();
+    }
+}
+```
+
+结果是：
+
+```
+线程开始
+第1次 lock，holdCount = 1
+第2次 lock，holdCount = 2
+第3次 lock，holdCount = 3
+第1次 unlock，holdCount = 2
+第2次 unlock，holdCount = 1
+第3次 unlock，holdCount = 0
+线程结束，锁是否释放: true
+```
+
+### 总结
+
+因为 AQS 中已经定义好 acquire 和 release 方法，并提供 tryAcquire 和 tryRelease 方法给子类实现，所以在具体的实现类中只需要实现好两个 try 方法即可
+
+AQS 负责完成阻塞排队、释放唤醒的通用操作，子类只需要实现好 “怎么样是获取/释放锁成功/失败” ，这体现了**模板方法**的设计模式
