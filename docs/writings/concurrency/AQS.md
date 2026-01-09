@@ -1,10 +1,10 @@
 ---
-title: AQS 学习
+title: AQS 从原理到实战
 icon: article
 category: 并发
 ---
 
-# AQS 学习
+# AQS 从原理到实战
 
 
 ## 为什么需要 AQS
