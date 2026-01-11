@@ -110,6 +110,7 @@ export default defineConfig({
                             {text: "volatile学习", link: "/volatile"},
                             {text: "synchronized学习", link: "/synchronized"},
                             {text: "AQS 从原理到实战", link: "/AQS"},
+                            {text: "ReentrantLock学习", link: "/ReentrantLock"},
                             {text: "线程池", link: "/thread-pool"},
                             {text: "由串行到并行的故事", link: "/serial-to-parallel"},
                             {text: "任务是否在线程池中执行", link: "/is-thread-executed-in-executor"}
