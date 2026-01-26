@@ -1,16 +1,7 @@
 ---
-title: 线程池基本概念
+title: 线程池学习
 icon: article
-isOriginal: true
-category:
-
-- 并发
-
-tag:
-
-- 线程池
-- 原理
-
+category: 并发
 ---
 
 # 线程池
@@ -29,53 +20,40 @@ tag:
 
 `ThreadPoolExecutor` 是 Java 中提供的常用的线程池对象。
 
-### 重要参数
+### 7 大重要参数
 
-- `corePoolSize`：核心线程数。
+- `corePoolSize`：核心线程数（默认：0）。
 
 	* 核心线程默认情况下会**一直存活**，即使没有任务需要执行。
 	* 当线程数小于核心线程数时，即使有线程空闲，线程池也会优先创建新线程处理。
 
-
-
-- `queueCapacity`：任务队列容量（默认：`Integer.MAX_VALUE`）。
-
-	* 当核心线程数达到最大并且所有核心线程都在工作状态中，新任务会放在任务队列中等待执行。
-
-
-
-- `maxPoolSize`：最大线程数（默认：`Integer.MAX_VALUE`）。
+- `maximumPoolSize`：最大线程数（默认：`Integer.MAX_VALUE`）。
 
 	* 用于规定线程池的最大能创建的线程数量。
 	* 当线程数 > `corePoolSize`，**且任务队列已满时**。线程池会创建新线程来处理任务，直到线程数量达到 `maxPoolSize` 。
 	* 当线程数已经 = `maxPoolSize`，**且任务队列已满时**，线程池会执行拒绝策略来**拒绝处理**任务。
 
+- `keepAliveTime`：非核心线程空闲时间（默认：60）。
 
+	* 当非核心线程的空闲时间达到 `keepAliveTime` 时，线程会自动销毁，直到线程数等于 `corePoolSize` 。
 
--  `keepAliveTime`：线程空闲时间（秒）（默认：60）。
+- `unit`：时间单位，配合 `keepAliveTime` 参数一起使用。
 
-	* 当线程的空闲时间达到 `keepAliveTime` 时，线程会自动销毁，直到线程数等于 `corePoolSize` 。
+- `workQueue`：阻塞队列，存放待执行的线程任务，当核心线程数达到最大并且所有核心线程都在工作状态中，新任务会放在任务队列中等待执行。
 
+	* `ArrayBlockingQueue`：基于数组实现的有界阻塞队列
+    * `LinkedBlockingQueue`：基于链表实现的无界阻塞队列
+    * `SynchronousQueue`：无界阻塞队列，**不存储任务，直接提交**，每次插入操作必须等到一个线程移除操作，否则插入操作会一直处于阻塞状态。
 
+- `threadFactory`：线程工厂，用于创建线程，可以配置线程优先级、**线程命名**以及线程类型（用户线程/守护线程）
 
-- `allowCoreThreadTimeout`：允许核心线程超时（默认：`false`）。
+- `handler`：任务拒绝处理器，当线程数达到 `maxPoolSize`，且任务队列已满时，就会采用设定的拒绝处理器来拒绝任务。
 
-	* 当 `allowCoreThreadTimeout` = `true` 时，核心线程的空闲时间达到 `keepAliveTime` 也会自动销毁。
-
-
-
-- `rejectedExecutionHandler`：任务拒绝处理器（默认：`AbortPolicy`）
-
-	* 当线程数达到 `maxPoolSize`，且任务队列已满时，就会采用设定的拒绝处理器来拒绝任务。
-
-
-- `RejectedExecutionHandler`：当线程池无法处理任务的拒绝策略接口，常见的实现类有以下几个：
-	* `ThreadPoolExecutor.AbortPolicy` : 丢弃任务并抛出 `RejectedExecutionException`。
-	* `ThreadPoolExecutor.DiscardPolicy` : 丢弃任务，但是不抛出异常。
-	* `ThreadPoolExecutor.DiscardOldestPolicy` : 丢弃队列最前面的任务，然后重新尝试执行任务。
-	* `ThreadPoolExecutor.CallerRunsPolicy` : 不在新线程中执行任务，而是由调用者所在的线程来执行。
-	* 同时也可以实现 `RejectedExecutionHandler` 接口来自定义拒绝处理器，比如可以把无法处理的任务进行持久化，等到线程池可以处理时再重新处理。
-
+  * `ThreadPoolExecutor.AbortPolicy` （默认）: 丢弃任务并抛出 `RejectedExecutionException`。
+  * `ThreadPoolExecutor.DiscardPolicy` : 丢弃任务，但是不抛出异常。
+  * `ThreadPoolExecutor.DiscardOldestPolicy` : 丢弃队列最前面的任务，然后重新尝试执行任务。
+  * `ThreadPoolExecutor.CallerRunsPolicy` : 不在新线程中执行任务，而是由调用者所在的线程来执行。
+  * 同时也可以实现 `RejectedExecutionHandler` 接口来自定义拒绝处理器，比如可以把无法处理的任务进行持久化，等到线程池可以处理时再重新处理。
 
 
 ### 创建线程池
