@@ -109,9 +109,10 @@ export default defineConfig({
                             {text: "ThreadLocal学习", link: "/ThreadLocal"},
                             {text: "volatile学习", link: "/volatile"},
                             {text: "synchronized学习", link: "/synchronized"},
-                            {text: "AQS 从原理到实战", link: "/AQS-theory"},
+                            {text: "CAS学习", link: "/CAS"},
+                            {text: "AQS从原理到实战", link: "/AQS-theory"},
                             {text: "ReentrantLock学习", link: "/ReentrantLock"},
-                            {text: "JUC 常用工具学习", link: "/JUC"},
+                            {text: "JUC常用工具学习", link: "/JUC"},
                             {text: "线程池", link: "/thread-pool"},
                             {text: "由串行到并行的故事", link: "/serial-to-parallel"},
                             {text: "任务是否在线程池中执行", link: "/is-thread-executed-in-executor"}
