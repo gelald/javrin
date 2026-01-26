@@ -6,7 +6,7 @@ category: 并发
 
 # ReentrantLock 学习
 
-> ReentrantLock 是 AQS 的常见实现类，使用了 AQS 的共享模式，提供了公平锁和非公平锁两种实现
+> ReentrantLock 是 JUC 中非常常用的一个工具，单独展开学习，它使用了 AQS 的共享模式，提供了公平锁和非公平锁两种实现
 
 ## 公平锁与非公平锁的差异
 
