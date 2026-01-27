@@ -114,6 +114,7 @@ export default defineConfig({
                             {text: "ReentrantLock学习", link: "/ReentrantLock"},
                             {text: "JUC常用工具学习", link: "/JUC"},
                             {text: "线程池学习", link: "/ThreadPoolExecutor"},
+                            {text: "Future/FutureTask学习", link: "/Future-and-FutureTask"},
                             {text: "由串行到并行的故事", link: "/serial-to-parallel"},
                             {text: "任务是否在线程池中执行", link: "/is-thread-executed-in-executor"}
                         ],
