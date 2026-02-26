@@ -9,7 +9,10 @@ export default defineConfig({
     // 生成的url不带.html后缀
     cleanUrls: true,
     head: [
-        ["link", { rel: "icon", href: "/javrin/favicon.ico" }]
+        ["link", { 
+            rel: "icon",
+            href: "/favicon.ico"
+        }]
     ],
     themeConfig: {
         logo: '/logo.svg',
