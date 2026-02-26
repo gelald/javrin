@@ -11,7 +11,7 @@ export default defineConfig({
     head: [
         ["link", { 
             rel: "icon",
-            href: "/favicon.ico"
+            href: process.env.GITHUB_ACTIONS === 'true' ? "/javrin/favicon.ico" : "/favicon.ico"
         }]
     ],
     themeConfig: {
