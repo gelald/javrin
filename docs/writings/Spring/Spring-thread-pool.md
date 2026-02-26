@@ -18,7 +18,7 @@ tag:
 
 > 众所周知，「Spring makes all simple」，当然也包括线程池。
 >
-> 线程池回顾：[线程池](../concurrency/thread-pool.md)
+> 线程池回顾：[线程池](../concurrency/ThreadPoolExecutor.md)
 
 
 
