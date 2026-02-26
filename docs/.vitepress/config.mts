@@ -4,13 +4,16 @@ import {defineConfig} from 'vitepress'
 export default defineConfig({
     title: "Javrin",
     description: "「Javrin」是我的学习笔记 希望能帮助你😎",
-    // vercel部署不带路由
+    // 因为 Github Pages 部署时使用了自定义仓库，域名并非 https://<USERNAME>.github.io ，而是 https://<USERNAME>.github.io/<REPO>
+    // 所以对于 Github Pages 必须有相对路径，也就是指定 base 属性；但对于 Vercel 等其他平台，这个配置不是必须的，可以省去
+    // GITHUB_ACTIONS 是 GitHub Actions 运行时自动设置的环境变量，我们可以利用这个环境变量来做区分，如果是 Github Pages 情况，那么加上 base
     base: process.env.GITHUB_ACTIONS === 'true' ? '/javrin' : '/',
     // 生成的url不带.html后缀
     cleanUrls: true,
     head: [
         ["link", { 
             rel: "icon",
+            // icon 路径和 base 属性同理
             href: process.env.GITHUB_ACTIONS === 'true' ? "/javrin/favicon.ico" : "/favicon.ico"
         }]
     ],
