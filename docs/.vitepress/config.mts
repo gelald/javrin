@@ -138,7 +138,8 @@ export default defineConfig({
                         collapsed: true,
                         base: "/writings/SpringSecurity",
                         items: [
-                            {text: "SpringSecurity 核心组件", link: "/Spring-Security-core-component"}
+                            {text: "SpringSecurity 核心组件", link: "/Spring-Security-core-component"},
+                            {text: "SpringSecurity 之 WebSecurity 和 HttpSecurity 的区别", link: "/WebSecurity-and-HttpSecurity"}
                         ]
                     },
                     {
