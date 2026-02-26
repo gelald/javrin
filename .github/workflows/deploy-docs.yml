@@ -1,8 +1,7 @@
 name: Deploy VitePress site to Pages
 
 on:
-  # 在针对 `main` 分支的推送上运行。如果你
-  # 使用 `master` 分支作为默认分支，请将其更改为 `master`
+  # 在针对 `main` 分支的推送上运行。如果你使用 `master` 分支作为默认分支，请将其更改为 `master`
   push:
     branches: [main]
 
@@ -26,13 +25,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+      - name: Checkout branch
+        uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # 如果未启用 lastUpdated，则不需要
+          # 要获取的提交次数。0表示获取所有分支和标签的历史记录。
+          fetch-depth: 0
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
+        # 省略版本输入，使用 package.json 中的 packageManager 字段中的版本。
       
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -44,7 +45,8 @@ jobs:
         uses: actions/configure-pages@v4
 
       - name: Install dependencies
-        run: pnpm install
+        # 使用 ci 命令严格读取 pnpm-lock.yaml 文件，跳过版本解析，更严谨
+        run: pnpm ci
 
       - name: Build with VitePress
         run: pnpm run docs:build
