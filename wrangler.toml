@@ -8,3 +8,8 @@ directory = "docs/.vitepress/dist"
 # 如果使用自定义域名，可以在这里指定
 # zone_id = "your-zone-id"
 # custom_domain = "yourdomain.com"
+
+# 为 worker 添加可观察设置，所有请求都记录
+[observability]
+enabled = true
+head_sampling_rate = 1
