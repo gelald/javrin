@@ -11,7 +11,7 @@ export default defineConfig({
     // 生成的url不带.html后缀
     cleanUrls: true,
     head: [
-        ["link", { 
+        ["link", {
             rel: "icon",
             // icon 路径和 base 属性同理
             href: process.env.GITHUB_ACTIONS === 'true' ? "/javrin/favicon.ico" : "/favicon.ico"
@@ -19,7 +19,6 @@ export default defineConfig({
     ],
     themeConfig: {
         logo: '/logo.svg',
-        // 开启全文搜索
         // 开启全文搜索后，会建立索引，因为文件数量多、文件内容也多，所以索引文件可能会很大
         search: {
             provider: "local"
