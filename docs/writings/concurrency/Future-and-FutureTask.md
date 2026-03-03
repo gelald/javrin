@@ -34,7 +34,7 @@ Integer result = future.get();
 System.out.println(result);
 ```
 
-其中提交给线程池运行后的结果不是直接返回的，而是通过 `Future`来进行包装，`Future` 提供了检查计算是否完成、是否取消，阻塞获取计算结果的方法
+其中提交给线程池运行后的结果不是直接返回的，而是通过 `Future` 来进行包装，`Future` 提供了检查计算是否完成、是否取消，阻塞获取计算结果的方法
 
 ```java
 public interface Future<V> {
@@ -55,5 +55,48 @@ public interface Future<V> {
 
 ## FutureTask
 
-虽然 Future 提供了获取异步任务结果的能力，但是其本质上还是阻塞等待的方式，无法做到回调通知，因此在复杂的流程编排中还不够用
+`FutureTask` 是 `Future` 的实现类，除此之外还实现了 `Runnable`，使它具备了：
 
+- 可以被线程执行的能力，(`Future` 只是一个结果的 "占位符"，它并不能直接运行)
+- 可以获取结果的能力
+
+### **状态机的体现**
+
+`FutureTask` 的 `state` 属性和 CAS 修改的方式，保证了 `run()` 方法只被执行一次
+
+```java
+    private volatile int state;
+    private static final int NEW          = 0;      // 创建完成
+    private static final int COMPLETING   = 1;
+    private static final int NORMAL       = 2;      // 正常完成
+    private static final int EXCEPTIONAL  = 3;      // 执行异常
+    private static final int CANCELLED    = 4;      // 被取消
+    private static final int INTERRUPTING = 5;      // 正在中断
+    private static final int INTERRUPTED  = 6;      // 已中断
+```
+
+### **`Run()` 方法只执行一次的原因**
+
+因为 `run()` 方法执行的时候会优先检查 `state` 是否为 `NEW`，是才能执行，否则不执行
+
+```java
+    public void run() {
+        if (state != NEW || !RUNNER.compareAndSet(this, null, Thread.currentThread()))
+            return;
+        try {
+            
+        } finally {
+
+        }
+    }
+```
+
+### **调用 `get()` 方法阻塞获取结果**
+
+- 如果当前任务未执行完，那么会通过 `LockSupport.park()` 来挂起调用线程
+- 如果当前任务执行完成了，`run()` 方法会调用 `LockSupport.unpark()` 所有等待的线程，并把结果存放到 `outcome` 属性中
+
+
+## 总结
+
+`Future` 和 `FutureTask` 虽然给线程任务提供了获取任务结果的能力，但是其本质上还是阻塞等待的方式，无法做到回调通知，因此在复杂的流程编排中还不够用
