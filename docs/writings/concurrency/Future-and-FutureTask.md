@@ -1,10 +1,10 @@
 ---
-title: Future 和 FutureTask学习
+title: Future 与异步编程
 icon: article
 category: 并发
 ---
 
-# Future 和 FutureTask学习
+# Future 与异步编程
 
 ## Thread 和 Running 的缺陷
 
@@ -24,7 +24,7 @@ public interface Callable<V> {
 }
 ```
 
-## Callable 与 Future
+## Future
 
 `Callabel` 一般不会单独使用，而是搭配线程池，就像这样：
 
@@ -53,7 +53,7 @@ public interface Future<V> {
 - 必须主动调用 `get()` 方法才能得到任务结果，无法做到异步回调通知
 
 
-## FutureTask
+## FutureTask 可执行的 Future
 
 `FutureTask` 是 `Future` 的实现类，除此之外还实现了 `Runnable`，使它具备了：
 
@@ -97,6 +97,24 @@ public interface Future<V> {
 - 如果当前任务执行完成了，`run()` 方法会调用 `LockSupport.unpark()` 所有等待的线程，并把结果存放到 `outcome` 属性中
 
 
-## 总结
+
+## CompletableFuture 异步任务编排
 
 `Future` 和 `FutureTask` 虽然给线程任务提供了获取任务结果的能力，但是其本质上还是阻塞等待的方式，无法做到回调通知，因此在复杂的流程编排中还不够用
+
+`CompletableFuture` 拥有这种能力，能实现多任务流程编排、异步回调等功能
+
+### 常用创建方式
+
+| **方法**                                                | **说明**       |
+|-------------------------------------------------------|--------------|
+| `CompletableFuture.runAsync(Runnable action)`         | 异步执行有返回结果的任务 |
+| `CompletableFuture.supplyAsync(Supplier<T> supplier)` | 异步执行无返回结果的任务 |
+
+> 默认会使用 `ForkJoinPool.commonPool()`，在实际生产环境中必须指定自定义线程池，避免影响其他使用公共组件的功能（比如 `paparallelStreamra`）
+
+
+### 编排模式
+
+#### 串行依赖（A → B → C）
+
