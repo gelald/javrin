@@ -118,3 +118,28 @@ public interface Future<V> {
 
 #### 串行依赖（A → B → C）
 
+> 串行依赖是 `CompletableFuture` 的典型编排模型，适用于每个线程任务存在先后依赖关系的情况
+
+- `thenApply(Function<T,R>)`：有输入有输出
+- `thenAccept(Consumer<T>)`：有输入无输出
+- `thenRun(Runnable)`：无输入无输出
+- `thenCompose(Function<T, CompletableFuture<R>>)`：有输入有输出，和 `thenApply` 相比，它避免了 `CompletableFuture` 的嵌套
+
+#### 并行合并（A & B -> C）
+
+> 并行合并适用于每个任务之间没有相互依赖关系，可以同时并行，并最终聚合成一个结果返回的情况
+
+- `CompletableFuture<R> other, BiFunction<T,U,R>)`：两个 `CompletableFuture` 都完成后，输入两个任务的结果，输出合并的结果
+- `CompletableFuture<Void> other, BiConsumer<T,U>)`：两个 `CompletableFuture` 都完成后，消费两个结果，输入两个任务的结果，无输出
+- `CompletableFuture<Void> runAfterBoth(other, Runnable)`：两个 `CompletableFuture` 都完成后，执行 `Runnable`，无输入无输出
+- **多任务聚合（更常用）**：
+    - `CompletableFuture.allOf(cf1, cf2, cf3)`：所有任务都完成才继续
+    - `CompletableFuture.anyOf(cf1, cf2, cf3)`：所有任务中任意一个完成就继续
+
+#### 异常处理
+
+- `exceptionally(Function<Throwable, T>)`：仅处理异常，返回 fallback 值
+- `handle(BiFunction<T, Throwable, R>)`：同时处理正常结果和异常（推荐）
+- `whenComplete(BiFunction<T, Throwable, Void>)`：类似 finally，不改变结果
+
+https://opncd.ai/share/QEGGZGkF
