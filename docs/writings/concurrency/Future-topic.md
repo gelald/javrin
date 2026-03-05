@@ -142,4 +142,65 @@ public interface Future<V> {
 - `handle(BiFunction<T, Throwable, R>)`：同时处理正常结果和异常（推荐）
 - `whenComplete(BiFunction<T, Throwable, Void>)`：类似 finally，不改变结果
 
-https://opncd.ai/share/QEGGZGkF
+---
+
+此外，对于获取任务结果的方法，有 `get(`) 和 `join()` 两种，他们在处理异常上也有着不同
+
+- **`get()`**
+
+```java
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    if (true) {
+        throw new RuntimeException("任务失败");
+    }
+    return "结果";
+});
+
+try {
+    String result = future.get();  // ❌ 必须 try-catch，且必须要分别处理两种异常
+} catch (InterruptedException e) {
+    // 处理线程中断
+    Thread.currentThread().interrupt();
+} catch (ExecutionException e) {
+    // 处理任务执行异常
+    Throwable cause = e.getCause();  // 获取原始异常
+    System.out.println("执行失败：" + cause.getMessage());
+}
+```
+
+- **`join()`**
+
+```java
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    if (true) {
+        throw new RuntimeException("任务失败");
+    }
+    return "结果";
+});
+
+try {
+    String result = future.join();  // ✅ 不需要处理受检异常
+} catch (CompletionException e) {
+    // ❗可选 catch，通常用于获取原始异常
+    Throwable cause = e.getCause();  // 获取原始异常
+    System.out.println("执行失败：" + cause.getMessage());
+}
+
+// 或者更简洁：不 catch，让异常向上抛出
+String result = future.join();  // 异常会自动传播
+```
+
+| 方法       | 来源                     | 异常类型                                                               | 是否必须 catch |
+|----------|------------------------|--------------------------------------------------------------------|------------|
+| `get()`  | `Future` 接口            | `InterruptedException` (线程中断异常) <br> `ExecutionException` (任务执行异常) | ✅ 必须       |
+| `join()` | `CompletableFuture` 特有 | `CompletionException`                                              | ❌ 可选       |
+
+
+### 最佳实践
+
+- 自定义线程池，尽可能不滥用 `ForkJoinPool.commonPool()`，这个线程池是一个公共线程池，为了 CPU 密集型任务设计的，涉及到 IO 密集型（需要等待）任务容易把线程资源耗尽，还会卡住其他公共组件，比如 `parallelStrem`
+
+- 每个 `CompletableFuture` 都应有异常处理，如果其中一个抛出异常而又没有 `handle()` 等异常处理方法时，会中断后续的步骤
+
+- 尽可能多用 `join()` 少用 `get()`，因为 `join()` 仅抛出 `RuntimeException`，搭配 `handle()` 或者 `exceptionally()` 方法返回默认值，可以不处理保证代码的整洁
+
