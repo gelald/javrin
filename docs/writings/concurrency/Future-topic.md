@@ -6,7 +6,7 @@ category: 并发
 
 # Future 与异步编程
 
-## Thread 和 Running 的缺陷
+## Thread 和 Runnable 的缺陷
 
 回顾之前学习的，创建线程的方式，有两种
 
@@ -26,7 +26,7 @@ public interface Callable<V> {
 
 ## Future
 
-`Callabel` 一般不会单独使用，而是搭配线程池，就像这样：
+`Callabel` 一般不会单独使用，而是搭配线程池来使用：
 
 ```java
 Future<Integer> future = executorService.submit(() -> 123);
@@ -50,7 +50,7 @@ public interface Future<V> {
 
 - 如果此刻 `Callable` 定义的任务还没执行完，那么会阻塞当前线程，直到运算完成；所以 `Future` 也提供了带超时时间的 `get()` 方法，目的就是避免持续阻塞进而引发的资源耗尽或死锁等问题
 - `get()` 方法可以抛出异常，其中 `ExecutionException` 是 `Callable` 任务执行过程中抛出的异常的包装异常
-- 必须主动调用 `get()` 方法才能得到任务结果，无法做到异步回调通知
+- **必须主动调用 `get()` 方法才能得到任务结果，`Future` 无法做到异步回调通知**
 
 
 ## FutureTask 可执行的 Future
@@ -75,7 +75,7 @@ public interface Future<V> {
     private static final int INTERRUPTED  = 6;      // 已中断
 ```
 
-### **`Run()` 方法只执行一次的原因**
+### **`run()` 方法只执行一次的原因**
 
 因为 `run()` 方法执行的时候会优先检查 `state` 是否为 `NEW`，是才能执行，否则不执行
 
