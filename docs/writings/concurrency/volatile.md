@@ -67,7 +67,9 @@ public class VisibleIssue {
     - 读 `volatile` 操作后，禁止下面的读/写重排到它之前（**LoadLoad** / **LoadStore**）
     - 单例模式 DCL 写法很好地体现了这一点
 
-- volatile 只能保证可见性和有序性，无法保证原子性
+    > `synchronized` 也有同样的特性，但是它可以保护一个代码块，而 `volatile` 只能保护单一变量
+
+- `volatile` 只能保证可见性和有序性，无法保证原子性
 
 ```java
 public class NonAtomicIssue {
