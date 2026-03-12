@@ -253,13 +253,13 @@ graph LR
         ParNew
         Parallel_Scavenge[Parallel Scavenge]
     end
-    
+
     subgraph 老年代收集器
         Serial_Old[Serial Old]
         CMS
         Parallel_Old[Parallel Old]
     end
-    
+
     Serial --> Serial_Old
     ParNew --> CMS
     ParNew --> Serial_Old
@@ -273,59 +273,122 @@ graph LR
 
 ### Serial 收集器
 
-Serial 收集器从字面上可以知道它是以串行的方式执行的，Serial 收集器是单线程的收集器，只会使用一个线程进行垃圾收集工作。
+**Serial** 收集器从字面上可以知道它是以**串行**的方式执行的，Serial 收集器是**单线程**的收集器，**只会使用一个线程**进行垃圾收集工作。
 
-它的优点是简单高效，对于单个 CPU 环境来说，由于没有线程交互的开销，因此拥有最高的单线程收集效率。它是 Client 模式下的默认新生代收集器。
+它的优点是简单高效，对于单个 CPU 环境来说，由于没有线程交互的开销，因此拥有最高的单线程收集效率，但是 GC 时会暂停所有用户线程 (**Stop The World**)。它是 Client 模式下的默认新生代收集器。
+
+#### Serial Old 收集器
+
+**Serial Old** 收集器是 Serial 收集器的**老年代版本**，同时它作为 CMS 收集器的**后备预案**，在并发收集发生 Concurrent Mode Failure 时使用。
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220323221402.png)
 
+参数:
+
+```bash
+-XX:+UseSerialGC  # 启用 Serial + Serial Old
+```
+
 ### ParNew 收集器
 
-ParNew 收集器是 Serial 收集器的多线程版本，是 Server 模式下虚拟机**首选的新生代垃圾收集器**，可以和 CMS 收集器配合工作。
+**ParNew** 收集器是 **Serial 收集器的多线程版本**，其行为和 Serial 完全相同，**可以和 CMS 收集器配合工作**。
 
-默认开启的线程数量与 CPU 数量相同，可以使用 `-XX:ParallelGCThreads` 参数来设置线程数。
+**默认开启的线程数量与 CPU 数量相同**，可以使用 `-XX:ParallelGCThreads` 参数来设置线程数。
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220323221701.png)
 
-### Serial Old 收集器
+参数:
 
-是 Serial 收集器的老年代版本，也是给 Client 模式下的虚拟机使用。
+```bash
+-XX:+UseParNewGC  # 启用 ParNew + CMS
+-XX:ParallelGCThreads=4  # 设置 GC 线程数
+```
 
-如果用在 Server 模式下，它作为 CMS 收集器的后备预案，在并发收集发生 Concurrent Mode Failure 时使用。
+### Parallel Scavenge 收集器
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220323223601.png)
+**Parallel Scavenge** 收集器是 **JDK1.8 的默认收集器**，同样是多线程进行 GC，关注重点是**吞吐量**
+
+> 吞吐量计算公式：运行用户代码时间 / (运行用户代码时间 + GC 时间)
+
+参数：
+
+```bash
+-XX:+UseParallelGC          # 启用 Parallel Scavenge + Parallel Old
+-XX:MaxGCPauseMillis=100    # 最大 GC 停顿时间（毫秒）
+-XX:GCTimeRatio=99          # 吞吐量 = 1/(1+99) = 1%
+```
 
 ### CMS 收集器
 
-CMS(Concurrent Mark Sweep)，Mark Sweep 指的是标记-清除算法
+**CMS(Concurrent Mark Sweep)**，其中 Mark Sweep 指的是标记-清除算法
+
+> 目前只有 CMS 收集器会有单独针对老年代进行垃圾回收的行为
 
 CMS 收集器的工作流程：
 
-- 初始标记：仅仅只是标记一下 **GC Roots 能直接关联到的对象**，速度很快，需要停顿。
-- 并发标记：进行 **GC Roots Tracing** 的过程，它在整个回收过程中耗时最长，不需要停顿。
-- 重新标记：为了**修正**并发标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，需要停顿。
-- 并发清除：不需要停顿。
+- 初始标记：仅仅标记一下 **GC Roots 能直接关联到的对象**，速度很快，需要停顿。
+- 并发标记：遍历对象图，标记存活对象，它在整个回收过程中耗时最长，不需要停顿。
+- 重新标记：为了**修正**并发标记期间因用户程序继续运作而导致标记对象的变动，需要停顿。
+- 并发清除：清除未被标记的对象，不需要停顿。
 
-并发清除的过程中由于用户线程继续运行也可能会产生垃圾，称为浮动垃圾，而这一部分的浮动垃圾只能留到下一次垃圾回收才能进行回收。
+> 并发清除的过程中由于用户线程继续运行也可能会产生垃圾，称为浮动垃圾，**而这一部分的浮动垃圾只能留到下一次垃圾回收才能进行回收**。
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220323221850.png)
 
-CMS 收集器的优点：在整个过程中耗时最长的并发标记和并发清除的过程，收集器可以和用户线程一起工作，不需要停顿。
+```mermaid
+sequenceDiagram
+    participant User as 用户线程
+    participant GC as GC 线程
 
-CMS 收集器的缺陷：
+    Note over User,GC: 1. 初始标记 (Initial Mark)
+    User->>GC: 暂停
+    GC->>GC: 标记 GC Roots 直接可达对象
+    GC-->>User: 恢复
 
-- 无法处理浮动垃圾，可能会出现 Concurrent Mode Failure。由于浮动垃圾的存在，所以每次都需要预留出一部分内存，不能像其他收集器一样等待老年代快满了再进行回收。如果预留的内存甚至不足以存放浮动垃圾，那么就会出现 Concurrent Mode Failure，这时虚拟机只能临时启用 Serial Old 来替代 CMS。
-- 标记-清除算法会导致内存空间碎片，往往出现老年代空间剩余，但无法找到足够大连续空间来分配当前对象，不得不提前触发一次 Full GC。
+    Note over User,GC: 2. 并发标记 (Concurrent Mark)
+    User->>User: 继续运行
+    GC->>GC: 遍历对象图，标记存活对象
+
+    Note over User,GC: 3. 重新标记 (Remark)
+    User->>GC: 暂停
+    GC->>GC: 修正并发期间的标记变化
+    GC-->>User: 恢复
+
+    Note over User,GC: 4. 并发清除 (Concurrent Sweep)
+    User->>User: 继续运行
+    GC->>GC: 清除未标记对象
+
+    Note over User,GC: GC 完成
+```
+
+优点：**停顿时间短**，在整个过程中耗时最长的并发标记和并发清除的过程，收集器可以和用户线程一起工作，不需要停顿。
+
+缺陷：
+
+- 并发标记和并发清除阶段，会**占用 CPU 资源**
+- **无法处理浮动垃圾**，可能会出现 Concurrent Mode Failure。由于浮动垃圾的存在，所以每次都需要预留出一部分内存，不能像其他收集器一样等待老年代快满了再进行回收。如果预留的内存甚至不足以存放浮动垃圾，那么就会出现 Concurrent Mode Failure，这时虚拟机只能临时启用 Serial Old 来替代 CMS。
+- **标记-清除算法会导致内存空间碎片**，往往出现老年代空间剩余，但无法找到足够大连续空间来分配当前对象，不得不提前触发一次 Full GC。
+
+参数：
+
+```bash
+-XX:+UseConcMarkSweepGC                 # 启用 CMS
+-XX:CMSInitiatingOccupancyFraction=68   # 触发 GC 阈值（默认 68%）
+-XX:+UseCMSCompactAtFullCollection      # Full GC 时压缩空间
+-XX:CMSFullGCsBeforeCompaction=0        # 每次 Full GC 都压缩
+```
 
 ### G1 收集器
 
-G1(Garbage-First)，它是一款面向服务端应用的垃圾收集器，在多 CPU 和大内存的场景下有很好的性能。
+**G1(Garbage-First)**，它是一款面向服务端应用的垃圾收集器，在多 CPU 和大内存的场景下有很好的性能。
 
 #### Region
 
-G1 收集器引入了 Region 这个概念，把新生代和老年代一视同仁，把一整块内存空间划分成多个小空间，这些小空间就称为 Region。
+G1 收集器引入了 **Region** 这个概念，把新生代和老年代一视同仁，**把一整块堆内存空间划分成多个 Region**。
 
-这种划分方法带来了很大的灵活性，每一个 Region 都可以单独地进行垃圾回收，而且收集器会记录每个 Region 垃圾回收时间以及回收后所获得的空间，来维护一个优先列表，这样每次回收时可以根据允许的收集时间来优先回收价值最大的 Region。
+这种划分方法带来了很大的灵活性，每个 Region 可动态扮演 **Eden/Survivor/Old/Humongous**，每一个 Region 都可以**单独地进行垃圾回收**
+
+> 收集器会记录每个 Region 垃圾回收时间以及回收后所获得的空间，来维护一个优先列表，这样每次回收时可以根据允许的收集时间来优先回收价值最大的 Region。
 
 而且每个 Region 都有一个 Remembered Set，用来记录该 Region 对象的引用对象所在的 Region。通过 Remembered Set，在做可达性分析的时候可以避免全堆扫描。
 
@@ -333,19 +396,82 @@ G1 收集器引入了 Region 这个概念，把新生代和老年代一视同仁
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220323224111.png)
 
-如果不计算维护 Remembered Set 的操作，G1 收集器的工作流程：
+#### 工作流程
 
-- 初始标记：仅仅只是标记一下 **GC Roots 能直接关联到的对象**
-- 并发标记：进行 **GC Roots Tracing** 的过程
-- 最终标记：为了**修正**在并发标记期间因用户程序继续运作而导致标记产生变动的那一部分标记记录。虚拟机将这段时间对象变化记录在线程的 Remembered Set Logs 里面，最终标记阶段需要把 Remembered Set Logs 的数据合并到 Remembered Set 中。这阶段需要停顿线程，但是可并行执行。
-- 筛选回收：首先对各个 Region 中的回收价值和成本进行排序，根据用户所期望的 GC 停顿时间来**制定回收计划**。此阶段其实也可以做到与用户程序一起并发执行，但是因为只回收一部分 Region，时间是用户可控制的，而且停顿用户线程将大幅度提高收集效率。
+> G1 收集器发生的 GC 一般称为 Mixed GC，针对新生代和部分老年代进行回收
+
+- 初始标记：仅仅标记一下 **GC Roots 能直接关联到的对象**，需要停顿
+- 并发标记：遍历对象图，标记存活对象，不需要停顿
+- 最终标记：为了**修正**在并发标记期间因用户程序继续运作而导致标记对象的变动，需要停顿。另外虚拟机将这段时间对象变化记录在线程的 Remembered Set Logs 里面，最终标记阶段需要把 Remembered Set Logs 的数据合并到 Remembered Set 中
+- 筛选回收：对各个 Region 中的回收价值和成本进行排序，回收回收价值高的 Region，存活对象复制到其他 Region，需要停顿
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20220323234128.png)
 
+```mermaid
+sequenceDiagram
+    participant User as 用户线程
+    participant GC as GC 线程
+
+    Note over User,GC: 1. 初始标记 (Initial Mark)
+    User->>GC: 暂停
+    GC->>GC: 标记 GC Roots 可达对象
+    GC-->>User: 恢复
+
+    Note over User,GC: 2. 并发标记 (Concurrent Mark)
+    User->>User: 继续运行
+    GC->>GC: 遍历对象图
+
+    Note over User,GC: 3. 最终标记 (Final Mark)
+    User->>GC: 暂停
+    GC->>GC: 处理并发期间的变化
+
+    Note over User,GC: 4. 筛选回收 (Evacuation)
+    User->>GC: 暂停
+    GC->>GC: 选择回收价值最大的 Region
+    GC->>GC: 存活对象复制到其他 Region
+    GC-->>User: 恢复
+```
+
 G1 收集器的特点：
 
-- 空间整合：从整体来看是基于「标记-整理」算法实现的收集器，从局部(两个 Region 之间)上来看是基于「复制」算法实现的，这意味着运行期间不会产生内存空间碎片。
+- 空间整合：从整体来看是基于「**标记-整理**」算法实现的收集器，从局部(两个 Region 之间)上来看是基于「**标记-复制**」算法实现的，这意味着运行期间不会产生内存空间碎片。
 - 可预测的停顿：能让使用者明确指定在一个长度为 M 毫秒的时间片段内，消耗在 GC 上的时间不得超过 N 毫秒。
+
+**G1 vs CMS 对比**
+
+| 特性         | CMS            | G1                 |
+| ------------ | -------------- | ------------------ |
+| **算法**     | 标记-清除      | 标记-整理 + 复制   |
+| **内存碎片** | 有             | 无                 |
+| **停顿控制** | 不可预测       | 可预测（用户指定） |
+| **Region**   | 无             | 有（动态角色）     |
+| **大对象**   | 直接进入老年代 | Humongous Region   |
+| **JDK 版本** | JDK8 推荐      | JDK11+ 默认        |
+
+参数：
+
+```bash
+-XX:+UseG1GC                            # 启用 G1（JDK11+ 默认）
+-XX:MaxGCPauseMillis=200                # 目标最大停顿时间
+-XX:G1HeapRegionSize=4m                 # Region 大小（1-32MB）
+-XX:InitiatingHeapOccupancyPercent=45   # 触发并发 GC 阈值
+```
+
+### ZGC 收集器
+
+> **超低延迟**，JDK15+ 生产可用。
+
+**特点**：
+
+- 停顿时间 **< 10ms**（不分堆大小）
+- 支持 **TB 级堆内存**
+- 并发执行（标记、整理、重映射）
+
+参数：
+
+```bash
+-XX:+UseZGC  # JDK15+
+```
 
 ## 堆的垃圾回收
 
