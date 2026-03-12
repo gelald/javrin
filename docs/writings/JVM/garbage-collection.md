@@ -55,16 +55,6 @@ flowchart TD
 
     F[对象 F] -.->|不可达，可回收 | G[对象 G]
     G -.-> H[对象 H]
-
-    style GCRoots fill:#90EE90
-    style A fill:#E0E0E0
-    style B fill:#E0E0E0
-    style C fill:#E0E0E0
-    style D fill:#E0E0E0
-    style E fill:#E0E0E0
-    style F fill:#FFB6C1
-    style G fill:#FFB6C1
-    style H fill:#FFB6C1
 ```
 
 ### GC Root
@@ -164,10 +154,6 @@ flowchart LR
         E -->|是 | F[保留]
         E -->|否 | G[回收内存]
     end
-
-    style A fill:#90EE90
-    style F fill:#90EE90
-    style G fill:#FFB6C1
 ```
 
 ### 标记-复制算法（Mark-Copy）
@@ -242,9 +228,6 @@ flowchart LR
         B --> C[存活对象向一端移动]
         C --> D[清理边界外内存]
     end
-
-    style A fill:#90EE90
-    style D fill:#FFB6C1
 ```
 
 ### 分代回收

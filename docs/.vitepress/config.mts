@@ -1,4 +1,5 @@
 import {defineConfig} from 'vitepress'
+import { vitepressMermaidPreview } from 'vitepress-mermaid-preview';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -266,6 +267,11 @@ export default defineConfig({
     lastUpdated: true,
 
     markdown: {
+        config: (md) => {
+            vitepressMermaidPreview(md, {
+                showToolbar: true, // 全局设置：是否默认显示工具栏
+            });
+        },
         math: true
     },
 
