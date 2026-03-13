@@ -98,10 +98,11 @@ export default defineConfig({
                         collapsed: true,
                         base: "/writings/JVM",
                         items: [
+                            {text: "运行时内存模型", link: "/runtime-memory-model"},
+                            {text: "垃圾回收基础", link: "/garbage-collection"},
+                            {text: "垃圾回收问题追踪", link: "/garbage-collection-advanced"},
                             {text: "类字节码", link: "/class-bytecode"},
                             {text: "类加载机制", link: "/class-loading"},
-                            {text: "运行时内存模型", link: "/runtime-memory-model"},
-                            {text: "垃圾回收", link: "/garbage-collection"},
                             {text: "JVM远程监控", link: "/jvm-remote-monitor"},
                             {text: "Metrics GC问题排查", link: "/metrics-gc-issue"}
                         ],
