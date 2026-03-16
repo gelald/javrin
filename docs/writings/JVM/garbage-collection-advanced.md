@@ -1,7 +1,11 @@
 ---
+
 title: 垃圾回收问题追踪
+
 icon: article
+
 category: JVM
+
 ---
 
 # 垃圾回收问题追踪
@@ -30,6 +34,11 @@ category: JVM
 # 参数作用和 JDK8 基本一致
 ```
 
+
+
+
+
+
 ## 堆转储文件 (heapdump)
 
 当程序发生 OutOfMemoryError 问题时，堆转储文件 (heapdump) 往往能帮助我们追踪定位原因
@@ -39,21 +48,37 @@ category: JVM
 导出 heap dump 文件有几个方式
 
 1. 发生 OOM 时自动导出，需要增加以下 JVM 参数
-    ```
-    java -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./dump_demo.hprof JavaApplication
-    ```
-
+   ```
+   java -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=./dump_demo.hprof JavaApplication
+   ```
 2. 程序运行时，使用 JDK 工具导出
-    - 执行 `jps` 查看进程 ID
-    - 执行 `jmap -dump:format=b,file=jmap_dump.hprof <进程ID>`
-
+   - 执行 `jps` 查看进程 ID
+   - 执行 `jmap -dump:format=b,file=jmap_dump.hprof <进程ID>`
 3. 程序运行时，使用 Arthas 工具导出
-    - 执行 `java -jar ./arthas-boot.jar` 运行 Arthas
-    - 选择需要导出堆转储文件的进程，进入 Arthas 控制台
-    - 执行 `heapdump arthas_dump.hprof`
+   - 执行 `java -jar ./arthas-boot.jar` 运行 Arthas
+   - 选择需要导出堆转储文件的进程，进入 Arthas 控制台
+   - 执行 `heapdump arthas_dump.hprof`
 
 ### 分析
 
-- [阿里云 ATP 平台](https://atp.console.aliyun.com/overview)
+常用分析工具：
 
-主要查看哪些对象占据着大量的空间
+- Eclipse MAT
+- [阿里云 ATP 平台](https://atp.console.aliyun.com/overview)
+- VisualVM
+
+常见内存溢出原因：容器占据大量对象，容器一直被强引用无法释放，导致这些对象都无法被释放，最终导致内存溢出
+
+
+查看分析时，打开支配树 (Dominator Tree) 视图
+
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/oom-heapdump-2.png)
+
+
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/oom-heapdump-1.png)
+
+
+- **Shallow Heap size**：每一个对象自己占用的空间大小
+- **Retained Heap size**：如果 A 对象保持着对 B 对象和 C 对象的引用，那么回收 A 对象意味着 B、C 对象都可以被回收，所以指的是这个对象及其引用对象的空间大小；也可以理解为：**如果回收了它，可以释放多大的空间出来**
