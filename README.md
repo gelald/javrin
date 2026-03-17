@@ -6,7 +6,7 @@
     </p>
     <p>
         <a href="https://gelald.dpdns.org" target="_blank"><img src="https://img.shields.io/badge/ReadOnline-javrin-5C73E7?logo=vitepress" alt="Read Online"></a> <!-- yellowgreen -->
-        <a href="https://www.pnpm.cn" target="_blank"><img src="https://img.shields.io/badge/pnpm-v10.32.1-blueviolet?logo=pnpm" alt="PNPM Version"></a>
+        <a href="https://pnpm.io" target="_blank"><img src="https://img.shields.io/badge/pnpm-v10.32.1-blueviolet?logo=pnpm" alt="PNPM Version"></a>
         <a href="https://github.com/gelald/javrin/commits/main"><img src="https://img.shields.io/github/last-commit/gelald/javrin?logo=git" alt="GitHub Last Commit"></a>
         <a href="https://github.com/gelald/javrin/actions/workflows/deploy-docs.yml"><img src="https://github.com/gelald/javrin/actions/workflows/deploy-docs.yml/badge.svg?branch=main" alt="GitHub Action Status"></a>
         <a href="https://github.com/gelald/javrin/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/gelald/javrin" alt="GitHub License"></a>
