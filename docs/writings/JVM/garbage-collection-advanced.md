@@ -31,13 +31,13 @@ category: JVM
 **JDK17 GC 日志开启**
 
 ```
--Xlog:gc*:file=./gc.log:time,uptime,level,tags,filecount=5,filesize=50M
+-Xlog:gc*:file=./gc.log:time,uptime,level,tags:filecount=5,filesize=50M
 
 # 参数作用和 JDK8 基本一致
 ```
 
 
-### 分析 GC 日志
+### 分析 GC 日志
 
 
 **JDK8 GC 日志分析**
@@ -115,14 +115,14 @@ Heap after GC:
 
 ### 分析 heapdump 文件
 
-#### 常用分析工具
+#### 常用分析工具
 
 - Eclipse MAT
 - [阿里云 ATP 平台](https://atp.console.aliyun.com/overview)
 - VisualVM
 
 
-#### 常用功能
+#### 常用功能
 
 虽然功能名称不同工具可能命名上略有差异，但是总体上差异不大
 
@@ -132,7 +132,6 @@ Heap after GC:
 | **Histogram** | 统计对象数量和大小 | 找到异常数量的对象 |
 | **Leak Suspects** | 自动分析泄漏嫌疑 | 快速诊断 |
 | **OQL** | 使用类似 SQL 的语法查询对象 | 精确查找特定对象 |
-
 
 #### 内存泄漏定位步骤
 
@@ -185,7 +184,7 @@ Thread-123 (main)
 
 
 
-### 常见内存泄漏场景
+### 常见内存泄漏场景
 
 #### 场景 1: 静态集合存储大量对象未清理
 
@@ -206,7 +205,7 @@ private static Cache<String, Object> cache = Caffeine.newBuilder()
 ```
 
 
-#### 场景 2: 资源未关闭
+#### 场景 2: 资源未关闭
 
 ```java
 // 错误示例：IO 流未关闭
@@ -227,7 +226,7 @@ public void export() {
 
 
 
-#### 场景 3: ThreadLocal 使用完未清理
+#### 场景 3: ThreadLocal 使用完未清理
 
 ```java
 // 错误示例：ThreadLocal 未 remove
@@ -247,9 +246,9 @@ public void clear() {
 ```
 
 
-## 线上 GC 问题排查记录
+## 线上 GC 问题排查记录
 
-### GC 频繁导致 CPU 飙高
+### GC 频繁导致 CPU 飙高
 
 #### 背景
 
@@ -257,7 +256,7 @@ public void clear() {
 - **配置**：4 核 8G，堆内存 4GB
 - **现象**：接口响应从 50ms 增长到 500ms，CPU 持续 90%+
 
-#### 优化目标
+#### 优化目标
 
 - 接口响应时间回到 50ms 到 100ms 的区间
 - CPU 使用率下降到 50% 左右
@@ -343,9 +342,9 @@ Cache<String, Order> cache = Caffeine.newBuilder()
 
 ---
 
-### 内存泄漏导致老年代持续增长
+### 内存泄漏导致老年代持续增长
 
-#### 背景
+#### 背景
 
 - 系统：报表服务，JDK8
 - 配置：8 核 16G，堆内存 8G
@@ -356,7 +355,7 @@ Cache<String, Order> cache = Caffeine.newBuilder()
 
 - 老年代在每次 Full GC 后，使用率应该下降而不是持续增长
 
-#### 排查过程
+#### 排查过程
 
 **Step 1: 每天使用 Arthas 工具查看老年代使用率**
 
@@ -426,7 +425,7 @@ public class ExcelExportService {
 ```
 
 
-#### 解决方案
+#### 解决方案
 
 **代码修复:**
 
@@ -454,7 +453,7 @@ public void exportDailyReport() {
 ```
 
 
-#### 效果验证
+#### 效果验证
 
 ```
 修复后监控：
@@ -462,4 +461,200 @@ Day 1:  O = 45%
 Day 3:  O = 48%
 Day 7:  O = 46%  → 稳定在 45-50%
 Full GC：从每周 1 次 → 0 次
+```
+
+
+### 大对象导致 Young GC 耗时增长
+
+#### 背景
+
+```
+系统：政务服务平台，JDK17
+业务：每月初企业集中申报服务单据，系统需要审核企业提交的单据数据
+配置：8 核 16G，堆内存 8GB，G1 收集器
+
+高峰期特点：
+- 每月 1-15 号为申报高峰期
+- 高峰期每分钟处理 200+ 条申报记录
+- 需要将申报数据发送到 RocketMQ，由审核服务异步处理
+```
+
+#### 问题现象
+
+```
+Prometheus 监控（申报高峰期）：
+─────────────────────────────────────────────
+指标                    正常期        高峰期
+─────────────────────────────────────────────
+申报处理量              50/min       200/min
+CPU 使用率              25%          78%
+Young GC 频率           10/min       95/min
+Young GC 平均耗时       10ms         120ms
+堆内存使用率            55%          88%
+
+业务影响：
+- 申报提交后，审核结果返回变慢（从 30 秒变成 2 分钟）
+- 高峰期系统响应卡顿
+```
+
+#### 排查过程
+
+**Step 1: 分析 GC 日志**
+
+```
+[2024-03-05T09:30:00.123+0800] info: GC (G1 Evacuation Pause)
+young=105ms old=0ms humongous=45ms
+
+[2024-03-05T09:30:01.234+0800] info: GC (G1 Humongous Allocation)
+Allocated humongous object of size 640KB
+
+[2024-03-05T09:30:01.345+0800] info: GC (G1 Humongous Allocation)
+Allocated humongous object of size 720KB
+```
+
+关键发现：
+
+- Young GC 耗时 105ms（偏高）
+- humongous allocation 频繁出现
+- 大对象大小在 600~800 KB 之间
+
+**Step 2: 检查 G1 Region 配置**
+
+```bash
+# 检查启动参数
+jcmd <pid> VM.flags | grep G1HeapRegionSize
+# 输出：-XX:G1HeapRegionSize=1m
+
+# 发现 Region 被设置为 1MB
+# 大对象判定阈值 = 1MB × 50% = 512KB
+# 600KB > 512KB，所以被判定为大对象
+```
+
+**Step 3: 录制 JFR 文件**
+
+```bash
+# 启动 JFR 录制 60 秒
+jcmd <pid> JFR.start name=analysis01 duration=60s filename=/var/log/analysis01.jfr
+
+# 或者使用 Arthas 工具
+jfr start -n analysis01 --duration 60s -f /var/log/analysis01.jfr
+```
+
+**Step 4: 使用 JProfiler 或者 IDEA 中的 Profiler 分析结果**
+
+```
+Memory → Allocation
+─────────────────────────────────────────────
+Method                                Allocated   Percentage
+─────────────────────────────────────────────
+AuditProducer.sendAuditMessage()   2.8 GB      82%
+  └─ byte[]                           2.2 GB      65%
+  └─ char[]                           0.6 GB      17%
+
+定位到 sendAuditMessage() 这一行代码
+```
+
+**Step 5: 代码审查**
+
+```java
+// AuditProducer.java
+@Service
+public class AuditProducer {
+    
+    @Autowired
+    private ObjectMapper objectMapper;
+    
+    @Autowired
+    private RocketMQTemplate rocketMQTemplate;
+    
+    // 问题代码：AuditProducer.java:78
+    public void sendAuditMessage(String declarationId) {
+        // 1. 查询申报主表
+        Declaration declaration = declarationService.getById(declarationId);
+        
+        // 2. 查询企业信息
+        Enterprise enterprise = enterpriseService.getById(declaration.getEnterpriseId());
+        
+        // 3. 查询发票明细（大表！）
+        List<InvoiceDetail> invoices = invoiceService.getByDeclarationId(declarationId);
+        // 平均 200 条，每条 3KB，总共 600KB
+        
+        // 4. 组装 DTO
+        AuditDTO dto = new AuditDTO();
+        dto.setEnterpriseId(enterprise.getEnterpriseId());
+        dto.setEnterpriseName(enterprise.getEnterpriseName());
+        dto.setEnterpriseType(enterprise.getEnterpriseType());
+        dto.setIndustryCode(enterprise.getIndustryCode());
+        
+        dto.setDeclarationId(declaration.getDeclarationId());
+        dto.setPeriod(declaration.getPeriod());
+        dto.setDeclarationType(declaration.getDeclarationType());
+        dto.setSubmitTime(declaration.getSubmitTime());
+        
+        // 问题：把整个发票明细列表都放进去了
+        dto.setInvoices(invoices);  // 200 条，600KB
+        
+        // 计算汇总
+        dto.setInvoiceTotalAmount(
+            invoices.stream()
+                .map(InvoiceDetail::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+        );
+        dto.setInvoiceCount(invoices.size());
+        
+        // 5. 序列化发送（问题所在）
+        try {
+            byte[] payload = objectMapper.writeValueAsBytes(dto);
+            // payload 大小 = 720KB！
+            
+            // 发送到 RocketMQ
+            rocketMQTemplate.asyncSend("audit-topic", payload, new SendCallback() {
+                @Override
+                public void onSuccess(SendResult result) {
+                    log.info("发送成功: {}", result.getMsgId());
+                }
+                
+                @Override
+                public void onException(Throwable e) {
+                    log.error("发送失败", e);
+                }
+            });
+            
+        } catch (JsonProcessingException e) {
+            log.error("序列化失败", e);
+        }
+    }
+}
+```
+
+**Step 6: 分析数据大小**
+
+```
+AuditDTO 组成分析：
+─────────────────────────────────────────────
+基本字段合计              ≈ 200 字节
+
+invoices 列表             200 条 × 3KB = 600KB
+  - 每条 InvoiceDetail：
+    - 基本字段：≈ 300 字节
+    - goodsInfo：2-5KB（JSON 格式的货物/服务明细）
+    - remark：0-500 字节
+
+─────────────────────────────────────────────
+AuditDTO 对象合计      ≈ 600KB
+
+JSON 序列化后：
+─────────────────────────────────────────────
+- 字段名重复开销：≈ 50KB
+- JSON 结构开销：≈ 20KB
+- goodsInfo 嵌套 JSON：额外 50KB（字符串转义）
+─────────────────────────────────────────────
+payload 大小              ≈ 720KB
+
+内存分配分析：
+─────────────────────────────────────────────
+- AuditDTO 对象：600KB（内存中）
+- byte[] payload：720KB（序列化后）
+- 每条消息总分配：600KB + 720KB = 1.32MB
+- 每分钟 200 条 = 每分钟分配 264MB
 ```
