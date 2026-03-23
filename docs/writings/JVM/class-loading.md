@@ -114,25 +114,85 @@ JVM 知道了这些位置后，在调用时就可以直接跳转过去执行
 
 ### 阶段 5: 初始化
 
-在初始化阶段，JVM 会对类进行初始化，主要对类变量进行初始化。
+在初始化阶段，JVM 会执行类的初始化方法 `<clinit>()` 完成初始化
 
-#### 初始化步骤
+**初始化步骤**:
 
 - 假如该类还没被加载和连接，那么程序先加载并连接这个类
-- 假如该类的直接父类还没有被初始化，则先初始化其直接父类
-- 假如该类中有初始化语句，则系统依次执行这些初始化语句
+- 假如该类的直接父类还没有被初始化，则**先初始化其直接父类**
+- 假如该类中有初始化语句，则**按顺序**执行这些初始化语句；初始化语句由**静态变量赋值语句**和**静态代码块**组成
 
-#### 初始化时机
+```java
+public class ClinitDemo {
+    static {
+        System.out.println("静态代码块 1");
+    }
+    
+    public static int value = 123;
+    
+    static {
+        System.out.println("静态代码块 2");
+    }
+    
+    // 编译后生成的 <clinit>() 方法按顺序执行：
+    // 1. System.out.println("静态代码块 1");
+    // 2. value = 123; 在准备阶段，value 会被赋值为 0，在初始化阶段才按值初始化
+    // 3. System.out.println("静态代码块 2");
+}
+```
 
-只有当对类主动使用的时候才会导致类的初始化，类的主动使用包括以下六种
+**初始化时机**:
 
-- 通过 new 的方式创建类的实例
-- 访问或修改某个类或接口的静态变量
-- 调用类的静态方法
-- 反射 `Class.forName("com.example.Test")`
-- 初始化某个类的子类，那么这个类也会被初始化
-- JVM 启动时被标明为启动类的类(Java Test)，直接使用java.exe命令来运行某个主类
+只有当对类**主动使用**的时候才会导致类的初始化
 
+```java
+// 1. 通过 new 的方式创建类实例
+new MyClass();
+
+// 2. 访问或修改类的静态变量
+int value = MyClass.value;
+MyClass.value = 100;
+
+// 3. 调用类的静态方法
+MyClass.staticMethod();
+
+// 4. 使用 java.lang.reflect 包的方法对类进行反射调用
+Class.forName("com.example.MyClass");
+
+// 5. 初始化子类时，父类还没有初始化
+class Parent { static {} }
+class Child extends Parent { static {} }
+new Child();  // 先初始化 Parent，再初始化 Child
+
+// 6. 虚拟机启动时，用户指定的主类（包含 main 方法、单元测试方法）
+public static void main(String[] args) { }
+```
+
+---
+
+**被动引用不会触发初始化**
+
+```java
+// 1. 通过子类引用父类的静态字段，只会初始化父类
+class Parent { 
+    public static int value = 123; 
+    static { System.out.println("Parent init"); }
+}
+class Child extends Parent {
+    static { System.out.println("Child init"); }
+}
+int v = Child.value;  // 只输出 "Parent init"，Child 不会初始化
+
+// 2. 通过数组定义引用类
+Parent[] arr = new Parent[10];  // Parent 不会初始化
+
+// 3. 引用编译期常量
+class Constants {
+    public static final int VALUE = 123;
+    static { System.out.println("Constants init"); }
+}
+int v = Constants.VALUE;  // Constants 不会初始化
+```
 
 
 ## 类加载器
