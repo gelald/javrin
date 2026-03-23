@@ -1,4 +1,4 @@
-# AGENTS.md - AI 编码助手指南
+# CLAUDE.md - AI 编码助手指南
 
 本文档为 AI 编码助手（如 Claude、Copilot 等）提供项目指南，确保生成的代码和内容符合项目规范。
 

@@ -466,7 +466,7 @@ Full GC：从每周 1 次 → 0 次
 
 ### 大对象导致 Young GC 耗时增长
 
-#### 背景
+#### 背景
 
 ```
 系统：政务服务平台，JDK17
@@ -479,7 +479,7 @@ Full GC：从每周 1 次 → 0 次
 - 需要将申报数据发送到 RocketMQ，由审核服务异步处理
 ```
 
-#### 问题现象
+#### 问题现象
 
 ```
 Prometheus 监控（申报高峰期）：
@@ -497,7 +497,7 @@ Young GC 平均耗时       10ms         120ms
 - 高峰期系统响应卡顿
 ```
 
-#### 排查过程
+#### 排查过程
 
 **Step 1: 分析 GC 日志**
 
@@ -658,3 +658,279 @@ payload 大小              ≈ 720KB
 - 每条消息总分配：600KB + 720KB = 1.32MB
 - 每分钟 200 条 = 每分钟分配 264MB
 ```
+
+#### 解决方案
+
+**方案对比**
+
+| **方案** | **效果** | **改动范围** | **风险** |
+| --- | --- | --- | --- |
+| 1. GZIP 压缩 | payload 75%↓ | 生产者+消费者 | CPU 增加 |
+| 2. 分批发送 | payload 80%↓ | 生产者+消费者 | 顺序依赖 |
+| 3. 字段精简 | payload 60%↓ | 生产者+消费者 | 需需求确认 |
+| 4. Region 调整 | GC 效率提升 | JVM 参数 | 治标不治本 |
+
+---
+
+**方案 1：GZIP 压缩（推荐）**
+
+```java
+// 序列化工具类
+public class SerializationUtils {
+    
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    
+    // 压缩序列化
+    public static byte[] serializeWithGzip(Object obj) throws IOException {
+        byte[] jsonBytes = objectMapper.writeValueAsBytes(obj);
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (GZIPOutputStream gzip = new GZIPOutputStream(baos)) {
+            gzip.write(jsonBytes);
+        }
+        return baos.toByteArray();
+    }
+    
+    // 解压反序列化
+    public static <T> T deserializeWithGzip(byte[] compressed, Class<T> clazz) 
+            throws IOException {
+        try (GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(compressed))) {
+            return objectMapper.readValue(gzip, clazz);
+        }
+    }
+}
+
+// 生产者改造
+public void sendAuditMessage(String declarationId) {
+    AuditDTO dto = buildDTO(declarationId);
+    
+    byte[] payload = SerializationUtils.serializeWithGzip(dto);
+    // 720KB → 180KB
+    
+    rocketMQTemplate.asyncSend("audit-topic", payload, sendCallback);
+}
+
+// 消费者改造
+@RocketMQMessageListener(topic = "audit-topic", consumerGroup = "audit-group")
+public class AuditConsumer implements RocketMQListener<byte[]> {
+    
+    @Override
+    public void onMessage(byte[] payload) {
+        AuditDTO dto = SerializationUtils.deserializeWithGzip(payload, AuditDTO.class);
+        processAudit(dto);
+    }
+}
+```
+
+**效果预估**：
+
+```
+JSON 数据特点：重复字段名多，适合压缩
+
+测试结果（100 条真实数据）：
+─────────────────────────────────────────────
+原始 JSON      720KB
+GZIP 压缩后    180KB（压缩率 75%）
+压缩耗时       3-5ms
+解压耗时       2-3ms
+─────────────────────────────────────────────
+```
+
+---
+
+**方案 2: 分批发送**
+
+```java
+// 如果发票数量超过 40 条，分批发送
+public void sendAuditMessage(String declarationId) {
+    AuditDTO dto = buildDTO(declarationId);
+    List<InvoiceDetail> invoices = dto.getInvoices();
+    
+    if (invoices.size() <= 40) {
+        // 发票数量少，直接发送
+        sendSingleMessage(dto);
+    } else {
+        // 发票数量多，分批发送
+        dto.setInvoices(null);  // 先发基本信息
+        
+        // 消息 1：基本信息（5KB）
+        sendSingleMessage(dto, 1, 3);
+        
+        // 消息 2：发票明细（前半部分，300KB）
+        AuditDTO dto2 = new AuditDTO();
+        dto2.setDeclarationId(declarationId);
+        dto2.setInvoices(invoices.subList(0, invoices.size()/2));
+        sendSingleMessage(dto2, 2, 3);
+        
+        // 消息 3：发票明细（后半部分，300KB）
+        AuditDTO dto3 = new AuditDTO();
+        dto3.setDeclarationId(declarationId);
+        dto3.setInvoices(invoices.subList(invoices.size()/2, invoices.size()));
+        sendSingleMessage(dto3, 3, 3);
+    }
+}
+```
+
+**适用场景**: 发票数量多的情况
+
+---
+
+**方案 3: 字段精简 (需要和上下游确认)**
+
+```java
+// 与审核团队确认后，精简非必要字段
+public class AuditLiteDTO {
+    // 精简的发票信息（不传 goodsInfo 和 remark）
+    private List<InvoiceLite> invoices;
+}
+
+public class InvoiceLite {
+    private String invoiceId;
+    private String invoiceCode;
+    private String invoiceNumber;
+    private Date invoiceDate;
+    private BigDecimal totalAmount;
+    // 不传 goodsInfo 和 remark
+}
+```
+
+**效果预估**: 
+
+```
+每条 InvoiceDetail：3KB → 0.5KB（精简 83%）
+AuditLiteDTO：600KB → 100KB（精简 83%）
+JSON 序列化后：720KB → 120KB
+```
+
+---
+
+**方案 4: Region 大小调整 (JVM 参数层面)**
+
+```bash
+# 移除或调整 Region 大小
+# 原：-XX:G1HeapRegionSize=1m（导致 512KB+ 被判定为大对象）
+# 改：-XX:G1HeapRegionSize=4m（默认值，大对象阈值 2MB）
+
+# 或者直接移除该参数，使用默认值
+```
+
+**注意**：这只是治标不治本，根本还是要减少大对象分配
+
+---
+
+**最终方案 (组合使用)**: 
+
+```
+团队决策：
+─────────────────────────────────────────────
+阶段 1（紧急）：GZIP 压缩
+- 改动最小，风险最低
+- 立即可上线
+
+阶段 2（后续）：字段精简
+- 需要与审核团队确认需求
+- 进一步优化效果
+
+参数调整：移除 G1HeapRegionSize 配置，使用默认值
+```
+
+#### 效果验证
+
+```
+测试环境（100 条真实申报数据）：
+─────────────────────────────────────────────
+指标                  修改前        GZIP 后
+─────────────────────────────────────────────
+payload 大小          720KB        180KB
+序列化耗时            5ms          8ms
+反序列化耗时          4ms          6ms
+─────────────────────────────────────────────
+
+生产环境监控（上线后 3 天）：
+─────────────────────────────────────────────
+指标                  修改前        修改后        变化
+─────────────────────────────────────────────
+CPU 使用率            78%          62%          ↓20%
+Young GC 频率         95/min       45/min       ↓53%
+Young GC 耗时         120ms        55ms         ↓54%
+堆内存使用率          88%          72%          ↓18%
+审核响应时间          2 分钟        40 秒        ↓67%
+─────────────────────────────────────────────
+
+效果分析：
+─────────────────────────────────────────────
+
+1. AuditDTO 对象本身还在（600KB 内存分配不变）
+2. payload 从 720KB 降到 180KB（↓75%）
+3. GZIP 压缩增加 CPU 开销（5-8%）
+4. 综合效果：GC 压力下降，CPU 也下降（因为 GC 开销降低更多）
+
+结论：优化效果显著
+```
+
+---
+
+## 面试模板
+
+### GC 频繁排查经历（缓存问题）
+
+> **背景**：订单服务，JDK8，堆内存 4GB
+>
+> **问题**：接口响应从 50ms 增长到 500ms，CPU 持续 90%+
+>
+> **排查过程**：
+>
+> 1. 使用 `jstat -gcutil` 发现 Minor GC 频率从 10 次/分钟 增长到 100 次/分钟
+> 2. GC 日志显示老年代使用率持续 85%+
+> 3. `jmap` 导出堆快照，MAT 分析发现 OrderCache 缓存未设置过期策略，占用 2GB
+>
+> **解决方案**：
+>
+> 1. 代码层面：使用 Caffeine 替换 HashMap，设置最大容量和过期时间
+> 2. 参数层面：调整堆内存从 4G 到 6G
+>
+> **效果**：GC 频率恢复正常，接口响应回到 50ms，CPU 降到 40%
+
+
+### 内存泄漏排查经历（ThreadLocal 问题）
+
+> **背景**：报表服务，JDK8，每日定时导出 Excel 报表
+>
+> **问题**：老年代使用率每天增长 5%，从 60% 增长到 95%，每周触发 Full GC
+>
+> **排查过程**：
+>
+> 1. `jstat` 监控发现老年代持续增长，Minor GC 后不降反升（内存泄漏特征）
+> 2. `jmap` 导出 Heap Dump，MAT 分析发现 XSSFWorkbook 占用 3GB
+> 3. 查看引用链，发现 ThreadLocal 中存储的 Workbook 未清理
+> 4. 定位代码：Excel 导出后未调用 `workbookHolder.remove()` 和 `workbook.close()`
+>
+> **解决方案**：
+>
+> 1. 使用 `try-with-resources` 确保 Workbook 关闭
+> 2. 在 `finally` 块中调用 `ThreadLocal.remove()`
+> 3. 长期方案：移除 ThreadLocal 存储，改用局部变量传递
+>
+> **效果**：老年代稳定在 45%，Full GC 消失
+
+
+### 大对象调优经历
+
+> **背景**：申报审核服务，JDK17，每月 1-15 号高峰期每分钟处理 200 条申报
+>
+> **问题**：CPU 使用率 78%，Young GC 频率 95/min，耗时 120ms，审核响应从 30 秒变成 2 分钟
+>
+> **排查过程**：
+>
+> 1. GC 日志发现 `humongous allocation` 频繁，每分钟分配多个 600-800KB 大对象
+> 2. JFR 定位到 `AuditProducer.sendAuditMessage` 方法占用 82% 内存分配
+> 3. 代码审查发现每条申报消息包含 200 条发票明细（600KB），JSON 序列化后 720KB
+> 4. G1 Region 被设置为 1MB，大对象阈值 512KB，600KB+ 被判定为大对象
+>
+> **解决方案**：
+>
+> 1. 代码层面：GZIP 压缩，payload 从 720KB 降到 180KB（↓75%）
+> 2. 参数层面：移除 `-XX:G1HeapRegionSize=1m`，使用默认值
+> 3. 后续优化：与审核团队确认后精简非必要字段
+>
+> **效果**：Young GC 频率 95/min → 45/min（↓53%），CPU 78% → 62%（↓20%），审核响应 2 分钟 → 40 秒
