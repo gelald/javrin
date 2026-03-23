@@ -1,11 +1,7 @@
 ---
-
 title: 垃圾回收问题追踪
-
 icon: article
-
 category: JVM
-
 ---
 
 # 垃圾回收问题追踪
@@ -13,7 +9,6 @@ category: JVM
 ## GC 日志文件
 
 ### 开启 GC 日志
-
 
 **JDK8 GC 日志开启**
 
@@ -27,7 +22,6 @@ category: JVM
 # 允许最多存在 5 个文件，当第 6 个文件创建时，删除最旧的那一份
 ```
 
-
 **JDK17 GC 日志开启**
 
 ```
@@ -36,18 +30,16 @@ category: JVM
 # 参数作用和 JDK8 基本一致
 ```
 
-
 ### 分析 GC 日志
-
 
 **JDK8 GC 日志分析**
 
 ```plaintext
 # Minor GC
-2024-01-15T10:30:00.123+0800: [GC (Allocation Failure) 
+2024-01-15T10:30:00.123+0800: [GC (Allocation Failure)
 # 时间戳              触发原因
 
-[PSYoungGen: 262144K->32768K(306176K)] 
+[PSYoungGen: 262144K->32768K(306176K)]
 # 新生代：GC 前->GC 后 (总大小)
 
 688128K->458752K(1008128K)], 0.0456789 secs]
@@ -56,10 +48,10 @@ category: JVM
 =================================================================
 
 # Full GC
-2024-01-15T10:35:00.456+0800: [Full GC (Ergonomics) 
+2024-01-15T10:35:00.456+0800: [Full GC (Ergonomics)
 # GC 类型      触发原因
 
-[PSYoungGen: 32768K->0K(306176K)] 
+[PSYoungGen: 32768K->0K(306176K)]
 # 新生代：GC 前->GC 后 (总大小)
 
 [ParOldGen: 425984K->393216K(702464K)]
@@ -72,11 +64,10 @@ category: JVM
 # 元空间信息, GC 耗时
 ```
 
-
 **JDK17 GC 日志分析**
 
 ```
-[2024-01-15T10:30:00.123+0800] info: GC (G1 Evacuation Pause) 
+[2024-01-15T10:30:00.123+0800] info: GC (G1 Evacuation Pause)
 # 时间戳              级别  GC 类型
 
 safepoint.total_time=2.345ms
@@ -90,8 +81,6 @@ Heap after GC:
  region 2-10 Old  used 500M
 # 各个区域使用的空间
 ```
-
-
 
 ## 堆转储文件 (heapdump)
 
@@ -121,20 +110,18 @@ Heap after GC:
 - [阿里云 ATP 平台](https://atp.console.aliyun.com/overview)
 - VisualVM
 
-
 #### 常用功能
 
 虽然功能名称不同工具可能命名上略有差异，但是总体上差异不大
 
-| 功能 | 用途 | 适用场景 |
-| --- | --- | --- |
-| **Dominator Tree** | 查看占用最大的对象 | 快速定位大对象 |
-| **Histogram** | 统计对象数量和大小 | 找到异常数量的对象 |
-| **Leak Suspects** | 自动分析泄漏嫌疑 | 快速诊断 |
-| **OQL** | 使用类似 SQL 的语法查询对象 | 精确查找特定对象 |
+| 功能               | 用途                        | 适用场景           |
+| ------------------ | --------------------------- | ------------------ |
+| **Dominator Tree** | 查看占用最大的对象          | 快速定位大对象     |
+| **Histogram**      | 统计对象数量和大小          | 找到异常数量的对象 |
+| **Leak Suspects**  | 自动分析泄漏嫌疑            | 快速诊断           |
+| **OQL**            | 使用类似 SQL 的语法查询对象 | 精确查找特定对象   |
 
 #### 内存泄漏定位步骤
-
 
 **Step 1: 打开 Heap Dump，查看 Dominator Tree**
 
@@ -149,15 +136,10 @@ Dominator Tree 显示对象及其保留堆大小：
 └────────────────────────────────────────────┘
 ```
 
-
-
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/oom-heapdump-1.png)
-
 
 - **Shallow Heap size**：每一个对象自己占用的空间大小
 - **Retained Heap size**：如果 A 对象保持着对 B 对象和 C 对象的引用，那么回收 A 对象意味着 B、C 对象都可以被回收，所以指的是这个对象及其引用对象的空间大小；也可以理解为：**如果回收了它，可以释放多大的空间出来**
-
-
 
 **Step 2: 查看引用链**
 
@@ -172,7 +154,6 @@ Thread-123 (main)
                  └─ 50,000 个 Row 对象  ← 问题所在
 ```
 
-
 **Step 3: 定位代码**
 
 ```
@@ -182,8 +163,6 @@ Thread-123 (main)
 - 代码位置：com.example.service.ExcelService:45
 ```
 
-
-
 ### 常见内存泄漏场景
 
 #### 场景 1: 静态集合存储大量对象未清理
@@ -192,7 +171,7 @@ Thread-123 (main)
 // 错误示例：静态 Map 无限增长
 public class CacheManager {
     private static Map<String, Object> cache = new HashMap<>();
-    
+
     public void put(String key, Object value) {
         cache.put(key, value);  // 只增不减，最终导致内存泄漏
     }
@@ -203,7 +182,6 @@ private static Cache<String, Object> cache = Caffeine.newBuilder()
     .maximumSize(10000)
     .build();
 ```
-
 
 #### 场景 2: 资源未关闭
 
@@ -224,15 +202,13 @@ public void export() {
 }
 ```
 
-
-
 #### 场景 3: ThreadLocal 使用完未清理
 
 ```java
 // 错误示例：ThreadLocal 未 remove
 public class RequestContext {
     private static ThreadLocal<User> userHolder = new ThreadLocal<>();
-    
+
     public void setUser(User user) {
         userHolder.set(user);
     }
@@ -244,7 +220,6 @@ public void clear() {
     userHolder.remove();
 }
 ```
-
 
 ## 线上 GC 问题排查记录
 
@@ -278,7 +253,6 @@ jstat -gcutil <pid> 1000
 # - 老年代 82%，接近 CMS 触发阈值
 # - FGC 25 次，过于频繁
 ```
-
 
 **Step 2：分析 GC 日志**
 
@@ -406,11 +380,11 @@ Thread-15 (Excel-Export-Worker)
 public class ExcelExportService {
     // ThreadLocal 存储 Workbook，方便多方法共享
     private static ThreadLocal<Workbook> workbookHolder = new ThreadLocal<>();
-    
+
     public void exportDailyReport() {
         Workbook workbook = new XSSFWorkbook();
         workbookHolder.set(workbook);  // 存入 ThreadLocal
-        
+
         try {
             // 生成报表...
             fillData(workbook);
@@ -424,7 +398,6 @@ public class ExcelExportService {
 }
 ```
 
-
 #### 解决方案
 
 **代码修复:**
@@ -433,7 +406,7 @@ public class ExcelExportService {
 public void exportDailyReport() {
     Workbook workbook = new XSSFWorkbook();
     workbookHolder.set(workbook);
-    
+
     try {
         fillData(workbook);
         writeToFile(workbook);
@@ -452,7 +425,6 @@ public void exportDailyReport() {
 }
 ```
 
-
 #### 效果验证
 
 ```
@@ -462,7 +434,6 @@ Day 3:  O = 48%
 Day 7:  O = 46%  → 稳定在 45-50%
 Full GC：从每周 1 次 → 0 次
 ```
-
 
 ### 大对象导致 Young GC 耗时增长
 
@@ -560,40 +531,40 @@ AuditProducer.sendAuditMessage()   2.8 GB      82%
 // AuditProducer.java
 @Service
 public class AuditProducer {
-    
+
     @Autowired
     private ObjectMapper objectMapper;
-    
+
     @Autowired
     private RocketMQTemplate rocketMQTemplate;
-    
+
     // 问题代码：AuditProducer.java:78
     public void sendAuditMessage(String declarationId) {
         // 1. 查询申报主表
         Declaration declaration = declarationService.getById(declarationId);
-        
+
         // 2. 查询企业信息
         Enterprise enterprise = enterpriseService.getById(declaration.getEnterpriseId());
-        
+
         // 3. 查询发票明细（大表！）
         List<InvoiceDetail> invoices = invoiceService.getByDeclarationId(declarationId);
         // 平均 200 条，每条 3KB，总共 600KB
-        
+
         // 4. 组装 DTO
         AuditDTO dto = new AuditDTO();
         dto.setEnterpriseId(enterprise.getEnterpriseId());
         dto.setEnterpriseName(enterprise.getEnterpriseName());
         dto.setEnterpriseType(enterprise.getEnterpriseType());
         dto.setIndustryCode(enterprise.getIndustryCode());
-        
+
         dto.setDeclarationId(declaration.getDeclarationId());
         dto.setPeriod(declaration.getPeriod());
         dto.setDeclarationType(declaration.getDeclarationType());
         dto.setSubmitTime(declaration.getSubmitTime());
-        
+
         // 问题：把整个发票明细列表都放进去了
         dto.setInvoices(invoices);  // 200 条，600KB
-        
+
         // 计算汇总
         dto.setInvoiceTotalAmount(
             invoices.stream()
@@ -601,25 +572,25 @@ public class AuditProducer {
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
         );
         dto.setInvoiceCount(invoices.size());
-        
+
         // 5. 序列化发送（问题所在）
         try {
             byte[] payload = objectMapper.writeValueAsBytes(dto);
             // payload 大小 = 720KB！
-            
+
             // 发送到 RocketMQ
             rocketMQTemplate.asyncSend("audit-topic", payload, new SendCallback() {
                 @Override
                 public void onSuccess(SendResult result) {
                     log.info("发送成功: {}", result.getMsgId());
                 }
-                
+
                 @Override
                 public void onException(Throwable e) {
                     log.error("发送失败", e);
                 }
             });
-            
+
         } catch (JsonProcessingException e) {
             log.error("序列化失败", e);
         }
@@ -663,12 +634,12 @@ payload 大小              ≈ 720KB
 
 **方案对比**
 
-| **方案** | **效果** | **改动范围** | **风险** |
-| --- | --- | --- | --- |
-| 1. GZIP 压缩 | payload 75%↓ | 生产者+消费者 | CPU 增加 |
-| 2. 分批发送 | payload 80%↓ | 生产者+消费者 | 顺序依赖 |
-| 3. 字段精简 | payload 60%↓ | 生产者+消费者 | 需需求确认 |
-| 4. Region 调整 | GC 效率提升 | JVM 参数 | 治标不治本 |
+| **方案**       | **效果**     | **改动范围**  | **风险**   |
+| -------------- | ------------ | ------------- | ---------- |
+| 1. GZIP 压缩   | payload 75%↓ | 生产者+消费者 | CPU 增加   |
+| 2. 分批发送    | payload 80%↓ | 生产者+消费者 | 顺序依赖   |
+| 3. 字段精简    | payload 60%↓ | 生产者+消费者 | 需需求确认 |
+| 4. Region 调整 | GC 效率提升  | JVM 参数      | 治标不治本 |
 
 ---
 
@@ -677,22 +648,22 @@ payload 大小              ≈ 720KB
 ```java
 // 序列化工具类
 public class SerializationUtils {
-    
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    
+
     // 压缩序列化
     public static byte[] serializeWithGzip(Object obj) throws IOException {
         byte[] jsonBytes = objectMapper.writeValueAsBytes(obj);
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (GZIPOutputStream gzip = new GZIPOutputStream(baos)) {
             gzip.write(jsonBytes);
         }
         return baos.toByteArray();
     }
-    
+
     // 解压反序列化
-    public static <T> T deserializeWithGzip(byte[] compressed, Class<T> clazz) 
+    public static <T> T deserializeWithGzip(byte[] compressed, Class<T> clazz)
             throws IOException {
         try (GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(compressed))) {
             return objectMapper.readValue(gzip, clazz);
@@ -703,17 +674,17 @@ public class SerializationUtils {
 // 生产者改造
 public void sendAuditMessage(String declarationId) {
     AuditDTO dto = buildDTO(declarationId);
-    
+
     byte[] payload = SerializationUtils.serializeWithGzip(dto);
     // 720KB → 180KB
-    
+
     rocketMQTemplate.asyncSend("audit-topic", payload, sendCallback);
 }
 
 // 消费者改造
 @RocketMQMessageListener(topic = "audit-topic", consumerGroup = "audit-group")
 public class AuditConsumer implements RocketMQListener<byte[]> {
-    
+
     @Override
     public void onMessage(byte[] payload) {
         AuditDTO dto = SerializationUtils.deserializeWithGzip(payload, AuditDTO.class);
@@ -745,23 +716,23 @@ GZIP 压缩后    180KB（压缩率 75%）
 public void sendAuditMessage(String declarationId) {
     AuditDTO dto = buildDTO(declarationId);
     List<InvoiceDetail> invoices = dto.getInvoices();
-    
+
     if (invoices.size() <= 40) {
         // 发票数量少，直接发送
         sendSingleMessage(dto);
     } else {
         // 发票数量多，分批发送
         dto.setInvoices(null);  // 先发基本信息
-        
+
         // 消息 1：基本信息（5KB）
         sendSingleMessage(dto, 1, 3);
-        
+
         // 消息 2：发票明细（前半部分，300KB）
         AuditDTO dto2 = new AuditDTO();
         dto2.setDeclarationId(declarationId);
         dto2.setInvoices(invoices.subList(0, invoices.size()/2));
         sendSingleMessage(dto2, 2, 3);
-        
+
         // 消息 3：发票明细（后半部分，300KB）
         AuditDTO dto3 = new AuditDTO();
         dto3.setDeclarationId(declarationId);
@@ -891,7 +862,6 @@ Young GC 耗时         120ms        55ms         ↓54%
 >
 > **效果**：GC 频率恢复正常，接口响应回到 50ms，CPU 降到 40%
 
-
 ### 内存泄漏排查经历（ThreadLocal 问题）
 
 > **背景**：报表服务，JDK8，每日定时导出 Excel 报表
@@ -912,7 +882,6 @@ Young GC 耗时         120ms        55ms         ↓54%
 > 3. 长期方案：移除 ThreadLocal 存储，改用局部变量传递
 >
 > **效果**：老年代稳定在 45%，Full GC 消失
-
 
 ### 大对象调优经历
 
