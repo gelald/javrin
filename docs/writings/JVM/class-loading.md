@@ -197,16 +197,46 @@ int v = Constants.VALUE;  // Constants 不会初始化
 
 ## 类加载器
 
-类加载器可以大致划分为三类
+> JDK 8 及之前，类加载器分为 4 种：启动类加载器（Bootstrap，加载核心类库）、扩展类加载器（Extension，加载 ext 目录）、应用程序类加载器（Application，加载用户类路径）、自定义类加载器。**JDK 9 之后扩展类加载器被平台类加载器（Platform）取代**。
 
-- Bootstrap ClassLoader：启动类加载器，负责加载存放在 `$JAVA_HOME/jre/lib` 目录中，或被-Xbootclasspath参数指定的路径中的，并且能被虚拟机识别的类库(如rt.jar，所有的java.*开头的类均被Bootstrap ClassLoader加载)。启动类加载器是无法被Java程序直接引用的。
-- Extension ClassLoader：扩展类加载器，该加载器由 `sun.misc.Launcher$ExtClassLoader` 实现，它负责加载 `$JAVA_HOME/jre/lib/ext` 目录中，或由 java.ext.dirs 系统变量指定的路径中的所有类库(如javax.*开头的类)。开发者可以直接使用扩展类加载器。
+```mermaid
+graph TB
+    Bootstrap[启动类加载器<br/>Bootstrap ClassLoader<br/>JDK 核心类库]
+    
+    Platform[扩展/平台类加载器<br/>Extension/Platform ClassLoader<br/>JDK 扩展类库]
+    
+    App[应用程序类加载器<br/>Application ClassLoader<br/>用户类路径 ClassPath]
+    
+    Custom[自定义类加载器<br/>Custom ClassLoader]
+    
+    Bootstrap --> Platform --> App --> Custom
+```
 
-- Application ClassLoader：应用程序类加载器，该类加载器由 `sun.misc.Launcher$AppClassLoader` 来实现，它负责加载 classpath 所指定的类。开发者可以直接使用该类加载器，如果应用程序中没有自定义过自己的类加载器，一般情况下这个就是程序中**默认**的类加载器。
+### 根类加载器 (Bootstrap ClassLoader)
 
-> 应用程序都是由这三种类加载器互相配合进行加载的，如果有必要，我们还可以加入自定义的类加载器。因为JVM自带的ClassLoader只是懂得从本地文件系统加载标准的java class文件，因此如果编写了自己的ClassLoader，可以实现从特定场所取得class文件，如数据库和网络等
+- JDK 9 之前，`Bootstrap ClassLoader` 负责加载 `$JAVA_HOME/jre/lib/` 路径下的核心类库，比如 rt.jar 等
+- JDK 9 之后，`Bootstrap ClassLoader` 负责加载 `$JAVA_HOME/lib/modules` 文件（JIMAGE 格式，包含所有 JDK 模块）
+- 可以通过 `-Xbootclasspath` VM 参数来自定义
 
-获取类加载器
+### 扩展类加载器 (Extension ClassLoader)
+
+`Extension ClassLoader` 只存在于 JDK 9 之前，`Extension ClassLoader` 负责加载 `$JAVA_HOME/jre/lib/ext/` 路径下的扩展类库，比如包名 javax.* 开头的类
+
+### 平台类加载器 (Platform ClassLoader)
+
+JDK 9 之后，`Platform ClassLoader` 代替了 `Extension ClassLoader`，负责加载 JDK 内部模块，比如包名 java.sql 开头的类
+
+### 应用类加载器 (Application ClassLoader)
+
+`Application ClassLoader` 负责加载 classpath 指定（当前工作目录下）的类。如果没有自定义类加载器，那么这个就是默认的类加载器
+
+### 自定义加载器
+
+> 应用程序都是由前面三种类加载器互相配合进行加载的，如果有必要，我们还可以加入自定义的类加载器。因为 JVM 自带的 ClassLoader 只是懂得从本地文件系统加载标准的 java class 文件，因此如果编写了自己的 ClassLoader，可以实现从特定场所取得 class 文件，如数据库和网络等
+
+### 获取类加载器
+
+- JDK 9 之前的做法：
 
 ```java
 ClassLoader classLoader = this.getClass().getClassLoader();
@@ -221,7 +251,31 @@ sun.misc.Launcher$ExtClassLoader@78308db1
 null
 ```
 
-可以证明我们可以获取 Application ClassLoader、Extension ClassLoader，但是无法获取 Bootstrap ClassLoader，因为 Bootstrap ClassLoader 是C语言实现的，找不到一个确定的返回方式，所以返回 null
+- JDK 9 之后的做法：
+
+```java
+// 获取 Platform ClassLoader
+ClassLoader platformClassLoader = ClassLoader.getPlatformClassLoader();
+// JDK 9 之后用 Platform ClassLoader 替换了 Extension ClassLoader
+System.out.println("Platform ClassLoader: " + platformClassLoader);
+
+// 获取 Bootstrap ClassLoader
+System.out.println("Platform ClassLoader's parent => Bootstrap ClassLoader: " + platformClassLoader.getParent());
+
+// 获取 Application ClassLoader
+ClassLoader applicationClassLoader = ClassLoader.getSystemClassLoader();
+// JDK 9 之前的实现：sun.misc.Launcher$AppClassLoader
+// JDK 9 之后的实现：jdk.internal.loader.ClassLoaders$AppClassLoader
+System.out.println("Application ClassLoader: " + applicationClassLoader);
+
+// ******** 输出 *********
+
+Platform ClassLoader: jdk.internal.loader.ClassLoaders$PlatformClassLoader@433c675d
+Platform ClassLoader's parent => Bootstrap ClassLoader: null
+Application ClassLoader: jdk.internal.loader.ClassLoaders$AppClassLoader@63947c6b
+```
+
+**可以证明我们可以获取 `Application ClassLoader`、`Extension ClassLoader` / `Platform ClassLoader`，但是无法获取 `Bootstrap ClassLoader`，因为 `Bootstrap ClassLoader` 是使用 C 语言实现的，找不到一个确定的返回方式，所以返回 `null`**
 
 > 另外值得注意的是：无论通过什么方式获取类加载器，获取的都是同一个实例，因为类加载器是唯一的
 
