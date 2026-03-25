@@ -197,7 +197,7 @@ int v = Constants.VALUE;  // Constants 不会初始化
 
 ## 类加载器
 
-> JDK 8 及之前，类加载器分为 4 种：启动类加载器（Bootstrap，加载核心类库）、扩展类加载器（Extension，加载 ext 目录）、应用程序类加载器（Application，加载用户类路径）、自定义类加载器。**JDK 9 之后扩展类加载器被平台类加载器（Platform）取代**。
+> JDK 8 及之前，类加载器分为 4 种：启动类加载器（Bootstrap，加载核心类库）、扩展类加载器（Extension，加载扩展类库）、应用程序类加载器（App，加载用户类路径）、自定义类加载器。**JDK 9 之后扩展类加载器被平台类加载器（Platform）取代**。
 
 ```mermaid
 graph TB
@@ -205,7 +205,7 @@ graph TB
     
     Platform[扩展/平台类加载器<br/>Extension/Platform ClassLoader<br/>JDK 扩展类库]
     
-    App[应用程序类加载器<br/>Application ClassLoader<br/>用户类路径 ClassPath]
+    App[应用程序类加载器<br/>App ClassLoader<br/>用户类路径 ClassPath]
     
     Custom[自定义类加载器<br/>Custom ClassLoader]
     
@@ -226,9 +226,9 @@ graph TB
 
 JDK 9 之后，`Platform ClassLoader` 代替了 `Extension ClassLoader`，负责加载 JDK 内部模块，比如包名 java.sql 开头的类
 
-### 应用类加载器 (Application ClassLoader)
+### 应用类加载器 (App ClassLoader)
 
-`Application ClassLoader` 负责加载 classpath 指定（当前工作目录下）的类。如果没有自定义类加载器，那么这个就是默认的类加载器
+`App ClassLoader` 负责加载 classpath 指定（当前工作目录下）的类。如果没有自定义类加载器，那么这个就是默认的类加载器
 
 ### 自定义加载器
 
@@ -262,40 +262,41 @@ System.out.println("Platform ClassLoader: " + platformClassLoader);
 // 获取 Bootstrap ClassLoader
 System.out.println("Platform ClassLoader's parent => Bootstrap ClassLoader: " + platformClassLoader.getParent());
 
-// 获取 Application ClassLoader
-ClassLoader applicationClassLoader = ClassLoader.getSystemClassLoader();
+// 获取 App ClassLoader
+ClassLoader appClassLoader = ClassLoader.getSystemClassLoader();
 // JDK 9 之前的实现：sun.misc.Launcher$AppClassLoader
 // JDK 9 之后的实现：jdk.internal.loader.ClassLoaders$AppClassLoader
-System.out.println("Application ClassLoader: " + applicationClassLoader);
+System.out.println("App ClassLoader: " + appClassLoader);
 
 // ******** 输出 *********
 
 Platform ClassLoader: jdk.internal.loader.ClassLoaders$PlatformClassLoader@433c675d
 Platform ClassLoader's parent => Bootstrap ClassLoader: null
-Application ClassLoader: jdk.internal.loader.ClassLoaders$AppClassLoader@63947c6b
+App ClassLoader: jdk.internal.loader.ClassLoaders$AppClassLoader@63947c6b
 ```
 
-**可以证明我们可以获取 `Application ClassLoader`、`Extension ClassLoader` / `Platform ClassLoader`，但是无法获取 `Bootstrap ClassLoader`，因为 `Bootstrap ClassLoader` 是使用 C 语言实现的，找不到一个确定的返回方式，所以返回 `null`**
+可以证明我们可以获取 `App ClassLoader`、`Extension ClassLoader` / `Platform ClassLoader`，但是无法获取 `Bootstrap ClassLoader`，**因为 `Bootstrap ClassLoader` 是使用 C 语言实现的，找不到一个确定的返回方式，所以返回 `null`**
 
-> 另外值得注意的是：无论通过什么方式获取类加载器，获取的都是同一个实例，因为类加载器是唯一的
-
+> 另外值得注意的是：**无论通过什么方式获取类加载器，获取的都是同一个实例，因为类加载器是唯一的**
 
 
 ## 类加载方式
 
 类加载有三种方式
 
-- 启动应用时由JVM初始化加载
+- 启动应用时由 JVM 初始化加载
 - 使用 `Class.forName()` 方法动态加载
 - 使用 `ClassLoader.loadClass()` 方法动态加载
 
+---
 
+`Class.forName()` 和 `ClassLoader.loadClass()` 的区别
 
-> Class.forName() 和 ClassLoader.loadClass() 的区别
+- `ClassLoader.loadClass()`：仅将 class 文件加载到 JVM 中，只有在调用 `newInstance()` 方法才会去执行 `static` 块
+- `Class.forName()`：除了将类的 class 文件加载到 JVM 中之外，还会对类进行初始化，执行类中的 `static` 块
+- `Class.forName(name, initialize, loader)`：带参方法可以控制是否加载 `static` 块。如果 `initialize` 传入 `false` ，只有调用了 `newInstance()` 方法才用去执行 `static` 块
 
-- `ClassLoader.loadClass()`： 只干一件事情，就是将 class 文件加载到 JVM 中，只有在调用 newInstance() 方法才会去执行 static 块
-- `Class.forName()`：除了将类的 class 文件加载到 JVM 中之外，还会对类进行解释，执行类中的 static 块
-- `Class.forName(name, initialize, loader)`：带参方法可以控制是否加载 static 块。如果 initialize 传入 false ，只有调用了 newInstance() 方法才用去执行 static 块
+---
 
 ```java
 public class Person {
@@ -304,98 +305,250 @@ public class Person {
     }
 }
 
-...
 
 @Test
 public void testLoadClass() throws ClassNotFoundException {
     ClassLoader loader = this.getClass().getClassLoader();
-    System.out.println(loader);
-    // 使用ClassLoader.loadClass()来加载类，不会执行初始化块
+    // 使用 ClassLoader.loadClass() 来加载类，不会执行初始化块
     loader.loadClass("com.example.demo.entity.Person");
 }
-// sun.misc.Launcher$AppClassLoader@18b4aac2
+// 没有输出，因为不会执行初始化块
 
 
 @Test
 public void testForName() throws ClassNotFoundException {
     ClassLoader loader = this.getClass().getClassLoader();
-    System.out.println(loader);
-    // 使用Class.forName()来加载类，默认会执行初始化块
+    // 使用 Class.forName() 来加载类，默认会执行初始化块
     Class.forName("com.example.demo.entity.Person");
 }
-// sun.misc.Launcher$AppClassLoader@18b4aac2
 // 静态初始化块执行了！
 
 
 @Test
 public void testForNameNotInit() throws ClassNotFoundException {
     ClassLoader loader = this.getClass().getClassLoader();
-    System.out.println(loader);
-    // 使用Class.forName()来加载类，并指定initialize，初始化时不执行静态块
+    // 使用 Class.forName() 来加载类，并指定 initialize，初始化时不执行静态块
     Class.forName("com.example.demo.entity.Person", false, loader);
 }
-// sun.misc.Launcher$AppClassLoader@18b4aac2
-
-...
+// 没有输出，因为不会执行初始化块
 ```
 
 
 
-## 类加载机制
+## 双亲委派模型
 
-类加载机制有以下几个特点
+> 当一个类加载器收到类加载的请求时，优先委托父类加载器来加载，只有父类加载器无法加载，才尝试自己加载
 
-- 全盘负责：当一个类加载器负责加载某一个类时，该类所依赖和引用的其他类也将由该类加载器负责加载，除非显式地使用另外一个类加载器来加载
+### 工作流程
 
-- 缓存机制：缓存机制将会保证所有加载过的类都会被缓存，当程序中需要使用某个类时，类加载器先从缓存区寻找该类，只有缓存区不存在时，系统才会读取该类对应的二进制数据，并将其转换成Class对象，存入缓存区
-- **双亲委派机制**：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把请求委托给父加载器去完成，依次向上，因此，所有的类加载请求最终都应该被传递到顶层的启动类加载器中。只有当父加载器无法完成该类的加载，子加载器才会尝试自己去加载该类
+```mermaid
+sequenceDiagram
+    participant App as AppClassLoader
+    participant Platform as PlatformClassLoader
+    participant Bootstrap as BootstrapClassLoader
+    
+    App->>App: 收到加载 MyClass 请求
+    App->>Platform: 委托给父加载器
+    Platform->>Bootstrap: 委托给父加载器
+    
+    Bootstrap->>Bootstrap: 尝试加载
+    
+    alt 在 Bootstrap 范围内
+        Bootstrap-->>Platform: 加载成功
+        Platform-->>App: 返回 Class 对象
+    else 不在 Bootstrap 范围内
+        Bootstrap-->>Platform: 无法加载
+        Platform->>Platform: 尝试加载
+        
+        alt 在 Platform 范围内
+            Platform-->>App: 返回 Class 对象
+        else 不在 Platform 范围内
+            Platform-->>App: 无法加载
+            App->>App: 自己尝试加载
+        end
+    end
+```
 
-其中双亲委派机制是 JVM 类加载的一个核心内容，其最大的优势是防止内存中出现多份同样的字节码
+**类加载机制特点**: 
 
-### 双亲委派机制过程
-
-1. 当 AppClassLoader 加载一个类时，它首先不会自己去尝试加载这个类，而是把类加载请求委派给父类加载器 ExtClassLoader 去完成
-2. 当 ExtClassLoader 加载一个类时，它首先不会自己去尝试加载这个类，而是把类加载请求委派给父类加载器 BootstrapClassLoader 去完成
-3. 如果 BootstrapClassLoader 可以加载这个类，那么就加载；如果无法加载，如在 $JAVA_HOME/jre/lib 中没有找到这个类，就会使用 ExtClassLoader 来进行加载
-4. 如果 ExtClassLoader 可以加载这个类，那么就加载；如果也无法加载，那么会使用 AppClassLoader 来加载这个类
-5. 如果 AppClassLoader 可以加载这个类，那么就加载；如果也无法加载，那么会抛出异常 ClassNotFoundException
-
-
+- **全盘负责**：当一个类加载器负责加载某一个类时，该类所依赖和引用的其他类也将由该类加载器负责加载，除非显式地使用另外一个类加载器来加载
+- **缓存机制**：缓存机制将会保证所有加载过的类都会被缓存，当程序中需要使用某个类时，类加载器先从缓存区寻找该类，只有缓存区不存在时，系统才会读取该类对应的二进制数据，并将其转换成 Class 对象，存入缓存区
 
 ### 双亲委派具体实现
 
 ```java
-public Class<?> loadClass(String name)throws ClassNotFoundException {
-    return loadClass(name, false);
-}
-
-protected synchronized Class<?> loadClass(String name, boolean resolve)throws ClassNotFoundException {
-    // 首先判断该类型是否已经被加载
-    Class c = findLoadedClass(name);
-    if (c == null) {
-        //如果没有被加载，就委托给父类加载或者委派给启动类加载器加载
-        try {
-            if (parent != null) {
-                //如果存在父类加载器，就委派给父类加载器加载
-                c = parent.loadClass(name, false);
-            } else {
-                //如果不存在父类加载器，就检查是否是由启动类加载器加载的类，通过调用本地方法native Class findBootstrapClass(String name)
-                c = findBootstrapClass0(name);
+protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    // 确保同一个类不会被并发加载
+    synchronized (getClassLoadingLock(name)) {
+        
+        // 检查这个类是否被加载过，如果已加载直接返回，避免重复加载 
+        Class<?> c = findLoadedClass(name);
+        if (c == null) {
+            long t0 = System.nanoTime();
+            try {
+                // 双亲委派核心
+                if (parent != null) {
+                    // 如果有父类加载器，委托给父类加载器来加载（这个过程是递归的）
+                    c = parent.loadClass(name, false);
+                } else {
+                    // 如果没有父类加载器（说明已经是 Bootstrap ClassLoader），那么尝试从核心类库路径加载这个类
+                    // 最终依赖 native 方法 findBootstrapClass 来实现
+                    c = findBootstrapClassOrNull(name);
+                }
+            } catch (ClassNotFoundException e) {
+                // 父类加载器无法加载这个类的时候，捕获异常但不进一步抛出
+                // 意味着：父类加载器无法加载，留给自己加载
             }
-        } catch (ClassNotFoundException e) {
-            // 如果父类加载器和启动类加载器都不能完成加载任务，才调用自身的加载功能
-            c = findClass(name);
-        }
-    }
-    if (resolve) {
-        resolveClass(c);
-    }
-    return c;
-}
 
+            // c 仍然是 null，说明父类无法加载，要自己加载
+            if (c == null) {
+                long t1 = System.nanoTime();
+
+                // findClass 是模板方法，加载器需要实现的核心逻辑，定义具体的查找逻辑
+                c = findClass(name);
+                PerfCounter.getParentDelegationTime().addTime(t1 - t0);
+                PerfCounter.getFindClassTime().addElapsedTimeFrom(t1);
+                PerfCounter.getFindClasses().increment();
+            }
+        }
+
+        // resolve = ture，那么执行类的连接工作（验证、准备、解析）
+        if (resolve) {
+            resolveClass(c);
+        }
+        return c;
+    }
+}
 ```
 
-从加载类源码可以看到，如果我们需要自定义一个类加载器的话，需要注意两点
+> 从加载类源码可以看到，如果我们需要自定义一个类加载器的话，继承 ClassLoader 并重写 `findClass()` 方法即可。**尽量不要重写 loadClass 方法，否则会破坏双亲委派机制**
 
-- 继承 ClassLoader，重写 findClass 方法即可。尽量不要重写 loadClass 方法，否则会破坏双亲委派机制
-- 需要把类文件放到自定义目录下，否则会被已有的类加载器加载；并且要设置自定义类加载器的类加载根路径 `setRoot()`
+
+### 双亲委派机制的意义
+
+双亲委派机制最大的优势是**避免重复加载相同的类，并且保护核心类库**
+
+看以下例子:
+
+```java
+// 恶意代码：尝试覆盖 String 类
+package java.lang;
+
+public class String {
+    public String() {
+        // 恶意代码
+        System.exit(0);
+    }
+}
+```
+
+用户自定义了一个 `java.lang.String` 类，意图覆盖 JVM 中的正统 String 类，并且存在一些恶意代码。此时如果没有双亲委派模型，这份恶意代码就会对系统造成伤害；
+
+有了双亲委派机制，这个类永远不会被 `Bootstrap ClassLoader` 加载，系统中永远只有 JDK 中的 String 类，保护了核心类库不会被覆盖
+
+
+## 打破双亲委派模型
+
+### SPI 机制
+
+`DriverManager` 是 JDK 核心类，由 `Bootstrap ClassLoader` 负责加载。但是 MySQL JDBC 驱动 `com.mysql.cj.jdbc.Driver` 是第三方类库，需要由 `App ClassLoader` 加载，按照双亲委派模型，**父类加载器无法访问加载子类加载器加载的类**
+
+解决方案：**JDK 通过线程上下文的类加载器来加载 JDBC 驱动**，打破双亲委派模型，保证了驱动被正确加载
+
+```java
+  // DriverManager 的静态代码块
+  static {
+      loadInitialDrivers();
+  }
+
+  // loadInitialDrivers 方法内部
+  private static void loadInitialDrivers() {
+      // 关键：使用线程上下文类加载器，而不是 DriverManager 自己的类加载器
+      // 这个类加载器通常是 App ClassLoader
+      AccessController.doPrivileged(() -> {
+          ServiceLoader<Driver> sl = ServiceLoader.load(Driver.class, classLoader);
+          // ...
+      });
+  }
+```
+
+### Tomcat 
+
+> Tomcat 需要在一个 JVM 中运行多个 Web 应用，每个应用可能使用不同版本的相同第三方库（应用 A 使用 Spring 5，应用 B 使用 Spring 6），并且依赖的 Servlet 版本也可能不一致，按照双亲委派模型，这种运作方式是无法实现的。
+
+所以 Tomcat 的做法是：**每个 Web 应用启动时，给他们创建一个独立的 `WebAppClassLoader`，并且在加载类的时候，优先自己加载，自己找不到再寻求父类加载器**
+- 不同应用使用不同版本依赖，因为使用自己的类加载器，所以都可以正确加载
+- 不同应用使用相同版本依赖，即便全限定类名一样，但是两个应用使用不同的类加载器，所以两个相同的依赖都会被先后加载
+
+```
+Tomcat 类加载器结构：
+─────────────────────────────────────────────
+        BootstrapClassLoader
+                ↓
+        ExtensionClassLoader
+                ↓
+        ApplicationClassLoader
+                ↓
+        CommonClassLoader（加载 Tomcat 公共类）
+                ↓
+    ┌───────────┴───────────┐
+    ↓                       ↓
+CatalinaClassLoader    SharedClassLoader
+（加载 Tomcat 自身类）   （加载共享类）
+                            ↓
+                    WebAppClassLoader（每个 WebApp 一个）
+                    /      |      \
+                 WebApp1  WebApp2  WebApp3
+                 
+Tomcat 打破双亲委派的方式：
+─────────────────────────────────────────────
+1. WebAppClassLoader 先自己尝试加载
+2. 找不到再委托给父加载器
+```
+
+
+## 高频面试题
+
+### 类加载过程有多少个阶段，分别做什么事情
+
+- 加载：读取 `.class` 文件，并创建对应的 `java.lang.Class` 对象
+- 验证：校验 `.class` 文件合法性，包括文件格式、语法语义
+- 准备：为类的静态变量分配内存并初始化为默认值
+- 解析：为常量池的符号引用替换成直接引用
+- 初始化：执行类的初始化方法 `<clinit>()`
+
+### 准备阶段和初始化阶段对静态变量的处理有什么区别
+
+- 准备阶段对静态变量的处理是设置各种类型默认的 0 值（比如：false、0L、null）
+- 初始化阶段对静态变量的处理是根据具体的赋值语句（包括静态代码块中的赋值）进行赋值
+- 例外：如果是一个静态 final 变量，那么在准备阶段就会直接设置常量值
+
+```java
+public static int value = 123;
+// 准备阶段：value = 0（默认值）
+// 初始化阶段：value = 123（实际值）
+
+public static final int CONSTANT = 123;
+// 准备阶段：CONSTANT = 123（编译期常量，直接赋值）
+// 初始化阶段：无操作
+```
+
+### 触发类初始化的时机
+
+- 通过 new 关键字创建实例
+- 访问、修改类的静态变量
+- 调用类的静态方法
+- 调用 `Class.forName()` 方法时，传入的类会被初始化
+- 初始化子类时，如果父类没有被初始化，那么父类会被初始化
+- JVM 启动时会加载主类（包含 main 方法）
+
+### 什么是双亲委派模型？有什么好处
+
+双亲委派模型是：当类加载器收到需要加载类的请求时，优先寻找父类加载器，而不是自己加载；如果父类加载器无法加载，才尝试自己加载
+好处：防止代码覆盖并且可以保护核心类库。比如防止用户自定义一个 `java.lang.String` 去覆盖 JDK 的 String 类
+
+### 如何打破双亲委派模型
+
+- 继承 ClassLoader 后，重写 `loadClass()` 方法
+- 另外 Java SPI 机制（JDBC）通过当前线程上下文的 ClassLoader 来加载类
+- Tomcat 为每一个 Web App 创建一个单独的 WebAppClassLoader 来独立加载自己的依赖
