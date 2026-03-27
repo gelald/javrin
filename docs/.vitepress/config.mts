@@ -130,6 +130,7 @@ export default defineConfig({
                         collapsed: true,
                         base: "/writings/Spring",
                         items: [
+                            {text: "Spring 阶段一: IOC 容器原理", link: "/spring-01-ioc-container"},
                             {text: "SpringBoot核心组件", link: "/SpringBoot-core-component"},
                             {text: "Controller就该这么写", link: "/pretty-controller"},
                             {text: "过滤器和拦截器", link: "/filter-and-interceptor"},
