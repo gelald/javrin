@@ -133,6 +133,7 @@ export default defineConfig({
                             {text: "Spring 阶段一: IOC 容器原理", link: "/spring-01-ioc-container"},
                             {text: "Spring 阶段二: AOP 原理", link: "/spring-02-aop-principle"},
                             {text: "Spring 阶段三: Bean 生命周期", link: "/spring-03-bean-lifecycle"},
+                            {text: "Spring 阶段四: 循环依赖", link: "/spring-04-circular-dependency"},
                             {text: "SpringBoot核心组件", link: "/SpringBoot-core-component"},
                             {text: "Controller就该这么写", link: "/pretty-controller"},
                             {text: "过滤器和拦截器", link: "/filter-and-interceptor"},
