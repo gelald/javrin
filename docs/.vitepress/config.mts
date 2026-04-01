@@ -103,7 +103,8 @@ export default defineConfig({
                             {text: "垃圾回收问题追踪", link: "/garbage-collection-advanced"},
                             {text: "类加载机制", link: "/class-loading"},
                             {text: "JVM 远程监控", link: "/jvm-remote-monitor"},
-                            {text: "Metrics GC 问题排查", link: "/metrics-gc-issue"}
+                            {text: "Metrics GC 问题排查", link: "/metrics-gc-issue"},
+                            {text: "线上OOM问题排查", link: "/oom-troubleshoot"}
                         ],
                     },
                     {
