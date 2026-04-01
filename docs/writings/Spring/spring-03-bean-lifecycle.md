@@ -8,7 +8,7 @@
 4. [InstantiationAwareBeanPostProcessor 详解](#四、InstantiationAwareBeanPostProcessor-详解)
 5. [初始化回调顺序](#五、初始化回调顺序)
 6. [销毁流程](#六、销毁流程)
-7. [面试题汇总](#七、面试题汇总)
+7. [自检](#七、自检)
 
 ---
 
@@ -456,7 +456,7 @@ try (ConfigurableApplicationContext context =
 
 ---
 
-## 七、面试题汇总
+## 七、自检
 
 ### Q1: Bean 的生命周期是什么？⭐⭐⭐⭐⭐
 

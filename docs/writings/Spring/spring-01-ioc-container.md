@@ -7,7 +7,7 @@
 3. [容器启动流程](#三、容器启动流程)
 4. [依赖注入方式](#四、依赖注入方式)
 5. [BeanDefinition](#五、BeanDefinition)
-6. [面试题汇总](#六、面试题汇总)
+6. [自检](#六、自检)
 
 ---
 
@@ -491,7 +491,7 @@ beanFactory.registerBeanDefinition("userService", bd);
 
 ---
 
-## 六、面试题汇总
+## 六、自检
 
 ### 6.1 什么是 IoC？什么是 DI？两者关系？
 
