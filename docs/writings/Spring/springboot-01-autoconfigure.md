@@ -126,18 +126,38 @@ flowchart TB
 ### 3.1 整体流程图
 
 ```mermaid
-flowchart TB
-    A["SpringApplication.run()"] --> B["refresh() 上下文刷新"]
-    B --> C["ConfigurationClassPostProcessor<br/>处理 @Configuration"]
-    C --> D["解析 @EnableAutoConfiguration"]
-    D --> E["调用 AutoConfigurationImportSelector"]
-    E --> F["getCandidateConfigurations()<br/>加载所有候选配置类"]
-    F --> G["从 spring-boot-autoconfigure.jar<br/>读取候选列表"]
-    G --> H["getExclusions()<br/>排除指定的配置类"]
-    H --> I["filter()<br/>条件注解过滤"]
-    I --> J["按 @Conditional 条件<br/>逐个判断是否匹配"]
-    J --> K["返回最终生效的配置类"]
-    K --> L["Spring 容器实例化<br/>这些配置类中的 Bean"]
+flowchart LR
+    A["SpringApplication.run()"] --> Phase1
+    
+    subgraph Phase1 ["第一阶段：入口与扫描"]
+        direction TB
+        B["refresh() 上下文刷新"]
+        C["ConfigurationClassPostProcessor<br/>处理 @Configuration"]
+        D["解析 @EnableAutoConfiguration"]
+        B --> C --> D
+    end
+    
+    Phase1 --> Phase2
+
+    subgraph Phase2 ["第二阶段：筛选与过滤"]
+        direction TB
+        E["调用 AutoConfigurationImportSelector"]
+        F["getCandidateConfigurations()<br/>加载所有候选配置类"]
+        G["从 spring-boot-autoconfigure.jar<br/>读取候选列表"]
+        H["getExclusions()<br/>排除指定的配置类"]
+        I["filter()<br/>条件注解过滤"]
+        J["按 @Conditional 条件<br/>逐个判断是否匹配"]
+        E --> F --> G --> H --> I --> J
+    end
+
+    Phase2 --> Phase3
+
+    subgraph Phase3 ["第三阶段：生效与实例化"]
+        direction TB
+        K["返回最终生效的配置类"]
+        L["Spring 容器实例化<br/>这些配置类中的 Bean"]
+        K --> L
+    end
 ```
 
 ### 3.2 第一步：加载候选配置类

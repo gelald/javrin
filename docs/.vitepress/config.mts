@@ -137,6 +137,7 @@ export default defineConfig({
                             {text: "Spring 阶段四: 循环依赖", link: "/spring-04-circular-dependency"},
                             {text: "Spring 阶段五: 事务管理", link: "/spring-05-transaction"},
                             {text: "Spring Boot 阶段一: 自动配置原理", link: "/springboot-01-autoconfigure"},
+                            {text: "Spring Boot 阶段二: 起步依赖与内嵌容器", link: "/springboot-02-starter-container"},
                             {text: "SpringBoot核心组件", link: "/SpringBoot-core-component"},
                             {text: "Controller就该这么写", link: "/pretty-controller"},
                             {text: "过滤器和拦截器", link: "/filter-and-interceptor"},
