@@ -36,24 +36,45 @@ flowchart LR
 | **使用**     | 提供服务       | 业务方法调用                                  |
 | **销毁**     | 释放资源       | @PreDestroy、DisposableBean、destroy-method   |
 
-### 1.3 完整生命周期（10+ 步）
+### 1.3 完整生命周期
 
 ```mermaid
-flowchart TD
-    A[1. 实例化 Bean] --> B[2. 设置属性]
-    B --> C[3. BeanNameAware]
-    C --> D[4. BeanFactoryAware]
-    D --> E[5. ApplicationContextAware]
-    E --> F[6. BeanPostProcessor-Before]
-    F --> G[7. @PostConstruct]
-    G --> H[8. InitializingBean.afterPropertiesSet]
-    H --> I[9. init-method]
-    I --> J[10. BeanPostProcessor-After]
-    J --> K[11. Bean 就绪]
-    K --> L[12. 容器关闭]
-    L --> M[13. @PreDestroy]
-    M --> N[14. DisposableBean.destroy]
-    N --> O[15. destroy-method]
+flowchart LR
+    Start["Bean 生命周期开始"] --> Phase1
+    
+    subgraph Phase1 ["第一阶段：基础构建"]
+        direction TB
+        A["1. 实例化 Bean"] --> B["2. 设置属性"]
+    end
+    
+    Phase1 --> Phase2
+
+    subgraph Phase2 ["第二阶段：Aware 接口回调"]
+        direction TB
+        C["3. BeanNameAware"] --> D["4. BeanFactoryAware"]
+        D --> E["5. ApplicationContextAware"]
+    end
+
+    Phase2 --> Phase3
+
+    subgraph Phase3 ["第三阶段：初始化处理"]
+        direction TB
+        F["6. BeanPostProcessor-Before"] --> G["7. @PostConstruct"]
+        G --> H["8. InitializingBean.afterPropertiesSet"]
+        H --> I["9. init-method"]
+        I --> J["10. BeanPostProcessor-After"]
+    end
+
+    Phase3 --> K["11. Bean 就绪"]
+
+    K --> Phase4
+
+    subgraph Phase4 ["第四阶段：销毁过程"]
+        direction TB
+        L["12. 容器关闭"] --> M["13. @PreDestroy"]
+        M --> N["14. DisposableBean.destroy"]
+        N --> O["15. destroy-method"]
+    end
 ```
 
 ---
