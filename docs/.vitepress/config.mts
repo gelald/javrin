@@ -177,9 +177,11 @@ export default defineConfig({
                             {text: "MySQL数据类型", link: "/MySQL-data-type"},
                             {text: "MySQL Server层处理过程", link: "/MySQL-process-Server"},
                             {text: "MySQL 存储引擎层处理过程", link: "/MySQL-process-InnoDB"},
+                            {text: "MySQL 存储引擎层", link: "/MySQL-process-Engine"},
                             {text: "MySQL索引", link: "/MySQL-index"},
                             {text: "MySQL事务", link: "/MySQL-transaction"},
-                            {text: "MySQL批量插入", link: "/MySQL-batch-insert"}
+                            {text: "MySQL批量插入", link: "/MySQL-batch-insert"},
+                            {text: "MySQL 存储引擎与 Buffer Pool", link: "/mysql-01-storage-engine"}
                         ],
                     },
                     {
