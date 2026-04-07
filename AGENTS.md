@@ -115,6 +115,8 @@ public class Example {
 
 ### 提交信息格式
 
+提交信息遵循 Conventional Commits 规范
+
 ```
 <type>: <subject>
 
