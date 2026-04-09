@@ -666,7 +666,3 @@ SqlInitializationAutoConfiguration 之前加载，
 | `OnPropertyCondition` | 处理 @ConditionalOnProperty |
 | `@AutoConfiguration` | 标记自动配置类（Spring Boot 3.x） |
 | `ImportCandidates` | Spring Boot 3.x 加载 AutoConfiguration.imports 文件 |
-
----
-
-> **下一步**：完成 `springboot-01-exercises.md` 练习题，目标 85 分+，然后进入面试指南复习。
