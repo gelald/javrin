@@ -178,6 +178,7 @@ export default defineConfig({
                             {text: "MySQL Server层", link: "/MySQL-process-Server"},
                             {text: "MySQL 存储引擎层", link: "/MySQL-process-Engine"},
                             {text: "MySQL索引", link: "/MySQL-index"},
+                            {text: "MySQL索引（新）", link: "/mysql-02-index"},
                             {text: "MySQL事务", link: "/MySQL-transaction"},
                             {text: "MySQL批量插入", link: "/MySQL-batch-insert"}
                         ],
