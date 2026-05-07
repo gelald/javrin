@@ -44,11 +44,10 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Approve build scripts
-        # pnpm 11 默认阻止依赖的 postinstall 脚本，需显式批准原生模块编译
-        run: pnpm approve-builds @parcel/watcher esbuild
-
       - name: Install dependencies
+        # pnpm 11 默认阻止 postinstall 脚本，通过环境变量允许原生模块编译
+        env:
+          PNPM_APPROVE_BUILDS: "@parcel/watcher esbuild"
         run: pnpm install --frozen-lockfile
 
       - name: Build with VitePress
