@@ -677,3 +677,6 @@ public class HashSet<E> {
 ## 参考
 
 [HashMap 源码分析](https://javaguide.cn/java/collection/hashmap-source-code.html)
+
+
+> TODO: 红黑树基本原理、JDK7头插法目的、死循环原理
