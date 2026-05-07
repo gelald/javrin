@@ -11,6 +11,10 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
   },
+  "onlyBuiltDependencies": [
+    "@parcel/watcher",
+    "esbuild"
+  ],
   "devDependencies": {
     "markdown-it-mathjax3": "^4.3.2",
     "vitepress": "2.0.0-alpha.12",
