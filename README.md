@@ -1,4 +1,4 @@
-<div style="text-align: center;">
+<div align="center">
     <p>
         <a href="https://gelald.github.io/javrin/">
             <img src="https://jarvin-image.oss-cn-guangzhou.aliyuncs.com/logo.svg" alt="Javrin Logo">
