@@ -641,3 +641,5 @@ CREATE INDEX idx_c   ON t(c);      -- 单独查 WHERE c=?
 | 索引下推 ICP   | MySQL 5.6+ 将索引列条件下推到存储引擎层过滤，减少回表                            |
 | 索引失效       | 隐式转换、函数操作、OR 无索引、LIKE '%xx'、NOT IN 等场景                         |
 | 索引设计       | 高选择性优先、等值列放左、控制数量、善用覆盖索引                                 |
+
+> 练习: [MySQL 索引练习](./MySQL-index-exercises.md)
