@@ -277,6 +277,7 @@ export default defineConfig({
     lastUpdated: true,
 
     markdown: {
+        breaks: true,
         config: (md) => {
             vitepressMermaidPreview(md, {
                 showToolbar: true, // 全局设置：是否默认显示工具栏

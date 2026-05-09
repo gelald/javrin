@@ -7,6 +7,10 @@ tag:
   - 索引
 ---
 
+> 练习: [MySQL 索引练习](./MySQL-index-exercises.md)
+>
+> 面试: [MySQL 面试演练](./MySQL-index-interview.md)
+
 # MySQL 索引
 
 > MySQL 的索引是一种帮助 MySQL 高效获取数据的结构。由于磁盘 IO 比较耗时，所以 MySQL 通过建立索引来减少磁盘 IO 的次数进而提升查询数据的效率。**通过索引缩小获取数据的范围，减少数据筛选的过程的时间消耗**。
@@ -643,3 +647,5 @@ CREATE INDEX idx_c   ON t(c);      -- 单独查 WHERE c=?
 | 索引设计       | 高选择性优先、等值列放左、控制数量、善用覆盖索引                                 |
 
 > 练习: [MySQL 索引练习](./MySQL-index-exercises.md)
+>
+> 面试: [MySQL 面试演练](./MySQL-index-interview.md)
