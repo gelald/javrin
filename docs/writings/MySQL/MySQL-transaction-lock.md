@@ -28,15 +28,14 @@ COMMIT;
 
 ### 1.2 ACID 特性
 
-| 特性 | 含义 | InnoDB 实现方式 |
-|------|------|----------------|
-| **原子性<br/>Atomicity** | 事务内的操作要么全部成功，要么全部失败并回滚 | **Undo Log**（回滚日志记录数据修改前的值） |
-| **隔离性<br/>Isolation** | 并发事务之间互不干扰 | **MVCC**（快照读）+ **锁机制**（当前读） |
-| **持久性<br/>Duration** | 事务一旦提交，那么对数据的操作是永久性生效的，即使宕机也不丢失 | **Redo Log**（WAL 机制，先写日志再写磁盘） |
-| **一致性<br/>Consistency** | 事务前后数据库从一个一致状态转换到另一个一致状态（银行转账的例子） | 原子性 + 隔离性 + 持久性共同保证 |
+| 特性                       | 含义                                                               | InnoDB 实现方式                            |
+| -------------------------- | ------------------------------------------------------------------ | ------------------------------------------ |
+| **原子性<br/>Atomicity**   | 事务内的操作要么全部成功，要么全部失败并回滚                       | **Undo Log**（回滚日志记录数据修改前的值） |
+| **隔离性<br/>Isolation**   | 并发事务之间互不干扰                                               | **MVCC**（快照读）+ **锁机制**（当前读）   |
+| **持久性<br/>Duration**    | 事务一旦提交，那么对数据的操作是永久性生效的，即使宕机也不丢失     | **Redo Log**（WAL 机制，先写日志再写磁盘） |
+| **一致性<br/>Consistency** | 事务前后数据库从一个一致状态转换到另一个一致状态（银行转账的例子） | 原子性 + 隔离性 + 持久性共同保证           |
 
 > 原子性、隔离性、持久性是手段，一致性是结果
-
 
 ## 二、事务原子性实现 (Undo Log)
 
@@ -61,13 +60,13 @@ Undo Log 记录事务中的增、删、改操作，又称*回滚日志*。Undo L
 
 Undo Log 按操作类型分为两类：**insert Undo Log**（INSERT 操作产生）和 **update Undo Log**（UPDATE / DELETE 操作产生）。两者在事务提交和回滚时的行为不同：
 
-| 操作 | Undo Log 类型 | 记录内容 | 事务提交行为 | 事务回滚行为 |
-|------|--------------|---------|-------------|-------------|
-| **INSERT** | insert Undo Log | 主键字段（length + value） | insert Undo Log **立即删除**（提交前只有本事务可见，无其他事务依赖） | 通过主键定位该行，**物理删除** |
-| **DELETE** | update Undo Log | 索引列信息（位置、长度、内容） | 记录保持逻辑删除状态，后台 **purge 线程**择机物理删除 | 清除 `delete_mask`，记录恢复可见 |
-| **UPDATE<br/>非主键，存储空间不变** | update Undo Log | 被修改字段的位置、长度、**旧值** | Undo Log 保留供 MVCC 版本链，purge 线程择机清理 | 用旧值覆盖新值，原地恢复 |
-| **UPDATE<br/>非主键，存储空间改变** | update Undo Log | 被修改字段的位置、长度、**旧值** | 同上 | 删除新记录，根据旧值**重建**旧记录 |
-| **UPDATE<br/>主键** | delete Undo Log + insert Undo Log | 分两步：逻辑删旧行 + 插入新行 | delete Undo Log 保留给 MVCC；insert Undo Log 可以删除 | 回滚 insert（删除新行）+ 回滚 delete（恢复 `delete_mask`） |
+| 操作                                | Undo Log 类型                     | 记录内容                         | 事务提交行为                                                         | 事务回滚行为                                               |
+| ----------------------------------- | --------------------------------- | -------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **INSERT**                          | insert Undo Log                   | 主键字段（length + value）       | insert Undo Log **立即删除**（提交前只有本事务可见，无其他事务依赖） | 通过主键定位该行，**物理删除**                             |
+| **DELETE**                          | update Undo Log                   | 索引列信息（位置、长度、内容）   | 记录保持逻辑删除状态，后台 **purge 线程**择机物理删除                | 清除 `delete_mask`，记录恢复可见                           |
+| **UPDATE<br/>非主键，存储空间不变** | update Undo Log                   | 被修改字段的位置、长度、**旧值** | Undo Log 保留供 MVCC 版本链，purge 线程择机清理                      | 用旧值覆盖新值，原地恢复                                   |
+| **UPDATE<br/>非主键，存储空间改变** | update Undo Log                   | 被修改字段的位置、长度、**旧值** | 同上                                                                 | 删除新记录，根据旧值**重建**旧记录                         |
+| **UPDATE<br/>主键**                 | delete Undo Log + insert Undo Log | 分两步：逻辑删旧行 + 插入新行    | delete Undo Log 保留给 MVCC；insert Undo Log 可以删除                | 回滚 insert（删除新行）+ 回滚 delete（恢复 `delete_mask`） |
 
 核心规律：**INSERT 的 Undo Log 仅对当前事务可见，提交即删**，**UPDATE / DELETE 的 Undo Log 提交后保留**（其他事务的 MVCC 可能还需要沿版本链回溯）。
 
@@ -78,7 +77,7 @@ Undo Log 按操作类型分为两类：**insert Undo Log**（INSERT 操作产生
 
 ```sql
 -- 查看运行中的长事务
-SELECT trx_id, trx_state, trx_started, 
+SELECT trx_id, trx_state, trx_started,
   TIMESTAMPDIFF(SECOND, trx_started, NOW()) AS duration_seconds
 FROM information_schema.innodb_trx
 ORDER BY trx_started;
@@ -129,14 +128,15 @@ flowchart TB
 
 #### 3.1.4 事务隔离级别
 
-| 隔离级别                        | 脏读   | 不可重复读 | 幻读             |
-| ------------------------------- | ------ | ---------- | ---------------- |
-| Read Uncommitted（读未提交）    | 可能   | 可能       | 可能             |
-| Read Committed（读已提交）      | 不可能 | 可能       | 可能             |
-| **Repeatable Read**（可重复读） | 不可能 | 不可能     | *InnoDB 下可以避免* |
-| Serializable（串行化）          | 不可能 | 不可能     | 不可能           |
+| 隔离级别                        | 脏读   | 不可重复读 | 幻读              |
+| ------------------------------- | ------ | ---------- | ----------------- |
+| Read Uncommitted（读未提交）    | 可能   | 可能       | 可能              |
+| Read Committed（读已提交）      | 不可能 | 可能       | 可能              |
+| **Repeatable Read**（可重复读） | 不可能 | 不可能     | _InnoDB 可以处理_ |
+| Serializable（串行化）          | 不可能 | 不可能     | 不可能            |
 
 ### 3.2 快照读与当前读
+
 - **当前读**: 加了共享锁、排他锁的语句 (SELECT .. FRO UPDATE / INSERT / UPDATE / DELETE) 都是当前读，读取的是记录的最新版本，当前读是基于临键锁来实现的
 
 - **快照读**: 普通的 SELECT 操作就是快照读，快照读的前提是隔离级别不是串行化，因为在串行化隔离级别下快照读会退化为当前读，快照读是基于 MVCC 来实现的
@@ -170,12 +170,12 @@ flowchart LR
 
 ReadView 是事务执行**快照读**时创建的一个"可见性判断"工具，包含四个核心字段
 
-| 字段 | 含义 |
-|------|------|
-| **m_ids** | 创建 ReadView 时，当前所有**活跃（未提交）**事务的 ID 列表 |
-| **min_trx_id** | 活跃事务列表中**最小**的事务 ID |
-| **max_trx_id** | **下一个事务**将分配的事务 ID |
-| **creator_trx_id** | 创建该 ReadView 的事务 ID |
+| 字段               | 含义                                                       |
+| ------------------ | ---------------------------------------------------------- |
+| **m_ids**          | 创建 ReadView 时，当前所有**活跃（未提交）**事务的 ID 列表 |
+| **min_trx_id**     | 活跃事务列表中**最小**的事务 ID                            |
+| **max_trx_id**     | **下一个事务**将分配的事务 ID                              |
+| **creator_trx_id** | 创建该 ReadView 的事务 ID                                  |
 
 #### 3.3.4 ReadView 判断可见性逻辑
 
@@ -196,24 +196,24 @@ flowchart LR
 
 **简化表格**：
 
-| 条件 | 可见性 | 原因 |
-|------|--------|------|
-| trx_id == creator | 可见 | 自己事务修改的 |
-| trx_id < min | 可见 | 在所有活跃事务之前就已提交 |
-| trx_id >= max | 不可见 | ReadView 创建之后才开启的事务 |
-| min <= trx_id < max 且不在 m_ids | 可见 | 已提交的事务 |
-| min <= trx_id < max 且在 m_ids | 不可见 | 还没提交的事务 |
+| 条件                             | 可见性 | 原因                          |
+| -------------------------------- | ------ | ----------------------------- |
+| trx_id == creator                | 可见   | 自己事务修改的                |
+| trx_id < min                     | 可见   | 在所有活跃事务之前就已提交    |
+| trx_id >= max                    | 不可见 | ReadView 创建之后才开启的事务 |
+| min <= trx_id < max 且不在 m_ids | 可见   | 已提交的事务                  |
+| min <= trx_id < max 且在 m_ids   | 不可见 | 还没提交的事务                |
 
 #### 3.3.5 ReadView 在 RC/RR 下不同的行为
 
 > RC 和 RR 隔离级别底层的 MVCC 机制是一致的，唯一区别就是 ReadView 的创建时机
 
-| 隔离级别 | ReadView 创建时机 | 效果 |
-|---------|------------------|------|
-| **Read Committed** | **每次 SELECT** 都创建新的 ReadView | 能看到其他事务最新提交的数据 → 允许不可重复读 |
+| 隔离级别            | ReadView 创建时机                               | 效果                                                                                                                     |
+| ------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Read Committed**  | **每次 SELECT** 都创建新的 ReadView             | 能看到其他事务最新提交的数据 → 允许不可重复读                                                                            |
 | **Repeatable Read** | **只在第一次 SELECT** 时创建 ReadView，后续复用 | 始终看到事务开始时的快照，其他事务的提交，都无法读取到，因为这些记录版本的 trx_id 都会大于等于 max_trx_id → 保证可重复读 |
 
-#### 3.3.6 Select COUNT(*) 的问题
+#### 3.3.6 Select COUNT(\*) 的问题
 
 - 对于 MyISAM 存储引擎，它会维护一个整型变量来记录当前存储的总行数，时间开销是 O(1)
 - 对于 InnoDB 存储引擎，**需要通过 MVCC 的辅助来判断每一行对当前事务是否可见**，时间开销是 O(N)；InnoDB 支持事务和 MVCC 特性，**不同的事务查看到的数据行数都不一样**，需要每次都进行判断，不能使用一个变量来表示
@@ -254,10 +254,10 @@ flowchart TB
 
 > 按类型分类可以分为：共享锁、排他锁、意向锁三类，其中意向锁又可以细分为意向共享锁、意向排他锁
 
-| 锁类型 | 获取方式 | 兼容性 |
-|--------|---------|--------|
-| **共享锁（S Lock）** | `SELECT ... FOR SHARE` | S 与 S 兼容，S 与 X 互斥 |
-| **排他锁（X Lock）** | `SELECT ... FOR UPDATE` / `DELETE` / `UPDATE` | X 与任何锁互斥 |
+| 锁类型               | 获取方式                                      | 兼容性                   |
+| -------------------- | --------------------------------------------- | ------------------------ |
+| **共享锁（S Lock）** | `SELECT ... FOR SHARE`                        | S 与 S 兼容，S 与 X 互斥 |
+| **排他锁（X Lock）** | `SELECT ... FOR UPDATE` / `DELETE` / `UPDATE` | X 与任何锁互斥           |
 
 - **共享锁 (S)**
 
@@ -273,7 +273,7 @@ flowchart TB
 
   ```sql
   -- insert、delete、update语句自动加上排他锁
-  
+
   -- select语句可以手动加上排他锁
   select * from xxxtable where xxx for update;
   ```
@@ -293,6 +293,7 @@ flowchart TB
 ```sql
 SELECT * FROM user WHERE id = 4 FOR UPDATE;
 ```
+
 锁住 id=4 这行记录（Record Lock），这行记录不能被其他事务操作
 
 ![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230218185352.png)
@@ -317,15 +318,16 @@ SELECT * FROM emp WHERE empid > 40 FOR UPDATE;
 
 假设现在有一张表，存储引擎是 InnoDB，隔离级别是 `Repeatable Read`，`id` 是主键，`age` 是普通索引
 
-  | id   | age  | name |
-  | ---- | ---- | ---- |
-  | 5    | 13   | 张三 |
-  | 18   | 20   | 李四 |
-  | 46   | 28   | 王五 |
+| id  | age | name |
+| --- | --- | ---- |
+| 5   | 13  | 张三 |
+| 18  | 20  | 李四 |
+| 46  | 28  | 王五 |
 
 那么在 age 列上潜在的临键锁
+
 ```sql
-索引值:         13         20          28 
+索引值:         13         20          28
 Next-Key:  (−∞,13]    (13,20]     (20,28]    (28,+∞)
 ```
 
@@ -393,12 +395,12 @@ SELECT * FROM performance_schema.data_locks;
 - 锁资源只能被同一个事务持有
 - 事务之间因为持有锁和申请锁导致彼此**循环等待**
 
-| 时间 | 事务 A | 事务 B |
-|------|--------|--------|
-| t1 | `UPDATE t SET name='a' WHERE id=1;`<br/>✅ 获取 id=1 的 X 锁 | |
-| t2 | | `UPDATE t SET name='b' WHERE id=2;`<br/>✅ 获取 id=2 的 X 锁 |
-| t3 | `UPDATE t SET name='c' WHERE id=2;`<br/>⏳ 等待 id=2 的 X 锁 | |
-| t4 | | `UPDATE t SET name='d' WHERE id=1;`<br/>⏳ 等待 id=1 的 X 锁 → **死锁！** |
+| 时间 | 事务 A                                                       | 事务 B                                                                    |
+| ---- | ------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| t1   | `UPDATE t SET name='a' WHERE id=1;`<br/>✅ 获取 id=1 的 X 锁 |                                                                           |
+| t2   |                                                              | `UPDATE t SET name='b' WHERE id=2;`<br/>✅ 获取 id=2 的 X 锁              |
+| t3   | `UPDATE t SET name='c' WHERE id=2;`<br/>⏳ 等待 id=2 的 X 锁 |                                                                           |
+| t4   |                                                              | `UPDATE t SET name='d' WHERE id=1;`<br/>⏳ 等待 id=1 的 X 锁 → **死锁！** |
 
 ---
 
@@ -432,25 +434,91 @@ SHOW ENGINE INNODB STATUS;
 
   临键锁来解决幻读问题，因为在事务开启后，访问这条数据会拿到这个数据对应非唯一索引列上的临键锁，锁住一个区间范围，其他事务无法对这个范围区间进行插入、删除数据，解决幻读的问题
 
-## 四、MySQL 如何保证持久性
+## 四、事务持久性实现 (Redo Log)
 
-持久性主要由 Redo Log 来保证的。
+### 4.1 WAL 机制 (Write-Ahead Logging)
 
-由于数据修改操作会优先写入到 Buffer Pool 中，由后台线程异步地把数据写入到磁盘中去。为了避免因为服务器宕机，而后台线程还没把数据写入到磁盘中而带来的数据丢失的风险，修改操作在写入 Buffer Pool 的**同时也会把数据操作记录写入到 Log Buffer 中**，在事务提交后，就把 Log Buffer 中的数据写入到磁盘的 Redo Log 中。
+> InnoDB 的核心设计思想：先写日志，再写磁盘
 
-一旦数据库崩溃并且事务已提交但数据未同步到数据库时，**可以使用 Redo Log 来进行崩溃恢复**。这样事务一旦提交，事务对数据的操作都是能追溯到的，因此保证了事务的持久性。
+在介绍 Redo Log 之前，先介绍 InnoDB 中使用到的机制 WAL，先写日志，再写磁盘(数据)。用 WAL 的目的：Redo Log 的写入是**顺序写**（直接追加到文件末尾），数据文件是**随机写**（需要寻址定位后写入），顺序写的性能是远高于随机写的
+
+### 4.2 Redo Log 架构
+
+> Redo Log 是事务持久性的保障，一旦数据库崩溃并且事务已提交但数据未同步到数据库时，**可以使用 Redo Log 来进行崩溃恢复**。这样事务提交后对数据的操作都是能追溯到的，因此保证了事务的持久性。
+
+- 写入流程：SQL 语句 → 修改 Buffer Pool（内存） → **写入 Redo Log Buffer**（内存） → **事务提交后同步到 Redo Log File**（磁盘）
+- 后台线程异步把 Buffer Pool 中的脏页刷到磁盘的数据文件中
+
+> Redo Log 就是通过顺序写和 Log Buffer 提高写入效率
+
+```mermaid
+flowchart TB
+    subgraph Write["写入流程"]
+        SQL["SQL 语句"] --> BP["修改 Buffer Pool<br/>（内存中的数据页）"]
+        BP --> RL["写入 Redo Log<br/>（顺序写，速度快）"]
+        RL --> Done["返回客户端成功"]
+    end
+
+    subgraph Flush["后台刷盘"]
+        BP2["Buffer Pool<br/>脏页"] -->|"后台线程异步刷"| Disk["磁盘数据文件<br/>（随机写，速度慢）"]
+    end
+```
+
+#### innodb_flush_log_at_trx_commit 刷盘策略
+
+| 值            | 行为                            | 安全性             | 性能 |
+| ------------- | ------------------------------- | ------------------ | ---- |
+| 0             | 每秒刷盘                        | 低，可能丢 1s 数据 | 最高 |
+| **1（默认）** | 每次提交都 fsync                | 最高，不丢数据     | 中   |
+| 2             | 每次提交写 OS cache，每秒 fsync | 中，OS 崩溃才丢    | 高   |
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230111110506.png)
+
+### 4.3 Redo Log 与 Undo Log 对比
+
+| 维度         | Redo Log               | Undo Log                               |
+| ------------ | ---------------------- | -------------------------------------- |
+| **作用**     | 保证持久性（崩溃恢复） | 保证原子性（回滚）+ MVCC               |
+| **内容**     | 物理日志（页的修改）   | 逻辑日志（记录回滚旧值的SQL）          |
+| **写入方式** | 顺序追加（循环写）     | 随段分配，purge 线程清理               |
+| **生命周期** | 写满后循环复用         | 事务提交后，等所有快照读不再需要时清理 |
+
+### 4.4 Redo Log 与 Binlog 对比
+
+| 维度         | Redo Log               | Binlog                       |
+| ------------ | ---------------------- | ---------------------------- |
+| **归属**     | InnoDB 引擎层          | MySQL Server 层              |
+| **作用**     | 保证持久性（崩溃恢复） | 主从复制、数据备份           |
+| **内容**     | 物理日志（页的修改）   | 逻辑日志（SQL 语句或行变更） |
+| **写入方式** | 循环写，固定大小       | 追加写，文件写满切换新文件   |
+
+### 4.5 两阶段提交
+
+Binlog 是 MySQL Server 层用于主从复制的日志，Redo Log 是 InnoDB 用于崩溃恢复的日志，当一个事务提交时，需要同时写入两份日志，任何一份写入失败都有数据不一致的风险
+
+为了确保 Redo Log 和 Binlog 的一致性，InnoDB 采用两阶段提交：先写 Redo Log (prepare) -> 再写 Binlog -> 把 Redo Log 改为 commit。任何一步失败都能正确回滚，保证双写一致
+
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/20230225221255.png)
+
+---
+
+当 MySQL 根据 Redo Log 进行崩溃恢复时：
+
+- 如果数据在 Redo Log 和 Binlog 都存在，那么这个事务需要进行提交
+- 如果数据只在 Redo Log 中而不在 Binlog 中，说明第二段提交没有成功，这个事务是需要回滚的
 
 ## 五、MySQL 如何保证一致性
 
 数据库通过原子性（A）、隔离性（I）、持久性（D）来保证一致性（C）。其中一致性是目的，原子性、隔离性、持久性是手段。因此数据库必须实现AID三大特性才有可能实现一致性。
 
-
 ## 六、总结
 
-首先简单了解了 MySQL 的事务的 ACID 四大特性，知道了原子性、持久性、隔离性都是实现一致性的手段，然后进一步学习了 MySQL 如何分别实现这三种事务特性。
-
-了解到 Undo Log 的作用，主要在事务回滚方面和提供 MVCC 历史版本链方面提供帮助，是实现原子性、隔离性的重要手段。
-
-其次在持久性方面，redo log 的崩溃恢复功能也给持久性提供了保障，保障了事务一旦提交，对数据的修改就是持久的。
-
-最后隔离性方面学习到事务隔离性问题与事务隔离级别，通过无锁的方式 MVCC 和有锁的方式 LBCC 共同作用下实现各事务隔离级别。
+| 知识点        | 核心点                                                                         |
+| ------------- | ------------------------------------------------------------------------------ |
+| ACID 实现     | 原子性→Undo Log，持久性→Redo Log，隔离性→MVCC+锁<br/>一致性->A+I+D三者一致保证 |
+| MVCC 核心     | 隐藏字段 → Undo Log 版本链 → ReadView 可见性判断                               |
+| RC vs RR      | RC 每次 SELECT 创建 ReadView，RR 复用第一次 SELECT 创建的 ReadView             |
+| Next-Key Lock | RR 隔离级别的默认加锁单位 = Record Lock + Gap Lock                             |
+| 死锁预防      | 固定加锁顺序 + 缩短事务 + 确保走索引                                           |
+| WAL           | 先写 Redo Log（顺序写），再刷数据页（随机写）                                  |
+| 两阶段提交    | Redo Log prepare → Binlog → Redo Log commit                                    |
