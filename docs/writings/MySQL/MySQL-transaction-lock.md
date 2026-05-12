@@ -8,6 +8,10 @@ tag:
   - 锁
 ---
 
+> 练习: [MySQL 事务与锁练习](./MySQL-transaction-lock-exercises.md)
+>
+> 面试: [MySQL 事务与锁面试](./MySQL-transaction-lock-interview.md)
+
 # MySQL 事务与锁解析
 
 ## 一、事务基础与 ACID
@@ -522,3 +526,7 @@ Binlog 是 MySQL Server 层用于主从复制的日志，Redo Log 是 InnoDB 用
 | 死锁预防      | 固定加锁顺序 + 缩短事务 + 确保走索引                                           |
 | WAL           | 先写 Redo Log（顺序写），再刷数据页（随机写）                                  |
 | 两阶段提交    | Redo Log prepare → Binlog → Redo Log commit                                    |
+
+> 练习: [MySQL 事务与锁练习](./MySQL-transaction-lock-exercises.md)
+>
+> 面试: [MySQL 事务与锁面试](./MySQL-transaction-lock-interview.md)

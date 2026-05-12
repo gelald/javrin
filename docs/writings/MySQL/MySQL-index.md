@@ -9,7 +9,7 @@ tag:
 
 > 练习: [MySQL 索引练习](./MySQL-index-exercises.md)
 >
-> 面试: [MySQL 面试演练](./MySQL-index-interview.md)
+> 面试: [MySQL 索引面试](./MySQL-index-interview.md)
 
 # MySQL 索引
 
@@ -648,4 +648,4 @@ CREATE INDEX idx_c   ON t(c);      -- 单独查 WHERE c=?
 
 > 练习: [MySQL 索引练习](./MySQL-index-exercises.md)
 >
-> 面试: [MySQL 面试演练](./MySQL-index-interview.md)
+> 面试: [MySQL 索引面试](./MySQL-index-interview.md)
