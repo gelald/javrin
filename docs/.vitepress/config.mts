@@ -179,6 +179,8 @@ export default defineConfig({
                             {text: "MySQL 存储引擎层", link: "/MySQL-process-Engine"},
                             {text: "MySQL 索引", link: "/MySQL-index"},
                             {text: "MySQL 事务与锁", link: "/MySQL-transaction-lock"},
+                            {text: "MySQL 优化篇", link: "/MySQL-optimization"},
+                            {text: "MySQL 优化篇（参考）", link: "/mysql-04-sql-optimization"},
                             {text: "MySQL 批量插入", link: "/MySQL-batch-insert"}
                         ],
                     },
