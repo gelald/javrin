@@ -174,13 +174,13 @@ export default defineConfig({
                         collapsed: true,
                         base: "/writings/MySQL",
                         items: [
-                            {text: "MySQL数据类型", link: "/MySQL-data-type"},
+                            {text: "MySQL 数据类型", link: "/MySQL-data-type"},
                             {text: "MySQL Server层", link: "/MySQL-process-Server"},
                             {text: "MySQL 存储引擎层", link: "/MySQL-process-Engine"},
                             {text: "MySQL 索引", link: "/MySQL-index"},
                             {text: "MySQL 事务与锁", link: "/MySQL-transaction-lock"},
                             {text: "MySQL 优化篇", link: "/MySQL-optimization"},
-                            {text: "MySQL 优化篇（参考）", link: "/mysql-04-sql-optimization"},
+                            {text: "MySQL 日志相关", link: ""},
                             {text: "MySQL 批量插入", link: "/MySQL-batch-insert"}
                         ],
                     },
