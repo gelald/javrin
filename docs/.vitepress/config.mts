@@ -180,8 +180,16 @@ export default defineConfig({
                             {text: "MySQL 索引", link: "/MySQL-index"},
                             {text: "MySQL 事务与锁", link: "/MySQL-transaction-lock"},
                             {text: "MySQL 优化篇", link: "/MySQL-optimization"},
-                            {text: "MySQL 日志相关", link: ""},
                             {text: "MySQL 批量插入", link: "/MySQL-batch-insert"}
+                        ],
+                    },
+                    {
+                        text: "Redis",
+                        collapsed: true,
+                        base: "/writings/Redis",
+                        items: [
+                            {text: "Redis 数据结构", link: "/Redis-data-structure"},
+                            {text: "Redis 数据结构 (新)", link: "/redis-01-data-structure"}
                         ],
                     },
                     {
