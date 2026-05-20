@@ -274,4 +274,4 @@ processCommand() 执行命令
 
 ---
 
-**下一步**：完成练习题达到 85 分+后，进入 [阶段三：持久化](redis-03-persistence.md)。如果某些知识不太清楚，回到 [Redis 核心原理](./Redis-core-principle.md) 对应章节复习。
+**下一步**：完成练习题达到 85 分+。如果某些知识不太清楚，回到 [Redis 核心原理](./Redis-core-principle.md) 对应章节复习。
