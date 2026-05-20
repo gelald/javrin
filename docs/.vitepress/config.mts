@@ -189,7 +189,8 @@ export default defineConfig({
                         base: "/writings/Redis",
                         items: [
                             {text: "Redis 数据结构", link: "/Redis-data-structure"},
-                            {text: "Redis 核心原理", link: "/Redis-core-principle"}
+                            {text: "Redis 核心原理", link: "/Redis-core-principle"},
+                            {text: "Redis 持久化", link: "/Redis-persistence"}
                         ],
                     },
                     {
