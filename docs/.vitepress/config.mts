@@ -188,8 +188,7 @@ export default defineConfig({
                         collapsed: true,
                         base: "/writings/Redis",
                         items: [
-                            {text: "Redis 数据结构", link: "/Redis-data-structure"},
-                            {text: "Redis 数据结构 (新)", link: "/redis-01-data-structure"}
+                            {text: "Redis 数据结构", link: "/Redis-data-structure"}
                         ],
                     },
                     {
