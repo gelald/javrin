@@ -83,7 +83,7 @@ Redis 基于 `ae.c` 实现了一个精简的事件驱动框架，处理两类事
 3. 多个 IO 线程**并行写回**响应
 
 **配置方式**：
-```redis
+```
 io-threads 4              # IO 线程数
 io-threads-do-reads yes   # 开启多线程读
 ```

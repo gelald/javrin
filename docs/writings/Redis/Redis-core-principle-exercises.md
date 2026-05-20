@@ -294,7 +294,7 @@ LRU 适合访问热点随时间漂移的场景（如新闻推荐），LFU 适合
 <summary>答案</summary>
 
 **a)** 需要修改两个配置：
-```redis
+```
 io-threads 4            # 设置 IO 线程数
 io-threads-do-reads yes # 开启多线程读
 ```
