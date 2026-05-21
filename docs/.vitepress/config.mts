@@ -104,7 +104,7 @@ export default defineConfig({
                             {text: "类加载机制", link: "/class-loading"},
                             {text: "JVM 远程监控", link: "/jvm-remote-monitor"},
                             {text: "Metrics GC 问题排查", link: "/metrics-gc-issue"},
-                            {text: "线上OOM问题排查", link: "/oom-troubleshoot"}
+                            {text: "线上 OOM 问题排查", link: "/oom-troubleshoot"}
                         ],
                     },
                     {
@@ -112,15 +112,15 @@ export default defineConfig({
                         collapsed: true,
                         base: "/writings/concurrency",
                         items: [
-                            {text: "sleep和wait的区别", link: "/difference-between-sleep-and-wait"},
-                            {text: "yield学习", link: "/yield"},
-                            {text: "ThreadLocal学习", link: "/ThreadLocal"},
-                            {text: "volatile学习", link: "/volatile"},
-                            {text: "synchronized学习", link: "/synchronized"},
-                            {text: "CAS学习", link: "/CAS"},
-                            {text: "AQS从原理到实战", link: "/AQS-theory"},
-                            {text: "ReentrantLock学习", link: "/ReentrantLock"},
-                            {text: "JUC常用工具学习", link: "/JUC"},
+                            {text: "sleep 和 wait的区别", link: "/difference-between-sleep-and-wait"},
+                            {text: "yield 学习", link: "/yield"},
+                            {text: "ThreadLocal 学习", link: "/ThreadLocal"},
+                            {text: "volatile 学习", link: "/volatile"},
+                            {text: "synchronized 学习", link: "/synchronized"},
+                            {text: "CAS 学习", link: "/CAS"},
+                            {text: "AQS 从原理到实战", link: "/AQS-theory"},
+                            {text: "ReentrantLock 学习", link: "/ReentrantLock"},
+                            {text: "JUC 常用工具学习", link: "/JUC"},
                             {text: "线程池学习", link: "/ThreadPoolExecutor"},
                             {text: "Future 专题", link: "/Future-topic"},
                             {text: "任务是否在线程池中执行", link: "/is-thread-executed-in-executor"}
@@ -140,11 +140,11 @@ export default defineConfig({
                             {text: "Spring Boot 阶段二: 起步依赖与内嵌容器", link: "/springboot-02-starter-container"},
                             {text: "Spring Boot 阶段三: 配置加载与环境抽象", link: "/springboot-03-config-env"},
                             {text: "Spring Boot 阶段四: Actuator 与监控", link: "/springboot-04-actuator.md"},
-                            {text: "SpringBoot核心组件", link: "/SpringBoot-core-component"},
-                            {text: "Controller就该这么写", link: "/pretty-controller"},
-                            {text: "过滤器和拦截器", link: "/filter-and-interceptor"},
-                            {text: "Spring线程池", link: "/Spring-thread-pool"},
-                            {text: "Spring定时任务", link: "/Spring-schedule"},
+                            {text: "SpringBoot 核心组件", link: "/SpringBoot-core-component"},
+                            {text: "Controller 就该这么写", link: "/pretty-controller"},
+                            {text: "Spring 过滤器和拦截器", link: "/filter-and-interceptor"},
+                            {text: "Spring 线程池", link: "/Spring-thread-pool"},
+                            {text: "Spring 定时任务", link: "/Spring-schedule"},
                             {text: "基于 Nacos 实现 SpringBoot 动态定时任务调度", link: "/dynamic-schedule"},
                             {text: "SpringBoot 开发中的一些问题总结", link: "/SpringBoot-develop"}
                         ],
@@ -158,17 +158,17 @@ export default defineConfig({
                             {text: "SpringSecurity 之 WebSecurity 和 HttpSecurity 的区别", link: "/WebSecurity-and-HttpSecurity"}
                         ]
                     },
-                    {
-                        text: "MyBatis框架",
-                        collapsed: true,
-                        base: "/writings/MyBatis",
-                        items: [
-                            {text: "MyBatis入门", link: "/MyBatis-start"},
-                            {text: "MyBatis获取参数", link: "/MyBatis-get-param"},
-                            {text: "MyBatis缓存", link: "/MyBatis-cache"},
-                            {text: "MyBatis-Plus入门", link: "/MyBatis-Plus-start"}
-                        ],
-                    },
+                    // {
+                    //     text: "MyBatis框架",
+                    //     collapsed: true,
+                    //     base: "/writings/MyBatis",
+                    //     items: [
+                    //         {text: "MyBatis入门", link: "/MyBatis-start"},
+                    //         {text: "MyBatis获取参数", link: "/MyBatis-get-param"},
+                    //         {text: "MyBatis缓存", link: "/MyBatis-cache"},
+                    //         {text: "MyBatis-Plus入门", link: "/MyBatis-Plus-start"}
+                    //     ],
+                    // },
                     {
                         text: "MySQL",
                         collapsed: true,
@@ -190,7 +190,9 @@ export default defineConfig({
                         items: [
                             {text: "Redis 数据结构", link: "/Redis-data-structure"},
                             {text: "Redis 核心原理", link: "/Redis-core-principle"},
-                            {text: "Redis 持久化", link: "/Redis-persistence"}
+                            {text: "Redis 持久化", link: "/Redis-persistence"},
+                            {text: "Redis 高可用", link: "/Redis-high-availability"},
+                            {text: "Redis 缓存实战", link: "/Redis-cache-practice"}
                         ],
                     },
                     {
@@ -198,11 +200,11 @@ export default defineConfig({
                         collapsed: true,
                         base: "/writings/RocketMQ",
                         items: [
-                            {text: "RocketMQ入门", link: "/RocketMQ-start"},
+                            {text: "RocketMQ 入门", link: "/RocketMQ-start"},
                             {text: "RocketMQ 操作落地 (rocketmq-client 方式)", link: "/RocketMQ-operation-client"},
                             {text: "RocketMQ 操作落地 (rocketmq-starter 方式)", link: "/RocketMQ-operation-starter"},
-                            {text: "RocketMQ理论(1)", link: "/RocketMQ-theory-1"},
-                            {text: "RocketMQ理论(2)", link: "/RocketMQ-theory-2"},
+                            {text: "RocketMQ 理论(1)", link: "/RocketMQ-theory-1"},
+                            {text: "RocketMQ 理论(2)", link: "/RocketMQ-theory-2"},
                             {text: "RocketMQ Broker配置", link: "/RocketMQ-broker-config"}
                         ],
                     },
