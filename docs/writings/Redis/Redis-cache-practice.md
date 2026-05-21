@@ -313,15 +313,15 @@ redis.setex(key, ttl, value);
 ### 5.2 为什么先更新数据库再删除缓存？
 
 ```mermaid
-flowchart TB
-    subgraph 先删缓存后更新DB（有问题）
+flowchart LR
+    subgraph 先删缓存后更新DB 有问题 
         A1[线程A 删除缓存] --> A2[线程B 读缓存miss] --> A3[线程B 查DB旧值] --> A4[线程B 写缓存旧值]
         A1 -.-> A5[线程A 更新DB新值]
         A4 --> A6[缓存是旧值!不一致]
         A5 -.-> A6
     end
 
-    subgraph 先更新DB后删缓存（推荐）
+    subgraph 先更新DB后删缓存 推荐 
         B1[线程A 更新DB新值] --> B2[线程A 删除缓存]
         B1 -.-> B3[线程B 读缓存miss]
         B3 -.-> B4[线程B 查DB（可能是旧值）]
