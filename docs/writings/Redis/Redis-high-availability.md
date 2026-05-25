@@ -155,15 +155,13 @@ repl_backlog（环形缓冲区，默认 1MB）
 ```
 
 **repl_backlog 大小配置**：
-```redis
+```
 # 默认 1MB，建议按公式计算
 repl-backlog-size 10mb
 
 # 计算公式: 主节点每秒写入量 * 断线重连最大时间
 # 例如: 1MB/s * 60s = 60MB
 ```
-
-源码路径：`replication.c:replicationFeedSlaves()` — 将写命令追加到 repl_backlog
 
 ### 2.3 心跳检测
 
@@ -174,8 +172,6 @@ repl-backlog-size 10mb
 | PING | 主→从 | 每 10 秒（可配） | 检测从节点是否存活 |
 | REPLCONF ACK | 从→主 | 每 1 秒 | 上报从节点的 offset，用于判断增量复制可行性 |
 | CMD | 主→从 | 实时 | 传播写命令 |
-
-源码路径：`replication.c:replicationCron()` — 心跳定时器
 
 ---
 
@@ -285,9 +281,9 @@ Leader 哨兵当选后，执行以下完整流程：
 ```mermaid
 flowchart LR
     subgraph 故障转移
-        F1[1. 选主<br/>从节点中选出新主] --> F2[2. 晋升<br/>SLAVEOF NO ONE]
-        F2 --> F3[3. 重新配置<br/>其他从节点指向新主]
-        F3 --> F4[4. 更新配置<br/>广播新主地址]
+        F1[1.选主:从节点中选出新主] --> F2[2.晋升:SLAVEOF NO ONE]
+        F2 --> F3[3.重新配置:其他从节点指向新主]
+        F3 --> F4[4.更新配置:广播新主地址]
     end
 
     F1 --- |选主规则| R[优先级 > offset > run_id]
@@ -509,9 +505,9 @@ JedisCluster 和 Lettuce 都是 Smart Client，内部维护 slot → node 的映
 ```mermaid
 flowchart LR
     subgraph 迁移过程
-        S1[1. 源节点设为 IMPORTING 状态<br/>目标节点设为 MIGRATING 状态]
-        S2[2. 源节点遍历 slot 中的 key<br/>逐个 MIGRATE 到目标节点]
-        S3[3. 迁移完成后<br/>广播更新槽映射]
+        S1[1.源节点设为 IMPORTING 状态<br/>目标节点设为 MIGRATING 状态]
+        S2[2.源节点遍历 slot 中的 key<br/>逐个 MIGRATE 到目标节点]
+        S3[3.迁移完成后<br/>广播更新槽映射]
     end
 
     S1 --> S2 --> S3
