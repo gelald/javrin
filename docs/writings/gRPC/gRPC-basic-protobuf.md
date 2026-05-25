@@ -401,8 +401,10 @@ flowchart LR
 ```protobuf
 syntax = "proto3";
 
+// ProtoBuf 层面的命名空间，影响生成的所有语言的代码。用于防止 .proto 文件之间的消息类型名冲突。
 package helloworld;
 option java_multiple_files = true;
+// 仅影响 Java 代码生成，决定生成的 Java 类的完整包名。如果未指定，则回退到 package 的值。
 option java_package = "com.example.grpc.helloworld";
 
 message HelloRequest {
