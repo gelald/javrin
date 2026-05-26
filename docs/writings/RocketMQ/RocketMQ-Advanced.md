@@ -1,16 +1,9 @@
 ---
 title: RocketMQ 进阶
 icon: article
-category:
-
-- 干货
-- 消息队列
-
+category: 消息队列
 tag:
-
-- 进阶
-- RocketMQ
-
+  - RocketMQ
 ---
 
 # RocketMQ 进阶
