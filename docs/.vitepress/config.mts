@@ -214,7 +214,8 @@ export default defineConfig({
                         base: "/writings/gRPC",
                         items: [
                             {text: "gRPC 基础与 Protobuf", link: "/gRPC-basic-protobuf"},
-                            {text: "gRPC 通信模式与 Spring Boot 整合", link: "/gRPC-patterns-spring"}
+                            {text: "gRPC 通信模式与 Spring Boot 整合", link: "/gRPC-patterns-spring"},
+                            {text: "gRPC 生产实践与高级特性", link: "/gRPC-production"}
                         ]
                     },
                     {
