@@ -86,7 +86,7 @@ Redis 4.0 引入的方案。AOF 重写时先用 **RDB 格式**写入全量数据
 
 **标准回答（模板式）：**
 
-```redis
+```
 # 开启 AOF + 混合持久化
 appendonly yes
 appendfsync everysec

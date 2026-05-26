@@ -324,7 +324,7 @@ Copy-On-Write（写时复制）；修改/写入数据
 
 **推荐方案：混合持久化（RDB + AOF）**
 
-```redis
+```
 # 开启 AOF
 appendonly yes
 

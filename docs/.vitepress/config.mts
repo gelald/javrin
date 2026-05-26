@@ -253,8 +253,7 @@ export default defineConfig({
                         base: "/writings/project-tools",
                         items: [
                             {text: "Maven", link: "/Maven"},
-                            {text: "Git", link: "/Git"},
-                            {text: "UML", link: "/UML"}
+                            {text: "Git", link: "/Git"}
                         ],
                     },
                     {
