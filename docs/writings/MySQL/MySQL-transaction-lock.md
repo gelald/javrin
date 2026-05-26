@@ -8,11 +8,11 @@ tag:
   - 锁
 ---
 
+# MySQL 事务与锁解析
+
 > 练习: [MySQL 事务与锁练习](./MySQL-transaction-lock-exercises.md)
 >
 > 面试: [MySQL 事务与锁面试](./MySQL-transaction-lock-interview.md)
-
-# MySQL 事务与锁解析
 
 ## 一、事务基础与 ACID
 

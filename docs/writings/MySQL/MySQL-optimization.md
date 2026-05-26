@@ -9,11 +9,11 @@ tag:
   - 索引
 ---
 
+# MySQL 优化篇
+
 > 练习: [MySQL 优化篇练习](./MySQL-optimization-exercises.md)
 >
 > 面试: [MySQL 优化篇面试](./MySQL-optimization-interview.md)
-
-# MySQL 优化篇
 
 ## 一、EXPLAIN 查看 SQL 执行计划
 
