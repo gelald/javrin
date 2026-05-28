@@ -205,6 +205,7 @@ export default defineConfig({
                             {text: "RocketMQ 操作落地 (rocketmq-starter 方式)", link: "/RocketMQ-operation-starter"},
                             {text: "RocketMQ 理论(1)", link: "/RocketMQ-theory-1"},
                             {text: "RocketMQ 理论(2)", link: "/RocketMQ-theory-2"},
+                            {text: "RocketMQ 进阶", link: "/RocketMQ-Advanced"},
                             {text: "RocketMQ Broker配置", link: "/RocketMQ-broker-config"}
                         ],
                     },
@@ -251,8 +252,7 @@ export default defineConfig({
                         base: "/writings/project-tools",
                         items: [
                             {text: "Maven", link: "/Maven"},
-                            {text: "Git", link: "/Git"},
-                            {text: "UML", link: "/UML"}
+                            {text: "Git", link: "/Git"}
                         ],
                     },
                     {
