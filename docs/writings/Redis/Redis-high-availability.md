@@ -302,13 +302,13 @@ flowchart LR
 | 3 | `run_id`（字典序最小） | 如果以上都一样，选 run_id 最小的（确定性选择） |
 
 **Step 2 — 晋升**：
-```redis
+```
 # Leader 哨兵对选中从节点执行
 SLAVEOF NO ONE   # 从节点变为主节点
 ```
 
 **Step 3 — 重新配置**：
-```redis
+```
 # Leader 哨兵让其他从节点复制新主
 SLAVEOF <new-master-ip> <new-master-port>
 ```
@@ -322,7 +322,7 @@ SLAVEOF <new-master-ip> <new-master-port>
 
 ### 3.6 哨兵配置要点
 
-```redis
+```
 # 哨兵核心配置
 sentinel monitor mymaster 127.0.0.1 6379 2    # 监控主节点，quorum=2
 sentinel down-after-milliseconds mymaster 30000 # SDOWN 判定时间 30s
@@ -408,7 +408,7 @@ flowchart LR
 ```
 
 **Hash Tag 机制**：
-```redis
+```
 # 花括号 {} 内的内容参与 hash 计算
 SET {user:1001}.profile "Tom"
 SET {user:1001}.orders "..."

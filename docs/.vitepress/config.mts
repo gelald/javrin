@@ -219,14 +219,12 @@ export default defineConfig({
                         ]
                     },
                     {
-                        text: "分布式相关",
+                        text: "分布式事务",
                         collapsed: true,
-                        base: "/writings/distributed",
+                        base: "/writings/distributed-tx",
                         items: [
-                            {text: "CAP理论", link: "/CAP-theory"},
-                            {text: "分布式锁", link: "/distributed-lock"},
-                            {text: "Zookeeper分布式锁", link: "/distributed-lock-zookeeper"},
-                            {text: "分布式事务", link: "/distributed-transaction"}
+                            {text: "理论基础与强一致性方案", link: "/distributed-tx-theory"},
+                            {text: "最终一致性方案与框架选型", link: "/distributed-tx-patterns"}
                         ],
                     },
                     {
