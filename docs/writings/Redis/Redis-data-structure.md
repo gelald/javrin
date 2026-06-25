@@ -361,7 +361,7 @@ return level;
 
 ### 4.3 查找过程（重点）
 
-![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/SkipList-search-2024-06-06-1058.png)
+![](https://wingbun-notes-image.oss-cn-guangzhou.aliyuncs.com/images/skiplist-search-2024-06-06-1058.png)
 
 以查找 score=40 的节点为例：
 
