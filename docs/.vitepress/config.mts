@@ -44,6 +44,7 @@ export default defineConfig({
                             {text: "数据类型和运算符", link: "/data-and-operation"},
                             {text: "对象和面向对象", link: "/object-oriented"},
                             {text: "接口和抽象类", link: "/interface-and-abstract"},
+                            {text: "注解", link: "/annotation"},
                             {text: "String", link: "/String"},
                             {text: "Object", link: "/Object"},
                             {text: "反射", link: "/reflection"},
