@@ -337,14 +337,16 @@ typedef struct zSkipList {
 
 伪代码：
 
+```
 int randomLevel() {
-int level = 1; // 第1层，每个节点必定有
-while (random() % 2 == 0) { // 每次生成一个随机数
-level++; // 如果是偶数（50%概率），层数+1
-if (level == 32) break; // 最多32层
+    int level = 1;                  // 第1层，每个节点必定有
+    while (random() % 2 == 0) {     // 每次生成一个随机数
+        level++;                    // 如果是偶数（50%概率），层数+1
+        if (level == 32) break;     // 最多32层
+    }
+    return level;
 }
-return level;
-}
+```
 
 ```
 层级生成规则（概率）：
