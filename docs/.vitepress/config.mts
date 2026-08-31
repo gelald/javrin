@@ -230,6 +230,14 @@ export default defineConfig({
                         ],
                     },
                     {
+                        text: "分布式",
+                        collapsed: true,
+                        base: "/writings/distributed",
+                        items: [
+                            {text: "优雅启停", link: "/gracefully-start-and-stop"}
+                        ]
+                    },
+                    {
                         text: "系统监控",
                         collapsed: true,
                         base: "/writings/System-Monitoring",
@@ -301,6 +309,7 @@ export default defineConfig({
     markdown: {
         breaks: true,
         config: (md) => {
+            // @ts-ignore
             vitepressMermaidPreview(md, {
                 showToolbar: true, // 全局设置：是否默认显示工具栏
             });
